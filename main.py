@@ -74,6 +74,7 @@ def scan():
             else:
                 port = 5555
 
+            adb_con = adb.ADB(device_name=f"127.0.0.1:{port}")
             print(f"已选择设备: {device_now}")
             break
 
@@ -84,7 +85,18 @@ def load():
     pass
 
 def run():
-    pass
+    global adb_con
+    adb_con: adb.ADB
+
+    ...  # 脚本编写处
+
+def _verify_device():
+    global adb_con
+    if not adb_con:
+        print("请先扫描并选择设备")
+        return False
+    else:
+        return True
 
 
 if __name__ == '__main__':
@@ -104,10 +116,16 @@ if __name__ == '__main__':
         elif mode == 2:
             scan()
         elif mode == 3:
+            if not _verify_device():
+                break
             screenshot()
         elif mode == 4:
+            if not _verify_device():
+                break
             load()
         elif mode == 5:
+            if not _verify_device():
+                break
             run()
         elif mode == 6:
             sys.exit(0)
