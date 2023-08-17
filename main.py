@@ -1,13 +1,14 @@
 import sys, os, time, json
 from loguru import logger
 from pathlib import Path
+from typing import Optional
 
 from utils import adb
 
 __version__ = "0.0.1"
 
 device_now = ""
-adb_con = None  # adb类变量
+adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
 
@@ -81,7 +82,6 @@ def scan():
 
 def screenshot():
     global adb_con
-    adb_con: adb.ADB
 
 def load():
     pass
@@ -93,7 +93,6 @@ def run():
         adb_con.click(63, 71)
 
     global adb_con
-    adb_con: adb.ADB
     name = input("请输入你想要的昵称(禁止非法字符): ")
 
     path = Path("./data/16_9/")
