@@ -1,4 +1,4 @@
-![img](https://socialify.git.ci/ACGN-Alliance/BlueArchive-Starter/image?description=1&font=Jost&forks=1&issues=1&language=1&logo=https%3A%2F%2Fcdnimg.gamekee.com%2Fimages%2Fwww%2F1596521281115_38919084.png&name=1&owner=1&pattern=Floating%20Cogs&pulls=1&stargazers=1&theme=Light)
+![img](https://socialify.git.ci/ACGN-Alliance/BlueArchive-Starter-cli/image?description=1&font=Jost&forks=1&issues=1&language=1&logo=https%3A%2F%2Fcdnimg.gamekee.com%2Fimages%2Fwww%2F1596521281115_38919084.png&name=1&owner=1&pattern=Floating%20Cogs&pulls=1&stargazers=1&theme=Light)
 
 # BlueArchive-Starter-cli
 碧蓝档案初始号工具CLI版本(原[BlueArchive-Starter](https://github.com/ACGN-Alliance/BlueArchive-Starter)项目)
@@ -21,7 +21,7 @@
 1. 进入[Android SDK Platform-Tools](https://developer.android.google.cn/studio/releases/platform-tools?hl=zh-cn)下载对应于自己系统的最新版 platform 工具  
 > 提供的软件中不包含 platform-tools
 
-2. 将下载好的压缩包解压, 将名为 `platform-tools` 的文件夹当中的`adb`文件放入下载好的 `ba-starter` 可执行文件同级目录下
+2. 将下载好的压缩包解压, 将名为 `platform-tools` 的文件夹放入下载好的 `ba-starter` 可执行文件同级目录下
 
 3. 打开命令行(Windows: 按住Win+R键, 输入`cmd`然后回车, linux不用我教了吧), 切换到`ba-starter`可执行文件目录下, 执行程序
 
@@ -50,6 +50,9 @@
 - [ ] 断点续运&异常中断
 - [ ] 多种设备支持
 - [ ] adb可执行文件扫描
+
+## 感谢
+[well404](https://github.com/Well2333) 帮助编写部分核心代码
 
 ## 参与开发
 你可以通过 fork 本仓库并提出 [pr](https://github.com/ACGN-Alliance/BlueArchive-Starter/pulls) 来贡献代码, 另外如果你觉得你有能力的话欢迎加入我们的组织 [ACGN-Alliance](https://github.com/ACGN-Alliance), 随时欢迎加入(摸鱼也行的啦)

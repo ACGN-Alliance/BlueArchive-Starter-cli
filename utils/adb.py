@@ -28,9 +28,9 @@ class ADB:
         self.delay = delay
         # self.adb_path = adb_path or self._find_adb()
         if os.name == "nt":
-            self.adb_path = "adb.exe"
+            self.adb_path = "./platform-tools/adb.exe"
         else:
-            self.adb_path = "./adb"
+            self.adb_path = "./platform-tools/adb"
         print(
             subprocess.run(
                 [self.adb_path, "connect", device_name],
@@ -131,6 +131,7 @@ class ADB:
         y1: float,
         x2: float,
         y2: float,
+        save_path: str = "",
     ) -> Image.Image:
         """
         截取并保存设备上的一个特定区域的屏幕截图。
@@ -145,6 +146,9 @@ class ADB:
             real_x1, real_y1 = self._normalized_to_real_coordinates(x1, y1)
             real_x2, real_y2 = self._normalized_to_real_coordinates(x2, y2)
             region = img.crop((real_x1, real_y1, real_x2, real_y2))
+
+        if save_path:
+            region.save(save_path)
 
         os.remove(full_screenshot_path)
         return region
@@ -196,12 +200,11 @@ class ADB:
 
             white_count = 0
             for color in colors:
-                if color[1] == (0, 0, 0):
+                if sum(color[1]) < 10 / confidence:  # type: ignore
                     white_count += color[0]
-                    break
 
             now_confidence = white_count / all_count
-            logger.debug(f"matching rate {now_confidence}")
+            logger.debug(f"matching rate {now_confidence:.2f}")
 
             return now_confidence > confidence
         except Exception as e:
