@@ -15,7 +15,7 @@ class ADB:
     """
 
     def __init__(
-        self, adb_path: str = "", device_name: str = "", delay: int | float = 1
+        self, adb_path: str = "", device_name: str = "", delay: int | float = 1, scan_mode: bool = False
     ):
         """
         初始化针对特定Android设备的ADB接口。
@@ -31,14 +31,16 @@ class ADB:
             self.adb_path = "./platform-tools/adb.exe"
         else:
             self.adb_path = "./platform-tools/adb"
-        print(
-            subprocess.run(
-                [self.adb_path, "connect", device_name],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-        )
-        self.screen_width, self.screen_height = self._get_screen_resolution()
+        # print(
+        #     subprocess.run(
+        #         [self.adb_path, "connect", device_name],
+        #         stdout=subprocess.PIPE,
+        #         stderr=subprocess.PIPE,
+        #     )
+        # )
+
+        if not scan_mode:
+            self.screen_width, self.screen_height = self._get_screen_resolution()
 
     def _run_command(self, cmd: list[str]) -> str:
         """执行一个ADB命令。"""

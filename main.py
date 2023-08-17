@@ -42,7 +42,7 @@ def scan():
 
     while True:
         global adb_con, all_device_lst, device_now, port
-        adb_con = adb.ADB()
+        adb_con = adb.ADB(scan_mode=True)
         device_lst = adb_con.get_device_list()
 
         print("1. 返回主菜单")
