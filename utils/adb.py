@@ -1,9 +1,11 @@
 import subprocess, os
+import warnings
 from pathlib import Path
 from io import BytesIO
 from PIL import Image, ImageChops
 from loguru import logger
 import time
+
 
 class ADB:
     """
@@ -15,7 +17,7 @@ class ADB:
     """
 
     def __init__(
-        self, adb_path: str = "", device_name: str = "", delay: int | float = 1, scan_mode: bool = False
+            self, adb_path: str = "", device_name: str = "", delay: int | float = 1, scan_mode: bool = False
     ):
         """
         初始化针对特定Android设备的ADB接口。
@@ -31,13 +33,13 @@ class ADB:
             self.adb_path = "./platform-tools/adb.exe"
         else:
             self.adb_path = "./platform-tools/adb"
-        # print(
-        #     subprocess.run(
-        #         [self.adb_path, "connect", device_name],
-        #         stdout=subprocess.PIPE,
-        #         stderr=subprocess.PIPE,
-        #     )
-        # )
+        print(
+            subprocess.run(
+                [self.adb_path, "connect", device_name],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        )
 
         if not scan_mode:
             self.screen_width, self.screen_height = self._get_screen_resolution()
@@ -121,19 +123,19 @@ class ADB:
         devices = []
         out = self._run_command(["devices", "-l"])
         for line in out.splitlines():
-            line = line.encode('utf-8')
+            # line = line.encode('utf-8')
             if line.find("product") != -1:
                 devices.append(line)
 
         return devices
 
     def screenshot_region(
-        self,
-        x1: float,
-        y1: float,
-        x2: float,
-        y2: float,
-        save_path: str = "",
+            self,
+            x1: float,
+            y1: float,
+            x2: float,
+            y2: float,
+            save_path: str = "",
     ) -> Image.Image:
         """
         截取并保存设备上的一个特定区域的屏幕截图。
@@ -156,13 +158,13 @@ class ADB:
         return region
 
     def compare_img(
-        self,
-        x1: float,
-        y1: float,
-        x2: float,
-        y2: float,
-        img: str | Path | BytesIO,
-        confidence: float = 0.9,
+            self,
+            x1: float,
+            y1: float,
+            x2: float,
+            y2: float,
+            img: str | Path | BytesIO,
+            confidence: float = 0.5,
     ) -> bool:
         """
         比较截图区域与指定图片的相似度。
@@ -182,7 +184,7 @@ class ADB:
 
             # 确保两个图像的尺寸一致
             if im.size[0] / im.size[1] != im_s.size[0] / im_s.size[1]:
-                raise ValueError(
+                logger.warning(
                     "The aspect ratios of the two images are not the same!"
                 )
 
@@ -212,4 +214,3 @@ class ADB:
         except Exception as e:
             logger.error(f"图片对比失败 {type(e)} {e}")
             return False
-

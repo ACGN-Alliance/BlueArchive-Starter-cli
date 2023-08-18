@@ -12,12 +12,14 @@ adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
 
+
 def _if_adb_exists():
     # TODO 检测环境变量 + 子目录
     if os.path.exists("./platform-tools/adb.exe") or os.path.exists("./platform-tools/adb"):
         return True
     else:
         return False
+
 
 def menu():
     print("\n" * 3)
@@ -33,8 +35,10 @@ def menu():
     print("5. 运行脚本")
     print("6. 退出")
 
+
 def notice():
     pass
+
 
 def scan():
     if not _if_adb_exists():
@@ -48,8 +52,8 @@ def scan():
         print("1. 返回主菜单")
         print("2. 重新扫描")
         for i, device in enumerate(device_lst):
-            print(f"{i+3}. {device}")
-            all_device_lst[i+3] = device.split(" ")[0]
+            print(f"{i + 3}. {device}")
+            all_device_lst[i + 3] = device.split(" ")[0]
 
         if len(device_lst) == 0:
             print("\n未扫描到设备, 请尝试重新扫描")
@@ -76,15 +80,19 @@ def scan():
             else:
                 port = 5555
 
-            adb_con = adb.ADB(device_name=f"127.0.0.1:{port}")
+            # TODO
+            adb_con = adb.ADB(device_name=f"127.0.0.1:{port + 1}")
             print(f"已选择设备: {device_now}")
             break
+
 
 def screenshot():
     global adb_con
 
+
 def load():
     pass
+
 
 def run():
     def skip_story():
@@ -99,7 +107,7 @@ def run():
     mapping = json.load(open(path.joinpath("mapping.json"), "r", encoding="utf-8"))
 
     while not adb_con.compare_img(
-        *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+            *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
     ):
         adb_con.back()
 
@@ -119,6 +127,7 @@ def run():
     ):
         adb_con.sleep(1)
     logger.info("已进入开始界面")
+
     adb_con.multi_click(50, 70, 4)
     while not adb_con.compare_img(
             *mapping["start_name.png"], img=path.joinpath("start_name.png")
@@ -140,7 +149,7 @@ def run():
     logger.info("跳过介绍")
     adb_con.multi_click(50, 70, 25)
     while not adb_con.compare_img(
-        *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
+            *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
     ):
         logger.info("尝试使用技能")
         for _ in range(2):
@@ -290,6 +299,7 @@ def run():
     ):
         for _ in range(3):
             adb_con.back()
+
 
 def _verify_device():
     global adb_con
