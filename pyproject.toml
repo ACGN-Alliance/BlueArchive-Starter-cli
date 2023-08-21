@@ -9,6 +9,7 @@ authors = [
 dependencies = [
     "loguru>=0.7.0",
     "pillow>=10.0.0",
+    "nuitka>=1.7.10",
 ]
 requires-python = ">=3.8"
 license = {text = "MIT"}
