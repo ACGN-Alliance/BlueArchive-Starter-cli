@@ -1,15 +1,40 @@
 import pathlib
 from typing import Any
 from loguru import logger
+import json
 
 from utils import adb
+
+def checkpoint(
+        position: int,
+        load_point: int,
+        *args,
+        alias: str = ""
+) -> bool:
+    """
+    检查点
+
+    :param position: 当前位置
+    :param load_point: 检查点位置
+    :param alias: 检查点别名
+    :return: 是否到达检查点
+    """
+    if load_point == 0:
+        return False
+    if position == load_point:
+        return True
+
+    with open("save.json", "w", encoding="utf-8") as f:
+        json.dump({"load_point": position}, f)
+
+    logger.info(f"到达检查点 {position}.{alias}")
 
 def script(
         adb_con: adb.ADB,
         path: pathlib.Path,
         mapping: Any,
         *args,
-        load_point = 0
+        load_point: int = 0
 ):
     """
     执行脚本
@@ -40,7 +65,8 @@ def script(
     adb_con.click(58, 67)
     adb_con.multi_click(55, 70, 5)
 
-    logger.success("1. 创建账号")
+    checkpoint(1, load_point, alias="创建新账号")
+    # logger.success("1. 创建账号")
     while not adb_con.compare_img(
             *mapping["start_menu_icon.png"], img=path.joinpath("start_menu_icon.png")
     ):
@@ -58,13 +84,16 @@ def script(
     adb_con.input_text(name)
     adb_con.multi_click(50, 70, 40)
 
-    logger.success("2. 初始剧情")
+    checkpoint(2, load_point, alias="初始剧情")
+    # logger.success("2. 初始剧情")
     while not adb_con.compare_img(
             *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
     ):
         adb_con.click(50, 50)
     skip_story()
-    logger.success("3. 战斗1")
+
+    checkpoint(3, load_point, alias="战斗-1")
+    # logger.success("3. 战斗1")
     logger.info("跳过介绍")
     adb_con.multi_click(50, 70, 25)
     while not adb_con.compare_img(
@@ -78,14 +107,18 @@ def script(
             adb_con.click(43, 52)
     logger.info("战斗结束")
     adb_con.click(90, 90)
-    logger.success("4. 两段剧情")
+
+    checkpoint(4, load_point, alias="剧情")
+    # logger.success("4. 两段剧情")
     for _ in range(2):
         while not adb_con.compare_img(
                 *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
         ):
             adb_con.click(50, 50)
         skip_story()
-    logger.success("5. 战斗2")
+
+    checkpoint(5, load_point, alias="战斗-2")
+    # logger.success("5. 战斗2")
     adb_con.multi_click(50, 50, 15)
     for i in range(4):
         while not adb_con.compare_img(
@@ -103,17 +136,20 @@ def script(
     ):
         adb_con.sleep(1)
     adb_con.click(90, 90)
-    logger.success("5. 两段剧情")
+
+    checkpoint(6, load_point, alias="剧情")
+    # logger.success("5. 两段剧情")
     while not adb_con.compare_img(
             *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
     ):
         adb_con.click(50, 50)
     for _ in range(4):
         skip_story()
-    logger.success("6. OP 动画")
+    logger.success("OP 动画")
     adb_con.multi_click(60, 70, 10)
 
-    logger.success("1. 开局抽卡")
+    checkpoint(7, load_point, alias="教学抽卡")
+    # logger.success("1. 开局抽卡")
     while not adb_con.compare_img(
             *mapping["main_recurit.png"], img=path.joinpath("main_recurit.png"), confidence=0.6
     ):
@@ -130,49 +166,60 @@ def script(
     adb_con.screenshot("1.png")
     adb_con.click(50, 90)
     adb_con.sleep(10)
-    logger.success("2. 开始作战")
+
+    checkpoint(8, load_point, alias="开始教学作战")
+    # logger.success("2. 开始作战")
     adb_con.multi_click(88, 35, 4)
     adb_con.multi_click(75, 75, 3)
     adb_con.multi_click(40, 65, 10)
-    logger.success("3. 开始编队")
+    logger.success("开始编队")
     adb_con.multi_click(95, 25, 5)
     adb_con.sleep(3)
     adb_con.multi_click(25, 50, 10)
-    logger.success("4. 开始道中作战")
+
+    checkpoint(9, load_point, alias="进入第一步作战")
+    # logger.success("道中作战")
     adb_con.multi_click(90, 80, 2)
     for _ in range(2):
         adb_con.multi_click(90, 90, 2)
         adb_con.sleep(5)
     adb_con.multi_click(50, 63, 5)
     adb_con.sleep(10)
-    logger.success("5. 开启auto")
+    logger.success("开启auto")
     adb_con.click(95, 95)
     while not adb_con.compare_img(
             *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
     ):
         adb_con.sleep(1)
-    logger.success("6. 完成作战")
+
+    logger.success("完成作战")
     adb_con.click(90, 90)
     adb_con.sleep(5)
     adb_con.click(50, 90)
     adb_con.sleep(5)
     adb_con.multi_click(90, 90, 5)
-    logger.success("7. 开始BOSS作战")
+
+    checkpoint(10, load_point, alias="开始BOSS作战")
+    # logger.success("开始BOSS作战")
     adb_con.multi_click(60, 55, 5)
     while not adb_con.compare_img(
             *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
     ):
         adb_con.sleep(1)
-    logger.success("8. 完成作战")
+    logger.success("完成作战")
     adb_con.multi_click(90, 90, 5)
     adb_con.multi_click(85, 90, 10)
-    logger.success("9. 返回大厅")
+
+    checkpoint(11, load_point, alias="返回大厅")
+    # logger.success("9. 返回大厅")
     adb_con.multi_click(40, 90, 20)
     while not adb_con.compare_img(
             *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
     ):
         adb_con.multi_click(40, 90, 5)
-    logger.success("10. MomoTalk & 收取邮件")
+
+    checkpoint(12, load_point, alias="MomoTalk & 收取邮件")
+    # logger.success("10. MomoTalk & 收取邮件")
     while not adb_con.compare_img(
             *mapping["no_mail.png"], img=path.joinpath("no_mail.png"), confidence=0.5
     ):
@@ -182,7 +229,9 @@ def script(
             adb_con.click(88, 5)
             adb_con.click(88, 5)
             adb_con.click(82.5, 94.44)
-    logger.success("11. 开始抽卡")
+
+    checkpoint(13, load_point, alias="开始自定义抽卡")
+    # logger.success("开始抽卡")
     while not adb_con.compare_img(
             *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
     ):
