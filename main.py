@@ -6,7 +6,7 @@ from typing import Optional
 from utils import adb
 from script import script
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
@@ -32,7 +32,7 @@ def menu():
     print("1. 注意事项(必读)")
     print("2. 扫描设备")
     print("3. 截图适配(TODO)")
-    print("4. 加载(TODO)")
+    print("4. 加载")
     print("5. 运行脚本")
     print("6. 退出")
 
@@ -103,10 +103,33 @@ def screenshot():
 
 
 def load():
-    pass
+    while True:
+        print("\n1.从文件加载(save.json)")
+        print("2.从输入加载")
+        print("3.返回主菜单")
+        load_mode = int(input("请选择加载模式: "))
+        if load_mode == 1:
+            try:
+                cot = json.load(open("save.json", "r", encoding="utf-8"))
+            except FileNotFoundError:
+                print("未找到save.json文件")
+                continue
+            return getattr(cot, "load_point", 0)
+        elif load_mode == 2:
+            point = input("请输入加载点(默认为0): ")
+            if isinstance(point, int):
+                return point
+            else:
+                print("加载点必须是数字, 详见文档")
+                continue
+        elif load_mode == 3:
+            return 0
+        else:
+            print("请输入正确的加载模式")
+            continue
 
 
-def run():
+def run(_load: int = 0):
     global adb_con
     path = Path("./data/16_9/")
     try:
@@ -118,7 +141,8 @@ def run():
     script(
         adb_con,
         path,
-        mapping
+        mapping,
+        load_point=_load
     )
 
 def _verify_device():
@@ -133,6 +157,9 @@ def _verify_device():
 if __name__ == '__main__':
     print(f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861")
     time.sleep(2)
+
+    load_point = 0
+
     while True:
         menu()
         mode = input("请选择模式: ")
@@ -148,16 +175,15 @@ if __name__ == '__main__':
             scan()
         elif mode == 3:
             if not _verify_device():
-                break
+                continue
+            print("该功能尚未开发, 敬请期待")
             screenshot()
         elif mode == 4:
-            if not _verify_device():
-                break
-            load()
+            load_point = load()
         elif mode == 5:
             if not _verify_device():
-                break
-            run()
+                continue
+            run(_load=load_point)
         elif mode == 6:
             print("感谢使用~")
             sys.exit(0)
