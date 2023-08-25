@@ -63,8 +63,8 @@ def scan():
         print("2. 重新扫描")
         for i, device in enumerate(device_lst):
             print(f"{i + 3}. {device}")
-            if "127.0.0.1" in device:  # 消除重复设备
-                continue
+            # if "127.0.0.1" in device:  # 消除重复设备
+            #     continue
             all_device_lst[i + 3] = device.split(" ")[0]
 
         if len(device_lst) == 0:
@@ -88,12 +88,14 @@ def scan():
                 continue
 
             if "emulator" in device_now:
-                port = int(device_now.split("-")[1])
+                port = int(device_now.split("-")[1]) + 1
+            elif "127.0.0.1" in device_now:
+                port = int(device_now.split(":")[1])
             else:
                 port = 5555
 
             # TODO
-            adb_con = adb.ADB(device_name=f"127.0.0.1:{port + 1}")
+            adb_con = adb.ADB(device_name=f"127.0.0.1:{port}")
             print(f"已选择设备: {device_now}")
             break
 
@@ -120,6 +122,7 @@ def run():
         path,
         mapping
     )
+
 
 def _verify_device():
     global adb_con
