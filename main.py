@@ -56,6 +56,7 @@ def scan():
 
     while True:
         global adb_con, all_device_lst, device_now, port
+        is_physic = False
         adb_con = adb.ADB(scan_mode=True)
         device_lst = adb_con.get_device_list()
 
@@ -92,10 +93,10 @@ def scan():
             elif "127.0.0.1" in device_now:
                 port = int(device_now.split(":")[1])
             else:
+                is_physic = True
                 port = 5555
 
-            # TODO
-            adb_con = adb.ADB(device_name=f"127.0.0.1:{port}")
+            adb_con = adb.ADB(device_name=f"127.0.0.1:{port}", is_physic_device=is_physic)
             print(f"已选择设备: {device_now}")
             break
 
