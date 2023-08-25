@@ -10,6 +10,8 @@ python -m nuitka --mingw64 --standalone \
     --file-version="1.0.0" \
     --product-version="1.0.0" \
     --file-description="BlueArchive Account tool" \
+    --include-data-dir=platform-tools=platform-tools\
+    --include-data-dir=data/16_9=data/16_9 \
     --remove-output \
     --onefile \
     main.py
