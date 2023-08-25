@@ -17,7 +17,12 @@ class ADB:
     """
 
     def __init__(
-            self, adb_path: str = "", device_name: str = "", delay: int | float = 1, scan_mode: bool = False
+            self,
+            adb_path: str = "",
+            device_name: str = "",
+            delay: int | float = 1,
+            scan_mode: bool = False,
+            is_physic_device: bool = False
     ):
         """
         初始化针对特定Android设备的ADB接口。
@@ -33,13 +38,13 @@ class ADB:
             self.adb_path = "./platform-tools/adb.exe"
         else:
             self.adb_path = "./platform-tools/adb"
-        print(
+
+        if not is_physic_device:
             subprocess.run(
                 [self.adb_path, "connect", device_name],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-        )
 
         if not scan_mode:
             self.screen_width, self.screen_height = self._get_screen_resolution()

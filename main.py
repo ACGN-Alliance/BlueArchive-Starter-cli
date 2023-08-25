@@ -6,7 +6,7 @@ from typing import Optional
 from utils import adb
 from script import script
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
@@ -56,6 +56,7 @@ def scan():
 
     while True:
         global adb_con, all_device_lst, device_now, port
+        is_physic = False
         adb_con = adb.ADB(scan_mode=True)
         device_lst = adb_con.get_device_list()
 
@@ -63,8 +64,6 @@ def scan():
         print("2. 重新扫描")
         for i, device in enumerate(device_lst):
             print(f"{i + 3}. {device}")
-            # if "127.0.0.1" in device:  # 消除重复设备
-            #     continue
             all_device_lst[i + 3] = device.split(" ")[0]
 
         if len(device_lst) == 0:
@@ -92,10 +91,10 @@ def scan():
             elif "127.0.0.1" in device_now:
                 port = int(device_now.split(":")[1])
             else:
+                is_physic = True
                 port = 5555
 
-            # TODO
-            adb_con = adb.ADB(device_name=f"127.0.0.1:{port}")
+            adb_con = adb.ADB(device_name=f"127.0.0.1:{port + 1}", is_physic_device=is_physic)
             print(f"已选择设备: {device_now}")
             break
 
