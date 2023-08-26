@@ -66,7 +66,7 @@ def on_device_selected(is_physic=False):
         is_physic = True
         port = 5555
 
-    adb_con = adb.ADB(device_name=f"127.0.0.1:{port}", is_physic_device=is_physic)
+    adb_con = adb.ADB(device_name=f"localhost:{port}", is_physic_device=is_physic)
     print(f"已选择设备: {device_now}")
 
 
@@ -145,7 +145,7 @@ def load():
             except FileNotFoundError:
                 print("未找到save.json文件")
                 continue
-            return getattr(cot, "load_point", 0)
+            return cot.get('load_point', 0)
         elif load_mode == 2:
             point = input("请输入加载点(默认为0): ")
             if isinstance(point, int):
