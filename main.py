@@ -1,10 +1,15 @@
-import sys, os, time, json
-from loguru import logger
+import json
+import os
+import subprocess
+import sys
+import time
 from pathlib import Path
 from typing import Optional
 
-from utils import adb
+from loguru import logger
+
 from script import script
+from utils import adb
 
 __version__ = "1.0.2"
 
@@ -23,6 +28,7 @@ def _if_adb_exists():
 
 
 def menu():
+    global device_now, port
     print("\n" * 1)
     if device_now:
         print("当前设备: " + device_now + "端口: " + str(port) + "\n")
@@ -50,6 +56,20 @@ def notice():
     input("按任意键以继续...")
 
 
+def on_device_selected(is_physic=False):
+    global adb_con, all_device_lst, device_now, port
+    if "emulator" in device_now:
+        port = int(device_now.split("-")[1]) + 1
+    elif "127.0.0.1" in device_now:
+        port = int(device_now.split(":")[1])
+    else:
+        is_physic = True
+        port = 5555
+
+    adb_con = adb.ADB(device_name=f"127.0.0.1:{port}", is_physic_device=is_physic)
+    print(f"已选择设备: {device_now}")
+
+
 def scan():
     if not _if_adb_exists():
         logger.error("未检测到adb可执行文件, 请将可执行文件放置于同目录下")
@@ -60,6 +80,7 @@ def scan():
         adb_con = adb.ADB(scan_mode=True)
         device_lst = adb_con.get_device_list()
 
+        print("0. 指定地址")
         print("1. 返回主菜单")
         print("2. 重新扫描")
         for i, device in enumerate(device_lst):
@@ -67,7 +88,7 @@ def scan():
             all_device_lst[i + 3] = device.split(" ")[0]
 
         if len(device_lst) == 0:
-            print("\n未扫描到设备, 请尝试重新扫描")
+            print("\n未扫描到设备, 请尝试重新扫描, 或手动指定地址")
 
         device_num = input("请选择设备: ")
         if device_num.isdigit():
@@ -75,6 +96,24 @@ def scan():
         else:
             print("请输入数字")
             continue
+
+        if device_num == 0:
+            if os.name == "nt":
+                adb_path = "./platform-tools/adb.exe"
+            else:
+                adb_path = "./platform-tools/adb"
+            rv = subprocess.run([adb_path, "connect", address := input("请输入设备地址: ")], stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+
+            # 包含两种状态:1. already connected to 2. connected to
+            if "connected to" in rv.stdout.decode("utf-8") or "connected to" in rv.stderr.decode("utf-8"):
+                device_now = address
+                on_device_selected(is_physic=is_physic)
+                print("连接成功:", address)
+                break
+            else:
+                print("连接失败:", rv.stdout.decode("utf-8"), rv.stderr.decode("utf-8"))
+                continue
 
         if device_num == 1:
             return
@@ -86,16 +125,7 @@ def scan():
                 print("请选择正确的设备")
                 continue
 
-            if "emulator" in device_now:
-                port = int(device_now.split("-")[1]) + 1
-            elif "127.0.0.1" in device_now:
-                port = int(device_now.split(":")[1])
-            else:
-                is_physic = True
-                port = 5555
-
-            adb_con = adb.ADB(device_name=f"127.0.0.1:{port}", is_physic_device=is_physic)
-            print(f"已选择设备: {device_now}")
+            on_device_selected(is_physic=is_physic)
             break
 
 
