@@ -94,7 +94,7 @@ def scan():
                 is_physic = True
                 port = 5555
 
-            adb_con = adb.ADB(device_name=f"127.0.0.1:{port + 1}", is_physic_device=is_physic)
+            adb_con = adb.ADB(device_name=f"127.0.0.1:{port}", is_physic_device=is_physic)
             print(f"已选择设备: {device_now}")
             break
 
