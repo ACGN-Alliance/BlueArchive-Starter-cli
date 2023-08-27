@@ -19,7 +19,7 @@ def checkpoint(
     :param alias: 检查点别名
     :return: Tuple[bool, bool]: 是否需要跳过
     """
-    if load_point != 0 and position != load_point:
+    if position != load_point:
         return True
 
     with open("save.json", "w", encoding="utf-8") as f:
@@ -52,20 +52,22 @@ def script(
 
     name = input("请输入你想要的昵称(禁止非法字符): ")
 
-    while not adb_con.compare_img(
-            *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
-    ):
-        adb_con.back()
+    if not checkpoint(0, load_point, alias="重置账号"):
+        while not adb_con.compare_img(
+                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+        ):
+            adb_con.back()
 
-    logger.info("已回到主菜单，开始销号")
-    adb_con.click(95, 4)
-    adb_con.click(60, 40)
-    adb_con.click(70, 50)
-    adb_con.click(55, 45)
-    adb_con.input_text("BlueArchive")
-    adb_con.click(58, 67)
-    adb_con.click(58, 67)
-    adb_con.multi_click(55, 70, 5)
+        logger.info("已回到主菜单，开始销号")
+        adb_con.click(95, 4)
+        adb_con.click(60, 40)
+        adb_con.click(70, 60)  # 重置账号
+        adb_con.click(55, 45)
+        adb_con.input_text("BlueArchive")
+        adb_con.click(58, 67)
+        adb_con.click(58, 67)
+        adb_con.multi_click(55, 70, 5)
+        load_point+=1
 
     if not checkpoint(1, load_point, alias="创建新账号"):
         # logger.success("1. 创建账号")
@@ -85,6 +87,7 @@ def script(
 
         adb_con.input_text(name)
         adb_con.multi_click(50, 70, 40)
+        load_point += 1
 
     if not checkpoint(2, load_point, alias="初始剧情"):
         # logger.success("2. 初始剧情")
@@ -93,6 +96,7 @@ def script(
         ):
             adb_con.click(50, 50)
         skip_story()
+        load_point += 1
 
     if not checkpoint(3, load_point, alias="战斗-1"):
         # logger.success("3. 战斗1")
@@ -109,6 +113,7 @@ def script(
                 adb_con.click(43, 52)
         logger.info("战斗结束")
         adb_con.click(90, 90)
+        load_point += 1
 
     if not checkpoint(4, load_point, alias="剧情"):
         # logger.success("4. 两段剧情")
@@ -118,6 +123,7 @@ def script(
             ):
                 adb_con.click(50, 50)
             skip_story()
+        load_point += 1
 
     if not checkpoint(5, load_point, alias="战斗-2"):
         # logger.success("5. 战斗2")
@@ -138,6 +144,7 @@ def script(
         ):
             adb_con.sleep(1)
         adb_con.click(90, 90)
+        load_point += 1
 
     if not checkpoint(6, load_point, alias="剧情"):
         # logger.success("5. 两段剧情")
@@ -149,6 +156,7 @@ def script(
             skip_story()
         logger.success("OP 动画")
         adb_con.multi_click(60, 70, 10)
+        load_point += 1
 
     if not checkpoint(7, load_point, alias="教学抽卡"):
         # logger.success("1. 开局抽卡")
@@ -168,6 +176,7 @@ def script(
         adb_con.screenshot("1.png")
         adb_con.click(50, 90)
         adb_con.sleep(10)
+        load_point += 1
 
     if not checkpoint(8, load_point, alias="开始教学作战"):
         # logger.success("2. 开始作战")
@@ -178,6 +187,7 @@ def script(
         adb_con.multi_click(95, 25, 5)
         adb_con.sleep(3)
         adb_con.multi_click(25, 50, 10)
+        load_point += 1
 
     if not checkpoint(9, load_point, alias="进入第一步作战"):
         # logger.success("道中作战")
@@ -200,6 +210,7 @@ def script(
         adb_con.click(50, 90)
         adb_con.sleep(5)
         adb_con.multi_click(90, 90, 5)
+        load_point += 1
 
     if not checkpoint(10, load_point, alias="开始BOSS作战"):
         # logger.success("开始BOSS作战")
@@ -211,6 +222,7 @@ def script(
         logger.success("完成作战")
         adb_con.multi_click(90, 90, 5)
         adb_con.multi_click(85, 90, 10)
+        load_point += 1
 
     if not checkpoint(11, load_point, alias="返回大厅"):
         # logger.success("9. 返回大厅")
@@ -219,6 +231,7 @@ def script(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
             adb_con.multi_click(40, 90, 5)
+        load_point += 1
 
     if not checkpoint(12, load_point, alias="MomoTalk & 收取邮件"):
         # logger.success("10. MomoTalk & 收取邮件")
@@ -231,8 +244,19 @@ def script(
                 adb_con.click(88, 5)
                 adb_con.click(88, 5)
                 adb_con.click(82.5, 94.44)
+        load_point += 1
 
-    if not checkpoint(13, load_point, alias="开始自定义抽卡"):
+    if not checkpoint(13, load_point, alias="绑定账号"):
+        adb_con.multi_click(50, 50, 10)
+        adb_con.click(95, 4)
+        adb_con.click(60, 40)
+        adb_con.multi_click(50, 50, 5)
+
+        adb_con.back()
+        adb_con.back()
+        load_point += 1
+
+    if not checkpoint(14, load_point, alias="开始自定义抽卡"):
         # logger.success("开始抽卡")
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
@@ -252,7 +276,7 @@ def script(
         adb_con.click(76, 72)
         adb_con.click(60, 70)
         adb_con.sleep(5)
-        for i in range(2):
+        for i in range(3):  # 40抽
             adb_con.multi_click(50, 75, 5)
             while not adb_con.compare_img(
                     *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
