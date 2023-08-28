@@ -213,7 +213,7 @@ class ADB:
                     white_count += color[0]
 
             now_confidence = white_count / all_count
-            logger.debug(f"matching rate {now_confidence:.2f}")
+            logger.debug(f"image \"{img.name}\" matching rate {now_confidence:.2f}")
 
             return now_confidence > confidence
         except Exception as e:

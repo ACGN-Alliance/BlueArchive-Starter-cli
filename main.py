@@ -51,7 +51,8 @@ def notice():
 - 语言请使用`English`
 - 游戏宽高比设置为`16:9`
 - 如果加入了社团请先退出, 否则会导致操作失败
-- 目前版本仅能抽取30抽, 40抽预计下个版本支持"""
+- 目前版本仅能抽取30抽, 40抽预计下个版本支持
+- 保持未绑定账号状态"""
     print(notice)
     input("按任意键以继续...")
 
@@ -60,7 +61,7 @@ def on_device_selected(is_physic=False):
     global adb_con, all_device_lst, device_now, port
     if "emulator" in device_now:
         port = int(device_now.split("-")[1]) + 1
-    elif "127.0.0.1" in device_now:
+    elif "127.0.0.1" in device_now or "localhost" in device_now:
         port = int(device_now.split(":")[1])
     else:
         is_physic = True
