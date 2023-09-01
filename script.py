@@ -59,8 +59,9 @@ def script(
             adb_con.back()
 
         logger.info("已回到主菜单，开始销号")
-        adb_con.click(95, 4)
-        adb_con.click(60, 40)
+        adb_con.click(95, 4)  # 菜单
+        adb_con.click(60, 40)  # 账号
+        adb_con.click(99, 4)  # 弹出网页关闭
         adb_con.click(70, 60)  # 重置账号
         adb_con.click(55, 45)
         adb_con.input_text("BlueArchive")
@@ -76,7 +77,7 @@ def script(
         ):
             adb_con.sleep(1)
         logger.info("已进入开始界面")
-
+        adb_con.click(99, 4)  # 弹出网页关闭
         adb_con.multi_click(50, 70, 4)
         while not adb_con.compare_img(
                 *mapping["start_name.png"], img=path.joinpath("start_name.png")
@@ -244,16 +245,21 @@ def script(
                 adb_con.click(88, 5)
                 adb_con.click(88, 5)
                 adb_con.click(82.5, 94.44)
+        adb_con.sleep(1)
+        adb_con.back()
         load_point += 1
 
     if not checkpoint(13, load_point, alias="绑定账号"):
         adb_con.multi_click(50, 50, 10)
-        adb_con.click(95, 4)
-        adb_con.click(60, 40)
+        adb_con.click(95, 4)  # 菜单
         adb_con.multi_click(50, 50, 5)
-
-        adb_con.back()
-        adb_con.back()
+        adb_con.click(60, 40)  # 账号
+        adb_con.click(99, 4)   # 弹出网页关闭
+        adb_con.multi_click(50, 50, 10)
+        while not adb_con.compare_img(
+                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+        ):
+            adb_con.back() # 返回主界面
         load_point += 1
 
     if not checkpoint(14, load_point, alias="开始自定义抽卡"):
@@ -268,10 +274,10 @@ def script(
         while not adb_con.compare_img(
                 *mapping["recurit_page.png"], img=path.joinpath("recurit_page.png")
         ):
-            logger.info("翻页")
-            adb_con.click(3, 55)
-        logger.debug("切换卡池")
-        adb_con.multi_click(3, 55, 2)
+            logger.info("翻页，常驻池")
+            adb_con.click(3, 55)  # 常驻池
+        # logger.debug("切换卡池")
+        # adb_con.multi_click(3, 55, 2)
         logger.info("开始抽卡")
         adb_con.click(76, 72)
         adb_con.click(60, 70)
