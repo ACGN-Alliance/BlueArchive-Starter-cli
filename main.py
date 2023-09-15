@@ -11,20 +11,12 @@ from loguru import logger
 from script import script
 from utils import adb
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
-
-
-def _if_adb_exists():
-    # TODO 检测环境变量 + 子目录
-    if os.path.exists("./platform-tools/adb.exe") or os.path.exists("./platform-tools/adb"):
-        return True
-    else:
-        return False
 
 
 def menu():
@@ -37,7 +29,7 @@ def menu():
 
     print("1. 注意事项(必读)")
     print("2. 扫描设备")
-    print("3. 截图适配(TODO)")
+    print("3. ADB 调试")
     print("4. 加载")
     print("5. 运行脚本")
     print("6. 退出")
@@ -72,9 +64,6 @@ def on_device_selected(is_physic=False):
 
 
 def scan():
-    if not _if_adb_exists():
-        logger.error("未检测到adb可执行文件, 请将可执行文件放置于同目录下")
-
     while True:
         global adb_con, all_device_lst, device_now, port
         is_physic = False
@@ -130,8 +119,16 @@ def scan():
             break
 
 
-def screenshot():
+def adb_test():
     global adb_con
+    while True:
+        cmd = input("ADB CMD> ")
+        if cmd == "exit":
+            break
+        elif cmd.startswith("adb "):
+            print("ADB OUTPUT> " + adb_con.command(cmd))
+        else:
+            print("ADB OUTPUT> 请输入正确的ADB命令, 输入exit以退出")
 
 
 def load():
@@ -209,8 +206,7 @@ if __name__ == '__main__':
         elif mode == 3:
             if not _verify_device():
                 continue
-            print("该功能尚未开发, 敬请期待")
-            screenshot()
+            adb_test()
         elif mode == 4:
             load_point = load()
         elif mode == 5:

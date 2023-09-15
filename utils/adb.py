@@ -61,6 +61,10 @@ class ADB:
         finally:
             time.sleep(self.delay)
 
+    def command(self, cmd: str) -> str:
+        args = cmd.removeprefix("adb ").split()
+        return self._run_command(args)
+
     def _get_screen_resolution(self) -> tuple[int, int]:
         """获取设备的屏幕分辨率."""
         result = self._run_command(["shell", "wm", "size"])
