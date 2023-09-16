@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 import time
+import signal
 from pathlib import Path
 from typing import Optional
 
@@ -18,6 +19,15 @@ adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
 
+# ctrl+c退出时关闭adb server
+def signal_handler(sig, frame):
+    global adb_con
+    if adb_con:
+        adb_con.kill_server()
+
+    sys.exit(-1)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 def menu():
     global device_now, port
@@ -29,7 +39,7 @@ def menu():
 
     print("1. 注意事项(必读)")
     print("2. 扫描设备")
-    print("3. ADB 调试")
+    print("3. ADB工具箱")
     print("4. 加载")
     print("5. 运行脚本")
     print("6. 退出")
@@ -215,6 +225,7 @@ if __name__ == '__main__':
             run(_load=load_point)
         elif mode == 6:
             print("感谢使用~")
+            signal_handler(0, 0)
             sys.exit(0)
         else:
             print("请选择正确的模式")

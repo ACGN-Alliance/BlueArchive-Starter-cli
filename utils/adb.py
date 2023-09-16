@@ -138,6 +138,10 @@ class ADB:
 
         return devices
 
+    def kill_server(self) -> None:
+        """停止adb服务"""
+        self._run_command(["kill-server"])
+
     def screenshot_region(
             self,
             x1: float,
