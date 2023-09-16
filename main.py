@@ -4,6 +4,7 @@ import subprocess
 import sys
 import time
 import signal
+import traceback
 from pathlib import Path
 from typing import Optional
 
@@ -18,6 +19,17 @@ device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
+
+# 异常处理装饰器
+def exception_handle(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            traceback.print_exc()
+            return None
+
+    return wrapper
 
 # ctrl+c退出时关闭adb server
 def signal_handler(sig, frame):
@@ -72,7 +84,7 @@ def on_device_selected(is_physic=False):
     adb_con = adb.ADB(device_name=f"localhost:{port}", is_physic_device=is_physic)
     print(f"已选择设备: {device_now}")
 
-
+@exception_handle
 def scan():
     while True:
         global adb_con, all_device_lst, device_now, port
@@ -128,19 +140,45 @@ def scan():
             on_device_selected(is_physic=is_physic)
             break
 
-
+@exception_handle
 def adb_test():
     global adb_con
     while True:
-        cmd = input("ADB CMD> ")
-        if cmd == "exit":
-            break
-        elif cmd.startswith("adb "):
-            print("ADB OUTPUT> " + adb_con.command(cmd))
+        mode = int(input("\n1.adb命令行工具(实验性功能)\n2.坐标测试与换算工具\n3.返回主菜单\n请选择需要的工具:"))
+        if mode == 1:
+            print("\n可以输入adb命令进行调试, 也可以输入exit退出(注: 使用getevent一类需要持续监听的命令只能用ctrl+c退出)")
+            while True:
+                cmd = input("ADB CMD> ")
+                if cmd == "exit":
+                    break
+                elif cmd.startswith("adb "):
+                    print("ADB OUTPUT> " + adb_con.command(cmd))
+                else:
+                    print("ADB OUTPUT> 请输入正确的ADB命令, 输入exit以退出")
+        elif mode == 2:
+            pos = input("请输入0-100的整数坐标(以空格分隔, 如50 50, exit退出):")
+
+            while True:
+                if pos == "exit":
+                    break
+
+                pos_args = pos.split()
+                if pos_args[0].isdigit() and pos_args[1].isdigit():
+                    real_x, real_y = adb_con._normalized_to_real_coordinates(int(pos_args[0]), int(pos_args[1]))
+                    print("坐标转换结果: " + str(real_x) + " " + str(real_y))
+                    adb_con.click(int(pos_args[0]), int(pos_args[1]))
+                else:
+                    print("请输入正确的坐标格式")
+
+                pos = input("\n请输入0-100的整数坐标:")
+
+        elif mode == 3:
+            return
         else:
-            print("ADB OUTPUT> 请输入正确的ADB命令, 输入exit以退出")
+            print("请选择正确的工具")
+            continue
 
-
+@exception_handle
 def load():
     while True:
         print("\n1.从文件加载(save.json)")
