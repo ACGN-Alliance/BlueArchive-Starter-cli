@@ -262,13 +262,110 @@ def script(
             adb_con.back() # 返回主界面
         load_point += 1
 
-    if not checkpoint(14, load_point, alias="开始自定义抽卡"):
-        # logger.success("开始抽卡")
+    # if not checkpoint(14, load_point, alias="开始自定义抽卡"):
+    #     # logger.success("开始抽卡")
+    #     while not adb_con.compare_img(
+    #             *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+    #     ):
+    #         for _ in range(3):
+    #             adb_con.back()
+    #     logger.info("进入抽卡")
+    #     adb_con.multi_click(70, 90, 3)
+    #     while not adb_con.compare_img(
+    #             *mapping["recurit_page.png"], img=path.joinpath("recurit_page.png")
+    #     ):
+    #         logger.info("翻页，常驻池")
+    #         adb_con.click(3, 55)  # 常驻池
+    #     # logger.debug("切换卡池")
+    #     # adb_con.multi_click(3, 55, 2)
+    #     logger.info("开始抽卡")
+    #     adb_con.click(76, 72)
+    #     adb_con.click(60, 70)
+    #     adb_con.sleep(5)
+    #     for i in range(3):  # 40抽
+    #         adb_con.multi_click(50, 75, 5)
+    #         while not adb_con.compare_img(
+    #                 *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
+    #         ):
+    #             adb_con.multi_click(92, 7, 3)
+    #         adb_con.screenshot(f"{i + 2}.png")
+    #         adb_con.click(50, 90)
+    #         adb_con.sleep(3)
+    #         adb_con.click(60, 90)
+    #         adb_con.click(60, 65)
+    #     logger.info("回到主菜单")
+    #     while not adb_con.compare_img(
+    #             *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+    #     ):
+    #         for _ in range(3):
+    #             adb_con.back()
+
+    if not checkpoint(14, load_point, alias="开始获取主线青辉石"):
+        # ==============40抽起始==============
+        adb_con.click(92, 82)
+        adb_con.multi_click(5, 50, 7)  # 跳过演示
+        adb_con.click(48, 70)
+
+        adb_con.click(85, 35)  # 进入剧情
+        adb_con.multi_click(5, 50, 11)  # 跳过演示
+        adb_con.click(30, 50)  # 进入主线
+        adb_con.click(90, 45)  # 第一章
+
+        def normal_chapter():
+            adb_con.click(85, 48)  # 第一话
+            adb_con.click(50, 70)  # 进入剧情
+            while not adb_con.compare_img(
+                    *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
+            ):
+                adb_con.click(50, 50)
+            for _ in range(2):
+                skip_story()
+            adb_con.sleep(6)
+            adb_con.multi_click(50, 90, 2)
+
+        def battle_chapter():
+            adb_con.click(85, 48)
+            adb_con.click(50, 70)
+            adb_con.multi_click(95, 95, 3)
+            while not adb_con.compare_img(
+                    *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
+            ):
+                adb_con.sleep(1)
+            adb_con.click(90, 95)
+            while not adb_con.compare_img(
+                    *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
+            ):
+                adb_con.sleep(1)
+            for _ in range(2):
+                skip_story()
+            adb_con.sleep(6)
+            adb_con.multi_click(50, 90, 2)
+
+        normal_chapter()  # 第一话
+        battle_chapter()  # 第二话
+        battle_chapter()  # 第三话
+        normal_chapter()  # 第四话
+        normal_chapter()  # 第五话
+        battle_chapter()  # 第六话
+        normal_chapter()  # 第七话
+        normal_chapter()  # 第八话
+
+        adb_con.click(96, 4)  # 返回主界面
+        load_point += 1
+    
+    if not checkpoint(15, load_point, alias="开始30连抽"):
+        adb_con.click(6, 32)  # 进入任务
         while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+                *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
         ):
-            for _ in range(3):
-                adb_con.back()
+            adb_con.click(50, 50)
+        for _ in range(2):
+            skip_story()
+        
+        adb_con.click(90, 95)
+        adb_con.multi_click(50, 90, 5)
+        adb_con.click(5, 8)  # 返回主菜单
+
         logger.info("进入抽卡")
         adb_con.multi_click(70, 90, 3)
         while not adb_con.compare_img(
