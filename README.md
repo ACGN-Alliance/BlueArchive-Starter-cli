@@ -13,18 +13,22 @@
 > 不保证较低版本平台兼容性, 具体兼容性有待测试
 
 ## 下载
-最新版本: [v1.0.0](https://github.com/ACGN-Alliance/BlueArchive-Starter-cli/releases/tag/v1.0.0)
+最新版本: [v1.0.3](https://github.com/ACGN-Alliance/BlueArchive-Starter-cli/releases/tag/v1.0.3)
+
+> 因为Windows下使用`--onefile`打包有概率报毒，因此将dll与pyd文件拆开了
 
 ## 使用
 1. 打开命令行(Windows: 按住Win+R键, 输入`cmd`然后回车, linux不用我教了吧), 切换到可执行文件目录下(Windows为`main.exe`, Linux为`bas-for-linux.bin`), 执行程序
 
-2. 使用 USB 连接上你要操作的设备或者打开安卓模拟器
+2. 输入`1`查看`注意事项`
+   
+3. 使用 USB 连接上你要操作的设备或者打开安卓模拟器
 > 注: 如果是实体安卓设备, 则需要把 `设置`>`开发者选项`>`USB调试` 开关打开, 连接上数据线后选择`传输文件`(若选择`仅充电`则需要在开发者选项当中把`仅充电下允许USB调试`打开)
-
-3. 输入`1`查看`注意事项`
 
 4. 输入`2`来扫描已连接设备, 扫描出来后选取对应设备
 > 注: 如果是安卓手机, 执行此步时会提示需要验证 RSA 密钥(后面的步骤也会需要), 一律点击`允许`.
+
+> 如果扫描不到模拟器请打开模拟器设置查看是否打开`USB调试`选项，如果找不到请上网搜索该模拟器是否支持USB调试(MuMu模拟器的某个版本就不支持)
 
 5. 打开`BlueArchive`, 进入大厅界面
 
@@ -37,18 +41,12 @@
 - 语言请使用`English`
 - 游戏宽高比设置为`16:9`
 - 如果加入了社团请先退出, 否则会导致操作失败
-- 目前版本仅能抽取30抽, 40抽预计下个版本支持
 - 保持未绑定账号状态
-
-## 计划
-
-- [ ] 软件打包可执行文件
-- [ ] box内容判断
-- [ ] 断点续运&异常中断
-- [ ] 多种设备支持
 
 ## 感谢
 [well404](https://github.com/Well2333) 帮助编写部分核心代码
+
+[QTeaMix](https://tusiart.com/models/616971961895099597) 本程序图标基于此模型生成
 
 ## 参与开发
 你可以通过 fork 本仓库并提出 [pr](https://github.com/ACGN-Alliance/BlueArchive-Starter/pulls) 来贡献代码, 另外如果你觉得你有能力的话欢迎加入我们的组织 [ACGN-Alliance](https://github.com/ACGN-Alliance), 随时欢迎加入(摸鱼也行的啦)
