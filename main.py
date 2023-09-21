@@ -7,8 +7,8 @@ import signal
 import traceback
 from pathlib import Path
 from typing import Optional
-
 from loguru import logger
+from dataclasses import dataclass
 
 from script import script
 from utils import adb
@@ -19,6 +19,25 @@ device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
+
+"""
+设置相关代码
+"""
+@dataclass
+class Settings:
+    username: str = ""
+    guest: bool = False
+    ratio: str = "16:9"
+    box_scan: bool = False
+
+setting_file = Path("./settings.json")
+if setting_file.exists():
+    setting = json.load(open(setting_file, "r", encoding="utf-8"))
+else:
+    setting = {}
+
+settings = Settings(**setting)
+
 
 # 异常处理装饰器
 def exception_handle(func):
@@ -37,6 +56,9 @@ def signal_handler(sig, frame):
     if adb_con:
         adb_con.kill_server()
 
+    if settings:
+        json.dump(settings.__dict__, open("./settings.json", "w", encoding="utf-8"))
+
     sys.exit(-1)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -45,16 +67,17 @@ def menu():
     global device_now, port
     print("\n" * 1)
     if device_now:
-        print("当前设备: " + device_now + "端口: " + str(port) + "\n")
+        print("当前设备: " + device_now + " | 端口: " + str(port) + "\n")
     else:
         print("当前未连接设备\n")
 
     print("1. 注意事项(必读)")
     print("2. 扫描设备")
     print("3. ADB工具箱")
-    print("4. 加载")
-    print("5. 运行脚本")
-    print("6. 退出")
+    print('4. 配置')
+    print("5. 加载")
+    print("6. 运行脚本")
+    print("7. 退出")
 
 
 def notice():
@@ -178,6 +201,36 @@ def adb_test():
             print("请选择正确的工具")
             continue
 
+def settings_menu():
+    while True:
+        print(f"1. 设置用户名 当前为: {settings.username}\n")
+        print(f"2. 调整游客账户模式 当前为: {settings.guest}\n")
+        print(f"3. 设置高宽比(未启用) 当前为: {settings.ratio}\n")
+        print(f"4. 开/关box检测(未启用) 当前为: {settings.box_scan}\n")
+        print("5. 返回主菜单\n")
+
+        choice = int(input("请选择: "))
+
+        if choice == 1:
+            name = input("请输入用户名: ")
+            if name.isalnum():
+                settings.username = name
+            else:
+                print("用户名只能包含字母和数字!")
+                continue
+        elif choice == 2:
+            settings.guest = not settings.guest
+        elif choice == 3:
+            settings.ratio = input("请输入高宽比(如16:9): ")
+        elif choice == 4:
+            settings.box_scan = not settings.box_scan
+        elif choice == 5:
+            json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
+            return
+        else:
+            print("请选择正确的选项")
+            continue
+
 @exception_handle
 def load():
     while True:
@@ -219,6 +272,7 @@ def run(_load: int = 0):
         adb_con,
         path,
         mapping,
+        settings,
         load_point=_load
     )
 
@@ -256,12 +310,14 @@ if __name__ == '__main__':
                 continue
             adb_test()
         elif mode == 4:
-            load_point = load()
+            settings_menu()
         elif mode == 5:
+            load_point = load()
+        elif mode == 6:
             if not _verify_device():
                 continue
             run(_load=load_point)
-        elif mode == 6:
+        elif mode == 7:
             print("感谢使用~")
             signal_handler(0, 0)
             sys.exit(0)

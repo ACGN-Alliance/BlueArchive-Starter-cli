@@ -32,14 +32,17 @@ def script(
         adb_con: adb.ADB,
         path: pathlib.Path,
         mapping: Any,
+        settings: object,
         *args,
         load_point: int = 0
 ):
     """
     执行脚本
+
     adb_con: adb连接对象
     path: 图片加载地址
     mapping: 图片映射表
+    settings: 设置
     load_point: 起始位置
     """
     def skip_story():
@@ -47,10 +50,11 @@ def script(
         adb_con.click(95, 15)
         adb_con.click(63, 71)
 
-    if load_point >= 14:
+    if load_point >= 16:
         logger.error("加载点超出范围, 自动结束脚本")
 
-    name = input("请输入你想要的昵称(禁止非法字符): ")
+    name = settings.username
+    # name = input("请输入你想要的昵称(禁止非法字符): ")
 
     if not checkpoint(0, load_point, alias="重置账号"):
         while not adb_con.compare_img(
@@ -61,8 +65,11 @@ def script(
         logger.info("已回到主菜单，开始销号")
         adb_con.click(95, 4)  # 菜单
         adb_con.click(60, 40)  # 账号
-        adb_con.click(99, 4)  # 弹出网页关闭
-        adb_con.click(70, 60)  # 重置账号
+        if settings.guest:
+            adb_con.click(99, 4)  # 弹出网页关闭
+            adb_con.click(70, 60)  # 重置账号
+        else:
+            adb_con.click(70, 50)
         adb_con.click(55, 45)
         adb_con.input_text("BlueArchive")
         adb_con.click(58, 67)
