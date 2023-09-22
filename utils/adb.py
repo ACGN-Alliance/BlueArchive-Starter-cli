@@ -138,6 +138,10 @@ class ADB:
 
         return devices
 
+    def kill_server(self) -> None:
+        """停止adb服务"""
+        self._run_command(["kill-server"])
+
     def screenshot_region(
             self,
             x1: float,
@@ -194,7 +198,7 @@ class ADB:
             # 确保两个图像的尺寸一致
             if im.size[0] / im.size[1] != im_s.size[0] / im_s.size[1]:
                 logger.warning(
-                    "The aspect ratios of the two images are not the same!"
+                    "图片尺寸不一致!如果此提示一直出现(>=25条)请向开发者反馈。"
                 )
 
             im_s = im_s.resize(im.size)
@@ -217,7 +221,7 @@ class ADB:
                     white_count += color[0]
 
             now_confidence = white_count / all_count
-            logger.debug(f"image \"{img.name}\" matching rate {now_confidence:.2f}")
+            logger.debug(f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}, " + "匹配成功" if now_confidence > confidence else "匹配失败")
 
             return now_confidence > confidence
         except Exception as e:
