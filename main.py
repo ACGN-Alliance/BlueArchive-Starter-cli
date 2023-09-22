@@ -90,8 +90,7 @@ def notice():
 - 语言请使用`English`
 - 游戏宽高比设置为`16:9`
 - 如果加入了社团请先退出, 否则会导致操作失败
-- 目前版本仅能抽取30抽, 40抽预计下个版本支持
-- 保持未绑定账号状态"""
+- 目前版本仅能抽取30抽, 40抽预计下个版本支持"""
     print(notice)
     input("按任意键以继续...")
 
@@ -254,7 +253,7 @@ def load():
                 continue
             return cot.get('load_point', 0)
         elif load_mode == 2:
-            point = input("请输入加载点(默认为0): ")
+            point = input("请输入加载点: ")
             if point.isdigit():
                 return int(point)
             else:

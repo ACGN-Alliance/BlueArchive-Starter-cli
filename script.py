@@ -114,6 +114,7 @@ def script(
     if not checkpoint(3, load_point, alias="战斗-1"):
         # logger.success("3. 战斗1")
         logger.info("跳过介绍")
+        adb_con.sleep(4)
         adb_con.multi_click(50, 70, 23)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
@@ -168,7 +169,7 @@ def script(
         for _ in range(4):
             skip_story()
         logger.success("OP 动画")
-        adb_con.multi_click(60, 70, 10)
+        adb_con.multi_click(60, 70, 9)
         load_point += 1
 
     if not checkpoint(7, load_point, alias="教学抽卡"):
@@ -265,7 +266,7 @@ def script(
         adb_con.multi_click(50, 50, 4)
         adb_con.click(95, 4)  # 菜单
         # adb_con.multi_click(50, 50, 5)
-        adb_con.sleep(5)
+        adb_con.sleep(4)
         adb_con.click(60, 40)  # 账号
         adb_con.click(99, 4)   # 弹出网页关闭
         adb_con.multi_click(50, 50, 10)
@@ -275,13 +276,13 @@ def script(
             adb_con.back() # 返回主界面
         load_point += 1
 
-    if settings.recuit_40:
+    if not settings.recuit_40:
         load_point = 15
 
     if not checkpoint(14, load_point, alias="开始获取主线青辉石"):
         # ==============40抽起始==============
         adb_con.click(92, 82)
-        adb_con.sleep(1.5)
+        adb_con.sleep(2)
         adb_con.click(95, 5)
         adb_con.multi_click(5, 50, 10)  # 跳过演示
         # adb_con.click(48, 70)
@@ -328,7 +329,8 @@ def script(
                     for _ in range(2):
                         skip_story()
                 else:
-                    adb_con.sleep(12)
+                    adb_con.sleep(18)
+                    adb_con.click(50, 95)
 
             adb_con.sleep(4)
             adb_con.multi_click(50, 90, 2)
@@ -342,14 +344,11 @@ def script(
         chapter("normal")  # 第七话
         chapter("normal")  # 第八话
 
-        adb_con.click(96, 4)  # 返回主界面
-        load_point += 1
-    
-    if not checkpoint(15, load_point, alias="开始30连抽"):
         while not adb_con.compare_img(
             *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
             adb_con.back()
+
         adb_con.click(6, 32)  # 进入任务
         while not adb_con.compare_img(
                 *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
@@ -361,7 +360,15 @@ def script(
         adb_con.sleep(5)
         adb_con.click(90, 95)
         adb_con.multi_click(50, 90, 5)
-        adb_con.click(5, 8)  # 返回主菜单
+
+        while not adb_con.compare_img(
+            *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+        ):
+            adb_con.back()
+
+        load_point += 1
+    
+    if not checkpoint(15, load_point, alias="开始30连抽"):
 
         logger.info("进入抽卡")
         adb_con.multi_click(70, 90, 3)
