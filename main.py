@@ -66,7 +66,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 def menu():
-    global device_now, port
+    global port, device_now
     print("\n" * 1)
     if device_now:
         print("当前设备: " + device_now + " | 端口: " + str(port) + "\n")
@@ -90,29 +90,29 @@ def notice():
 - 语言请使用`English`
 - 游戏宽高比设置为`16:9`
 - 如果加入了社团请先退出, 否则会导致操作失败
-- 目前版本仅能抽取30抽, 40抽预计下个版本支持"""
+- 扫描并连接实体机时, 请留意手机上的rsa确认对话框并点击确认
+"""
     print(notice)
     input("按任意键以继续...")
 
 
-def on_device_selected(is_physic=False):
+def on_device_selected():
     global adb_con, all_device_lst, device_now, port
     if "emulator" in device_now:
         port = int(device_now.split("-")[1]) + 1
     elif "127.0.0.1" in device_now or "localhost" in device_now:
         port = int(device_now.split(":")[1])
     else:
-        is_physic = True
+        # is_physic = True
         port = 5555
 
-    adb_con = adb.ADB(device_name=f"localhost:{port}", is_physic_device=is_physic)
+    adb_con = adb.ADB(device_name=f"localhost:{port}")
     print(f"已选择设备: {device_now}")
 
 @exception_handle
 def scan():
     while True:
         global adb_con, all_device_lst, device_now, port
-        is_physic = False
         adb_con = adb.ADB(scan_mode=True)
         device_lst = adb_con.get_device_list()
 
@@ -144,7 +144,7 @@ def scan():
             # 包含两种状态:1. already connected to 2. connected to
             if "connected to" in rv.stdout.decode("utf-8") or "connected to" in rv.stderr.decode("utf-8"):
                 device_now = address
-                on_device_selected(is_physic=is_physic)
+                on_device_selected()
                 print("连接成功:", address)
                 break
             else:
@@ -161,7 +161,7 @@ def scan():
                 print("请选择正确的设备")
                 continue
 
-            on_device_selected(is_physic=is_physic)
+            on_device_selected()
             break
 
 @exception_handle
