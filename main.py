@@ -20,6 +20,7 @@ adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
 
+
 """
 设置相关代码
 """
@@ -29,6 +30,7 @@ class Settings:
     guest: bool = False
     ratio: str = "16:9"
     box_scan: bool = False
+    recuit_40: bool = True
 
 setting_file = Path("./settings.json")
 if setting_file.exists():
@@ -57,9 +59,9 @@ def signal_handler(sig, frame):
         adb_con.kill_server()
 
     if settings:
-        json.dump(settings.__dict__, open("./settings.json", "w", encoding="utf-8"))
+        json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
 
-    sys.exit(-1)
+    sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -194,20 +196,22 @@ def adb_test():
                     print("请输入正确的坐标格式")
 
                 pos = input("\n请输入0-100的整数坐标:")
-
         elif mode == 3:
             return
         else:
             print("请选择正确的工具")
             continue
 
+@exception_handle
 def settings_menu():
     while True:
-        print(f"1. 设置用户名 当前为: {settings.username}\n")
-        print(f"2. 调整游客账户模式 当前为: {settings.guest}\n")
-        print(f"3. 设置高宽比(未启用) 当前为: {settings.ratio}\n")
-        print(f"4. 开/关box检测(未启用) 当前为: {settings.box_scan}\n")
-        print("5. 返回主菜单\n")
+        print("\n欢迎来到设置界面")
+        print(f"1. 设置用户名 当前为: {settings.username}")
+        print(f"2. 调整游客账户模式 当前为: {settings.guest}")
+        print(f"3. 设置高宽比(开发中) 当前为: {settings.ratio}")
+        print(f"4. 开/关box检测(开发中) 当前为: {settings.box_scan}")
+        print(f"5. 开/关40抽 当前为: {settings.recuit_40}")
+        print("6. 返回主菜单\n")
 
         choice = int(input("请选择: "))
 
@@ -221,10 +225,14 @@ def settings_menu():
         elif choice == 2:
             settings.guest = not settings.guest
         elif choice == 3:
-            settings.ratio = input("请输入高宽比(如16:9): ")
+            print("该功能尚未开发完成, 请等待之后的版本")
+            # settings.ratio = input("请输入高宽比(如16:9): ")
         elif choice == 4:
-            settings.box_scan = not settings.box_scan
+            print("该功能尚未开发完成, 请等待之后的版本")
+            # settings.box_scan = not settings.box_scan
         elif choice == 5:
+            settings.recuit_40 = not settings.recuit_40
+        elif choice == 6:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
         else:
@@ -247,8 +255,8 @@ def load():
             return cot.get('load_point', 0)
         elif load_mode == 2:
             point = input("请输入加载点(默认为0): ")
-            if isinstance(point, int):
-                return point
+            if point.isdigit():
+                return int(point)
             else:
                 print("加载点必须是数字, 详见文档")
                 continue
@@ -319,8 +327,7 @@ if __name__ == '__main__':
             run(_load=load_point)
         elif mode == 7:
             print("感谢使用~")
-            signal_handler(0, 0)
-            sys.exit(0)
+            os.kill(signal.CTRL_C_EVENT, 0)  # 主动触发ctrl+c
         else:
             print("请选择正确的模式")
             continue

@@ -1,7 +1,21 @@
 ![img](https://socialify.git.ci/ACGN-Alliance/BlueArchive-Starter-cli/image?description=1&font=Jost&forks=1&issues=1&language=1&logo=https%3A%2F%2Fcdnimg.gamekee.com%2Fimages%2Fwww%2F1596521281115_38919084.png&name=1&owner=1&pattern=Floating%20Cogs&pulls=1&stargazers=1&theme=Light)
 
 # BlueArchive-Starter-cli
-碧蓝档案初始号工具CLI版本(原[BlueArchive-Starter](https://github.com/ACGN-Alliance/BlueArchive-Starter)项目)
+
+<!-- <tr>
+<td>
+
+![Static Badge](https://img.shields.io/badge/769521861-brightgreen?label=QQ%20Group)
+</td>
+<td>
+
+![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2FACGN-Alliance%2FBlueArchive-Starter-cli%2Ffeature-2%2Fpyproject.toml)
+</td>
+
+![Static Badge](https://img.shields.io/badge/1.0.3-green?label=latest)
+</tr> -->
+
+碧蓝档案初始号工具CLI版本(原[BlueArchive-Starter](https://github.com/ACGN-Alliance/BlueArchive-Starter)项目)  
 
 众所周知, 碧蓝档案国际服初始号封号现象特别严重, 因此要想有个好一点的box必须在建号的时候不停的重置帐号来刷取.
 看了下网上并没有特别好用的初始号刷号工具, 基本都是使用宏脚本配合一些屏幕操作软件做的, 或者使用模拟器自带的操作记录, 
