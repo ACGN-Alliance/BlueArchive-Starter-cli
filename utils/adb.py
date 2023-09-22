@@ -22,7 +22,7 @@ class ADB:
             device_name: str = "",
             delay: int | float = 1,
             scan_mode: bool = False,
-            is_physic_device: bool = False
+            physic_device_name: str = ""
     ):
         """
         初始化针对特定Android设备的ADB接口。
@@ -39,12 +39,14 @@ class ADB:
         else:
             self.adb_path = "./platform-tools/adb"
 
-        if not is_physic_device:
+        if not physic_device_name:
             subprocess.run(
                 [self.adb_path, "connect", device_name],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
+        else:
+            self.device_name = physic_device_name
 
         if not scan_mode:
             self.screen_width, self.screen_height = self._get_screen_resolution()

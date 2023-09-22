@@ -26,8 +26,12 @@
 被控端: Android 手机/Android 模拟器以及其他支持 Adb(安卓调试桥) 的 Android 平台
 > 不保证较低版本平台兼容性, 具体兼容性有待测试
 
+### 推荐配置
+蓝叠5国际版 64bit或蓝叠 Pie 64bit，分辨率`1280*720`(DPI: 240)或`1920*1080`(DPI: 240)，界面缩放`100%`，经测试可以顺利运行。  
+其他模拟器与配置不保证可正常运行，如果有问题请在[discussion | 模拟器识图问题收集区](https://github.com/ACGN-Alliance/BlueArchive-Starter-cli/issues/13)反馈，如果可以的话之后会进行适配，谢谢~
+
 ## 下载
-最新版本: [v1.0.3](https://github.com/ACGN-Alliance/BlueArchive-Starter-cli/releases/tag/v1.0.3)
+[Release](https://github.com/ACGN-Alliance/BlueArchive-Starter-cli/releases)
 
 > 因为Windows下使用`--onefile`打包有概率报毒，因此将dll与pyd文件拆开了
 

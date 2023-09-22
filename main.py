@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from script import script
 from utils import adb
 
-__version__ = "1.0.3"
+__version__ = "1.0.5"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
@@ -91,6 +91,7 @@ def notice():
 - 游戏宽高比设置为`16:9`
 - 如果加入了社团请先退出, 否则会导致操作失败
 - 扫描并连接实体机时, 请留意手机上的rsa确认对话框并点击确认
+- 用户名不能使用非法字符，中文因为adb的限制也不能使用
 """
     print(notice)
     input("按任意键以继续...")
@@ -98,15 +99,17 @@ def notice():
 
 def on_device_selected():
     global adb_con, all_device_lst, device_now, port
+
+    pname = ""
     if "emulator" in device_now:
         port = int(device_now.split("-")[1]) + 1
     elif "127.0.0.1" in device_now or "localhost" in device_now:
         port = int(device_now.split(":")[1])
     else:
-        # is_physic = True
+        pname = device_now
         port = 5555
 
-    adb_con = adb.ADB(device_name=f"localhost:{port}")
+    adb_con = adb.ADB(device_name=f"localhost:{port}", physic_device_name=pname)
     print(f"已选择设备: {device_now}")
 
 @exception_handle
