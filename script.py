@@ -115,7 +115,7 @@ def script(
         # logger.success("3. 战斗1")
         logger.info("跳过介绍")
         adb_con.sleep(4)
-        adb_con.multi_click(50, 70, 23)
+        adb_con.multi_click(50, 70, 25)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
@@ -266,17 +266,17 @@ def script(
         adb_con.multi_click(50, 50, 4)
         adb_con.click(95, 4)  # 菜单
         # adb_con.multi_click(50, 50, 5)
-        adb_con.sleep(4)
+        adb_con.sleep(2)
         adb_con.click(60, 40)  # 账号
         adb_con.click(99, 4)   # 弹出网页关闭
-        adb_con.multi_click(50, 50, 10)
+        adb_con.multi_click(50, 50, 8)
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
             adb_con.back() # 返回主界面
         load_point += 1
 
-    if not settings.recuit_40:
+    if settings.recuit_num == 30:
         load_point = 15
 
     if not checkpoint(14, load_point, alias="开始获取主线青辉石"):
@@ -288,7 +288,7 @@ def script(
         # adb_con.click(48, 70)
         
         adb_con.click(85, 35)  # 进入剧情
-        adb_con.multi_click(5, 50, 12)  # 跳过演示
+        adb_con.multi_click(5, 50, 11)  # 跳过演示
         adb_con.click(30, 50)  # 进入主线
         adb_con.sleep(2)
         adb_con.click(90, 45)  # 第一章
@@ -329,8 +329,8 @@ def script(
                     for _ in range(2):
                         skip_story()
                 else:
-                    adb_con.sleep(18)
-                    adb_con.click(50, 95)
+                    logger.info("此处确保稳定性停顿时间较长, 请耐心等待")
+                    adb_con.sleep(24)
 
             adb_con.sleep(4)
             adb_con.multi_click(50, 90, 2)
@@ -354,8 +354,8 @@ def script(
                 *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
         ):
             adb_con.click(50, 50)
-        for _ in range(2):
-            skip_story()
+
+        skip_story()
 
         adb_con.sleep(5)
         adb_con.click(90, 95)
@@ -398,5 +398,5 @@ def script(
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
-            for _ in range(3):
+            for _ in range(int(settings.recuit_num / 10) - 1):
                 adb_con.back()

@@ -223,7 +223,12 @@ class ADB:
                     white_count += color[0]
 
             now_confidence = white_count / all_count
-            logger.debug(f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}, " + "匹配成功" if now_confidence > confidence else "匹配失败")
+            
+            if now_confidence > confidence:
+                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}, 匹配成功"
+            else:
+                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}, 匹配失败"
+            logger.debug(info)
 
             return now_confidence > confidence
         except Exception as e:

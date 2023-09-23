@@ -30,7 +30,7 @@ class Settings:
     guest: bool = False
     ratio: str = "16:9"
     box_scan: bool = False
-    recuit_40: bool = True
+    recuit_num: int = 40
 
 setting_file = Path("./settings.json")
 if setting_file.exists():
@@ -38,7 +38,11 @@ if setting_file.exists():
 else:
     setting = {}
 
-settings = Settings(**setting)
+try:
+    settings = Settings(**setting)
+except TypeError:
+    print("WARNING: 配置文件格式错误(可能因为版本升级导致), 已重置配置文件")
+    settings = Settings()
 
 
 # 异常处理装饰器
@@ -212,7 +216,7 @@ def settings_menu():
         print(f"2. 调整游客账户模式 当前为: {settings.guest}")
         print(f"3. 设置高宽比(开发中) 当前为: {settings.ratio}")
         print(f"4. 开/关box检测(开发中) 当前为: {settings.box_scan}")
-        print(f"5. 开/关40抽 当前为: {settings.recuit_40}")
+        print(f"5. 设置总抽数 当前为: {settings.recuit_num}")
         print("6. 返回主菜单\n")
 
         choice = int(input("请选择: "))
@@ -233,7 +237,12 @@ def settings_menu():
             print("该功能尚未开发完成, 请等待之后的版本")
             # settings.box_scan = not settings.box_scan
         elif choice == 5:
-            settings.recuit_40 = not settings.recuit_40
+            num = input("请输入总抽数(要求:10的倍数且>=30, 无额外赠送仅支持30&40抽)): ")
+            if num.isdigit() and int(num) % 10 == 0 and int(num) >= 30:
+                settings.recuit_num = int(num)
+            else:
+                print("总抽数不合法")
+                continue
         elif choice == 6:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
@@ -268,7 +277,7 @@ def load():
             print("请输入正确的加载模式")
             continue
 
-
+@exception_handle
 def run(_load: int = 0):
     global adb_con
     path = Path("./data/16_9/")
