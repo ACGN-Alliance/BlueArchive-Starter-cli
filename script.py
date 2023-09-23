@@ -187,7 +187,8 @@ def script(
                 *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
         ):
             adb_con.multi_click(92, 7, 5)
-        # adb_con.screenshot("1.png")
+        if settings.if_screenshot:
+            adb_con.screenshot("1.png")
         adb_con.click(50, 90)
         adb_con.sleep(10)
         load_point += 1
@@ -389,7 +390,8 @@ def script(
                     *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
             ):
                 adb_con.multi_click(92, 7, 3)
-            # adb_con.screenshot(f"{i + 2}.png")
+            if settings.if_screenshot:
+                adb_con.screenshot(f"{i + 2}.png")
             adb_con.click(50, 90)
             adb_con.sleep(3)
             adb_con.click(60, 90)
