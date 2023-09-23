@@ -7,8 +7,8 @@ python -m nuitka --mingw64 --standalone \
     --output-dir=build \
     --company-name="ACGN-Alliance" \
     --product-name="BlueArchive-Starter" \
-    --file-version="1.0.5" \
-    --product-version="1.0.5" \
+    --file-version="1.0.5.1" \
+    --product-version="1.0.5.1" \
     --file-description="BlueArchive Account tool" \
     --include-data-dir=platform-tools=platform-tools\
     --include-data-dir=data/16_9=data/16_9 \

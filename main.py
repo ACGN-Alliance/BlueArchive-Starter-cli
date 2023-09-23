@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from script import script
 from utils import adb
 
-__version__ = "1.0.5"
+__version__ = "1.0.5.1"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
