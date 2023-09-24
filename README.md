@@ -74,7 +74,7 @@
 少量此提示为正常现象，如果一直出现说明识别出现问题，请向开发者反馈
 
 #### 3.报错`No such file or directory: 'temp_full_screenshot.png'`
-目前尚无解决方法，猜测是模拟器权限等级问题，可多次重启bas或更换模拟器解决
+请查看自己adb是否正确连接，确认自己连接设备时没有任何报错
 
 ## 感谢
 [well404](https://github.com/Well2333) 帮助编写部分核心代码

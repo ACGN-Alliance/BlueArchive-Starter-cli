@@ -1,4 +1,4 @@
-import pathlib
+from pathlib import Path
 from typing import Any, Tuple
 from loguru import logger
 import json
@@ -17,7 +17,7 @@ def checkpoint(
     :param position: 当前位置
     :param load_point: 检查点位置
     :param alias: 检查点别名
-    :return: Tuple[bool, bool]: 是否需要跳过
+    :return: bool, : 是否需要跳过
     """
     if position != load_point:
         return True
@@ -33,7 +33,7 @@ def checkpoint(
 
 def script(
         adb_con: adb.ADB,
-        path: pathlib.Path,
+        path: Path,
         mapping: Any,
         settings: object,
         *args,
@@ -263,6 +263,9 @@ def script(
         adb_con.back()
         load_point += 1
 
+    if not settings.guest:
+        load_point = 14
+
     if not checkpoint(13, load_point, alias="绑定账号"):
         adb_con.multi_click(50, 50, 4)
         adb_con.click(95, 4)  # 菜单
@@ -400,5 +403,4 @@ def script(
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
-            for _ in range():
-                adb_con.back()
+            adb_con.back()

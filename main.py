@@ -114,8 +114,13 @@ def on_device_selected():
         pname = device_now
         port = 5555
 
-    adb_con = adb.ADB(device_name=f"localhost:{port}", physic_device_name=pname)
-    print(f"已选择设备: {device_now}")
+    try:
+        adb_con = adb.ADB(device_name=f"localhost:{port}", physic_device_name=pname)
+        print(f"已选择设备: {device_now}")
+        return True
+    except IndexError:
+        print("ERROR: 设备无效, 请重新选择")
+        return False
 
 @exception_handle
 def scan():
@@ -132,7 +137,7 @@ def scan():
             all_device_lst[i + 3] = device.split(" ")[0]
 
         if len(device_lst) == 0:
-            print("\n未扫描到设备, 请尝试重新扫描, 或手动指定地址")
+            print("\n未扫描到设备, 请查看模拟器/手机是否已打开usb调试, 然后尝试重新扫描, 或手动指定地址")
 
         device_num = input("请选择设备: ")
         if device_num.isdigit():
@@ -152,9 +157,11 @@ def scan():
             # 包含两种状态:1. already connected to 2. connected to
             if "connected to" in rv.stdout.decode("utf-8") or "connected to" in rv.stderr.decode("utf-8"):
                 device_now = address
-                on_device_selected()
-                print("连接成功:", address)
-                break
+                if on_device_selected():
+                    print("连接成功:", address)
+                    break
+                else:
+                    continue
             else:
                 print("连接失败:", rv.stdout.decode("utf-8"), rv.stderr.decode("utf-8"))
                 continue
