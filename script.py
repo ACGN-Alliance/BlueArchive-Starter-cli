@@ -384,7 +384,7 @@ def script(
         adb_con.click(76, 72)
         adb_con.click(60, 70)
         adb_con.sleep(5)
-        for i in range(3):  # 40抽
+        for i in range(int(settings.recuit_num / 10) - 1):  # 40抽
             adb_con.multi_click(50, 75, 5)
             while not adb_con.compare_img(
                     *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
@@ -400,5 +400,5 @@ def script(
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
-            for _ in range(int(settings.recuit_num / 10) - 1):
+            for _ in range():
                 adb_con.back()
