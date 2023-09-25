@@ -22,7 +22,8 @@ class ADB:
             device_name: str = "",
             delay: int | float = 1,
             scan_mode: bool = False,
-            physic_device_name: str = ""
+            physic_device_name: str = "",
+            is_mumu: bool = False,
     ):
         """
         初始化针对特定Android设备的ADB接口。
@@ -49,7 +50,10 @@ class ADB:
             self.device_name = physic_device_name
 
         if not scan_mode:
-            self.screen_width, self.screen_height = self._get_screen_resolution()
+            if is_mumu:
+                self.screen_height, self.screen_width = self._get_screen_resolution()
+            else:
+                self.screen_width, self.screen_height = self._get_screen_resolution()
 
     def _run_command(self, cmd: list[str]) -> str:
         """执行一个ADB命令。"""

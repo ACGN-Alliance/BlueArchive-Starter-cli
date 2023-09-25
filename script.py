@@ -400,5 +400,5 @@ def script(
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
-            for _ in range():
+            for _ in range(1):
                 adb_con.back()

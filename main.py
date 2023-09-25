@@ -32,6 +32,7 @@ class Settings:
     box_scan: bool = False
     recuit_num: int = 40
     if_screenshot: bool = False
+    is_mumu: bool = False
 
 setting_file = Path("./settings.json")
 if setting_file.exists():
@@ -114,7 +115,7 @@ def on_device_selected():
         pname = device_now
         port = 5555
 
-    adb_con = adb.ADB(device_name=f"localhost:{port}", physic_device_name=pname)
+    adb_con = adb.ADB(device_name=f"localhost:{port}", physic_device_name=pname, is_mumu=settings.is_mumu)
     print(f"已选择设备: {device_now}")
 
 @exception_handle
@@ -219,7 +220,8 @@ def settings_menu():
         print(f"4. 开/关box检测(开发中) 当前为: {settings.box_scan}")
         print(f"5. 设置总抽数 当前为: {settings.recuit_num}")
         print(f"6. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
-        print("7. 返回主菜单\n")
+        print(f"7. 开/关mumu模拟器模式 当前为: {settings.is_mumu}") 
+        print("8. 返回主菜单\n")
 
         choice = int(input("请选择: "))
 
@@ -248,6 +250,8 @@ def settings_menu():
         elif choice == 6:
             settings.if_screenshot = not settings.if_screenshot
         elif choice == 7:
+            settings.is_mumu = not settings.is_mumu
+        elif choice == 8:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
         else:
