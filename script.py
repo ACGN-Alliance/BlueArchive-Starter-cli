@@ -70,7 +70,8 @@ def script(
         adb_con.click(95, 4)  # 菜单
         adb_con.click(60, 40)  # 账号
         if settings.guest:
-            adb_con.click(99, 4)  # 弹出网页关闭
+            if settings._link_account:
+                adb_con.click(99, 4)  # 弹出网页关闭
             adb_con.click(70, 60)  # 重置账号
         else:
             adb_con.click(70, 50)
@@ -223,8 +224,8 @@ def script(
         adb_con.click(90, 90)
         adb_con.sleep(5)
         adb_con.click(50, 90)
-        adb_con.sleep(5)
-        adb_con.multi_click(90, 90, 5)
+        adb_con.sleep(7)
+        adb_con.multi_click(94, 94, 4)
         load_point += 1
 
     if not checkpoint(10, load_point, alias="开始BOSS作战"):

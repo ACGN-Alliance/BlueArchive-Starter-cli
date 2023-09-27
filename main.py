@@ -28,6 +28,7 @@ port = 0
 class Settings:
     username: str = ""
     guest: bool = False
+    _link_account: bool = False  # 用于判断是否已经有link account弹窗出现
     ratio: str = "16:9"
     box_scan: bool = False
     main_line: bool = False
@@ -236,6 +237,16 @@ def settings_menu():
                 print("用户名只能包含字母和数字!")
                 continue
         elif choice == 2:
+            if not settings.guest:
+                ans = input("是否有提醒Link Account的弹窗? (y/n): ")
+                if ans == "y":
+                    settings._link_account = True
+                elif ans == "n":
+                    settings._link_account = False
+                else:
+                    print("请输入正确的选项")
+                    continue
+
             settings.guest = not settings.guest
         elif choice == 3:
             print("该功能尚未开发完成, 请等待之后的版本")
