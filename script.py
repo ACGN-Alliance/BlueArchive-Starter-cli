@@ -224,7 +224,7 @@ def script(
         adb_con.click(90, 90)
         adb_con.sleep(5)
         adb_con.click(50, 90)
-        adb_con.sleep(7)
+        adb_con.sleep(9)
         adb_con.multi_click(94, 94, 4)
         load_point += 1
 
@@ -261,11 +261,18 @@ def script(
                 adb_con.click(88, 5)
                 adb_con.click(82.5, 94.44)
         adb_con.sleep(1)
-        adb_con.back()
+        while not adb_con.compare_img(
+                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+        ):
+            adb_con.click(50, 96)
         load_point += 1
 
+    if not settings.guest:
+        load_point = 14
+
     if not checkpoint(13, load_point, alias="绑定账号"):
-        adb_con.multi_click(50, 50, 4)
+        adb_con.sleep(2)
+        adb_con.multi_click(50, 50, 5)
         adb_con.click(95, 4)  # 菜单
         # adb_con.multi_click(50, 50, 5)
         adb_con.sleep(2)
@@ -396,10 +403,12 @@ def script(
                     *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
             ):
                 adb_con.multi_click(92, 7, 3)
-            if settings.if_screenshot:
-                adb_con.screenshot(f"{i + 2}.png")
             adb_con.click(50, 90)
             adb_con.sleep(3)
+
+            if settings.if_screenshot:
+                adb_con.screenshot(f"{i + 2}.png")
+                
             adb_con.click(60, 90)
             adb_con.click(60, 65)
         logger.info("回到主菜单")
