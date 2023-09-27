@@ -371,12 +371,16 @@ def script(
     
     if not checkpoint(15, load_point, alias="开始30连抽"):
         logger.info("进入抽卡")
-        adb_con.multi_click(70, 90, 3)
-        while not adb_con.compare_img(
-                *mapping["recurit_page.png"], img=path.joinpath("recurit_page.png")
-        ):
-            logger.info("翻页，常驻池")
-            adb_con.click(3, 55)  # 常驻池
+        adb_con.multi_click(70, 90)
+        adb_con.sleep(5)
+        # while not adb_con.compare_img(
+        #         *mapping["recurit_page.png"], img=path.joinpath("recurit_page.png")
+        # ):
+        #     logger.info("翻页，常驻池")
+        #     adb_con.click(3, 55)  # 常驻池
+        for _ in range(settings.pool):
+            adb_con.click(3, 55)
+            adb_con.sleep(3)
         # logger.debug("切换卡池")
         # adb_con.multi_click(3, 55, 2)
         logger.info("开始抽卡")

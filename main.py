@@ -34,6 +34,7 @@ class Settings:
     recuit_num: int = 0
     if_screenshot: bool = False
     is_mumu: bool = False
+    pool: int = 1
 
 setting_file = Path("./settings.json")
 if setting_file.exists():
@@ -223,7 +224,8 @@ def settings_menu():
         print(f"6. 设置额外赠送抽数(单位: 十抽) 当前为: {settings.recuit_num}")
         print(f"7. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
         print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}") 
-        print("9. 返回主菜单\n")
+        print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool})")
+        print("10. 返回主菜单\n")
 
         choice = int(input("请选择: "))
         if choice == 1:
@@ -255,6 +257,13 @@ def settings_menu():
         elif choice == 8:
             settings.is_mumu = not settings.is_mumu
         elif choice == 9:
+            num = input("请输入需要抽取的卡池位置(倒数): ")
+            if num.isdigit() and int(num) >= 1:
+                settings.pool = int(num)
+            else:
+                print("数值不合法")
+                continue
+        elif choice == 10:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
         else:
