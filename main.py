@@ -30,7 +30,8 @@ class Settings:
     guest: bool = False
     ratio: str = "16:9"
     box_scan: bool = False
-    recuit_num: int = 40
+    main_line: bool = False
+    recuit_num: int = 0
     if_screenshot: bool = False
     is_mumu: bool = False
 
@@ -218,13 +219,13 @@ def settings_menu():
         print(f"2. 调整游客账户模式 当前为: {settings.guest}")
         print(f"3. 设置高宽比(开发中) 当前为: {settings.ratio}")
         print(f"4. 开/关box检测(开发中) 当前为: {settings.box_scan}")
-        print(f"5. 设置总抽数 当前为: {settings.recuit_num}")
-        print(f"6. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
-        print(f"7. 开/关mumu模拟器模式 当前为: {settings.is_mumu}") 
-        print("8. 返回主菜单\n")
+        print(f"5. 开/关主线收益(可多十连抽) 当前为: {settings.main_line}")
+        print(f"6. 设置额外赠送抽数(单位: 十抽) 当前为: {settings.recuit_num}")
+        print(f"7. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
+        print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}") 
+        print("9. 返回主菜单\n")
 
         choice = int(input("请选择: "))
-
         if choice == 1:
             name = input("请输入用户名: ")
             if name.isalnum():
@@ -241,17 +242,19 @@ def settings_menu():
             print("该功能尚未开发完成, 请等待之后的版本")
             # settings.box_scan = not settings.box_scan
         elif choice == 5:
-            num = input("请输入总抽数(要求:10的倍数且>=30, 无额外赠送仅支持30&40抽)): ")
-            if num.isdigit() and int(num) % 10 == 0 and int(num) >= 30:
+            settings.main_line = not settings.main_line
+        elif choice == 6:
+            num = input("请输入额外赠送的抽数(指当期活动送的而非新手奖励): ")
+            if num.isdigit() and int(num) >= 0:
                 settings.recuit_num = int(num)
             else:
-                print("总抽数不合法")
+                print("数值不合法")
                 continue
-        elif choice == 6:
-            settings.if_screenshot = not settings.if_screenshot
         elif choice == 7:
-            settings.is_mumu = not settings.is_mumu
+            settings.if_screenshot = not settings.if_screenshot
         elif choice == 8:
+            settings.is_mumu = not settings.is_mumu
+        elif choice == 9:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
         else:
