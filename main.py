@@ -13,7 +13,7 @@ from script import script
 from utils import adb
 from utils.settings import settings, setting_file
 
-__version__ = "1.0.5.1"
+__version__ = "1.0.6"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
@@ -253,8 +253,8 @@ def settings_menu():
                 print("数值不合法")
                 continue
         elif choice == 10:
-            speed = input("请输入命令执行速度(fast/normal/slow): ")
-            if speed in ["fast", "normal", "slow"]:
+            speed = input("请输入命令执行速度(fast/normal/slow/very slow): ")
+            if speed in ["fast", "normal", "slow", "very slow"]:
                 settings.speed = speed
             else:
                 print("请输入正确的速度")

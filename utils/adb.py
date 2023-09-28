@@ -139,12 +139,17 @@ class ADB:
 
     def sleep(self, time_: int | float = 0) -> None:
         """暂停指定的持续时间。"""
-        time.sleep(time_ or self.delay)
+        if not time_:
+            time_ = self.delay
 
         if self.setting.speed == "slow":
-            time.sleep(time_ * 0.2)
+            time.sleep(time_ * 1.15)
         elif self.setting.speed == "very slow":
-            time.sleep(time_ * 0.4)
+            time.sleep(time_ * 1.3)
+        elif self.setting.speed == "fast":
+            time.sleep(time_ * 0.95)
+        elif self.setting.speed == "normal":
+            time.sleep(1)
 
         return None
 
