@@ -33,6 +33,8 @@
 ## 下载
 [Release](https://github.com/ACGN-Alliance/BlueArchive-Starter-cli/releases)
 
+[测试版]() 最新版本，致力于修复群友实时反馈的bug，请加群下载(其实是不想每次都传github，太麻烦了)
+
 > 因为Windows下使用`--onefile`打包有概率报毒，因此将dll与pyd文件拆开了
 
 ## 使用
