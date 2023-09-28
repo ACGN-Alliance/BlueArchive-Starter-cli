@@ -20,6 +20,7 @@ class Settings:
     is_mumu: bool = False
     pool: int = 1
     speed: Literal["fast", "normal", "slow", "very slow"] = "normal"
+    too_many_errors: int = 30
 
 setting_file = Path("./settings.json")
 if setting_file.exists():

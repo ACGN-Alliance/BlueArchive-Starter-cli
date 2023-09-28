@@ -89,22 +89,10 @@ def on_device_selected():
         pname = device_now
         port = 5555
 
-    if settings.speed == "fast":
-        delay = 0.8
-    elif settings.speed == "normal":
-        delay = 1
-    elif settings.speed == "slow":
-        delay = 1.8
-    elif settings.speed == "very slow":
-        delay = 3
-    else:
-        delay = 1
-
     adb_con = adb.ADB(
             device_name=f"localhost:{port}",
             physic_device_name=pname,
-            is_mumu=settings.is_mumu,
-            delay=delay
+            is_mumu=settings.is_mumu
         )
     
     print(f"已选择设备: {device_now}")
@@ -215,7 +203,8 @@ def settings_menu():
         print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}") 
         print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool})")
         print(f"10. 设置命令执行速度 当前为: {settings.speed}")
-        print("11. 返回主菜单\n")
+        print(f"11. 设置识图错误中断数值(-1为关闭) 当前为: {settings.too_many_errors}")
+        print("12. 返回主菜单\n")
 
         choice = int(input("请选择: "))
         if choice == 1:
@@ -271,6 +260,13 @@ def settings_menu():
                 print("请输入正确的速度")
                 continue
         elif choice == 11:
+            num = input("请输入识图错误中断数值: ")
+            if num.isdigit() and int(num) >= 0:
+                settings.too_many_errors = int(num)
+            else:
+                print("数值不合法")
+                continue
+        elif choice == 12:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
         else:

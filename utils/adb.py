@@ -7,6 +7,8 @@ import time
 
 from .settings import Settings
 
+class ScreenShotCompareError(BaseException):
+    pass
 
 class ADB:
     """
@@ -16,6 +18,7 @@ class ADB:
         delay (int): 执行ADB命令后的延迟时间，单位为秒，默认为1秒。
         adb_path (str): adb.exe可执行文件的路径。
     """
+    compare_fail_count: int = 0
 
     def __init__(
             self,
@@ -174,6 +177,14 @@ class ADB:
         """停止adb服务"""
         self._run_command(["kill-server"])
 
+    def _fail_handle(self) -> bool:
+        self.compare_fail_count += 1
+        if self.compare_fail_count >= self.setting.too_many_errors:
+            self.compare_fail_count = 0
+            raise ScreenShotCompareError("图片对比失败次数过多, 已退出脚本")
+
+        return False
+
     def screenshot_region(
             self,
             x1: float,
@@ -228,10 +239,10 @@ class ADB:
             im_s: Image.Image = Image.open(img)
 
             # 确保两个图像的尺寸一致
-            if im.size[0] / im.size[1] != im_s.size[0] / im_s.size[1]:
-                logger.warning(
-                    "图片尺寸不一致!如果此提示一直出现(>=25条)请向开发者反馈。"
-                )
+            # if im.size[0] / im.size[1] != im_s.size[0] / im_s.size[1]:
+            #     logger.warning(
+            #         "图片尺寸不一致!如果此提示一直出现(>=25条)请向开发者反馈。"
+            #     )
 
             im_s = im_s.resize(im.size)
 
@@ -255,9 +266,11 @@ class ADB:
             now_confidence = white_count / all_count
             
             if now_confidence > confidence:
-                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}, 匹配成功"
+                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
             else:
-                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}, 匹配失败"
+                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(<{confidence}), 匹配>>>失败<<<\n已累计: {self.compare_fail_count} 次"
+                if self.setting.too_many_errors != -1:
+                    self._fail_handle()
             logger.debug(info)
 
             return now_confidence > confidence
