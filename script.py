@@ -4,6 +4,7 @@ from loguru import logger
 import json
 
 from utils import adb
+from utils.settings import Settings
 
 def checkpoint(
         position: int,
@@ -35,7 +36,7 @@ def script(
         adb_con: adb.ADB,
         path: pathlib.Path,
         mapping: Any,
-        settings: object,
+        settings: Settings,
         *args,
         load_point: int = 0
 ):

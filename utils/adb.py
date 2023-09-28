@@ -1,10 +1,11 @@
 import subprocess, os
-import warnings
 from pathlib import Path
 from io import BytesIO
 from PIL import Image, ImageChops
 from loguru import logger
 import time
+
+from .settings import Settings
 
 
 class ADB:
@@ -24,6 +25,7 @@ class ADB:
             scan_mode: bool = False,
             physic_device_name: str = "",
             is_mumu: bool = False,
+            settings: Settings = None,
     ):
         """
         初始化针对特定Android设备的ADB接口。
@@ -33,7 +35,19 @@ class ADB:
             delay (int, optional): 执行ADB命令后的延迟时间，单位为秒。默认为1秒。
         """
         self.device_name = device_name
-        self.delay = delay
+        self.setting = settings
+
+        if settings.speed == "fast":
+            delay = 0.8
+        elif settings.speed == "normal":
+            delay = 1
+        elif settings.speed == "slow":
+            delay = 1.8
+        elif settings.speed == "very slow":
+            delay = 3
+        else:
+            self.delay = delay
+
         # self.adb_path = adb_path or self._find_adb()
         if os.name == "nt":
             self.adb_path = "./platform-tools/adb.exe"
@@ -111,13 +125,25 @@ class ADB:
         for _ in range(count):
             self.click(x, y)
 
+            if self.setting.speed == "slow":
+                self.sleep(0.5)
+            elif self.setting.speed == "very slow":
+                self.sleep(1)
+
     def input_text(self, text: str) -> str:
         """在设备上输入文字."""
         return self._run_command(["shell", "input", "text", text])
 
     def sleep(self, time_: int | float = 0) -> None:
         """暂停指定的持续时间。"""
-        return time.sleep(time_ or self.delay)
+        time.sleep(time_ or self.delay)
+
+        if self.setting.speed == "slow":
+            time.sleep(time_ * 0.2)
+        elif self.setting.speed == "very slow":
+            time.sleep(time_ * 0.4)
+
+        return None
 
     def back(self) -> str:
         """模拟设备上的返回按钮操作。"""

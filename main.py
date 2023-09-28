@@ -8,10 +8,10 @@ import traceback
 from pathlib import Path
 from typing import Optional
 from loguru import logger
-from dataclasses import dataclass
 
 from script import script
 from utils import adb
+from utils.settings import settings, setting_file
 
 __version__ = "1.0.5.1"
 
@@ -19,35 +19,6 @@ device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
-
-
-"""
-设置相关代码
-"""
-@dataclass
-class Settings:
-    username: str = ""
-    guest: bool = False
-    _link_account: bool = False  # 用于判断是否已经有link account弹窗出现
-    ratio: str = "16:9"
-    box_scan: bool = False
-    main_line: bool = False
-    recuit_num: int = 0
-    if_screenshot: bool = False
-    is_mumu: bool = False
-    pool: int = 1
-
-setting_file = Path("./settings.json")
-if setting_file.exists():
-    setting = json.load(open(setting_file, "r", encoding="utf-8"))
-else:
-    setting = {}
-
-try:
-    settings = Settings(**setting)
-except TypeError:
-    print("WARNING: 配置文件格式错误(可能因为版本升级导致), 已重置配置文件")
-    settings = Settings()
 
 
 # 异常处理装饰器
@@ -118,7 +89,24 @@ def on_device_selected():
         pname = device_now
         port = 5555
 
-    adb_con = adb.ADB(device_name=f"localhost:{port}", physic_device_name=pname, is_mumu=settings.is_mumu)
+    if settings.speed == "fast":
+        delay = 0.8
+    elif settings.speed == "normal":
+        delay = 1
+    elif settings.speed == "slow":
+        delay = 1.8
+    elif settings.speed == "very slow":
+        delay = 3
+    else:
+        delay = 1
+
+    adb_con = adb.ADB(
+            device_name=f"localhost:{port}",
+            physic_device_name=pname,
+            is_mumu=settings.is_mumu,
+            delay=delay
+        )
+    
     print(f"已选择设备: {device_now}")
 
 @exception_handle
@@ -226,7 +214,8 @@ def settings_menu():
         print(f"7. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
         print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}") 
         print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool})")
-        print("10. 返回主菜单\n")
+        print(f"10. 设置命令执行速度 当前为: {settings.speed}")
+        print("11. 返回主菜单\n")
 
         choice = int(input("请选择: "))
         if choice == 1:
@@ -275,6 +264,13 @@ def settings_menu():
                 print("数值不合法")
                 continue
         elif choice == 10:
+            speed = input("请输入命令执行速度(fast/normal/slow): ")
+            if speed in ["fast", "normal", "slow"]:
+                settings.speed = speed
+            else:
+                print("请输入正确的速度")
+                continue
+        elif choice == 11:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
         else:
