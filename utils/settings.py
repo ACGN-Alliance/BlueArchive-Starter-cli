@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from typing import Literal
 from pathlib import Path
@@ -7,6 +6,8 @@ import json
 """
 设置相关代码
 """
+
+
 @dataclass
 class Settings:
     username: str = ""
@@ -21,6 +22,7 @@ class Settings:
     pool: int = 1
     speed: Literal["fast", "normal", "slow", "very slow"] = "normal"
     too_many_errors: int = 30
+
 
 setting_file = Path("./settings.json")
 if setting_file.exists():

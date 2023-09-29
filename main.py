@@ -1,12 +1,13 @@
 import json
 import os
+import signal
 import subprocess
 import sys
 import time
-import signal
 import traceback
 from pathlib import Path
 from typing import Optional
+
 from loguru import logger
 
 from script import script
@@ -32,6 +33,7 @@ def exception_handle(func):
 
     return wrapper
 
+
 # ctrl+c退出时关闭adb server
 def signal_handler(sig, frame):
     global adb_con
@@ -43,7 +45,9 @@ def signal_handler(sig, frame):
 
     sys.exit(0)
 
+
 signal.signal(signal.SIGINT, signal_handler)
+
 
 def menu():
     global port, device_now
@@ -90,18 +94,20 @@ def on_device_selected():
         port = 5555
 
     adb_con = adb.ADB(
-            device_name=f"localhost:{port}",
-            physic_device_name=pname,
-            is_mumu=settings.is_mumu
-        )
-    
+        device_name=f"localhost:{port}",
+        physic_device_name=pname,
+        is_mumu=settings.is_mumu,
+        settings=settings
+    )
+
     print(f"已选择设备: {device_now}")
+
 
 @exception_handle
 def scan():
     while True:
         global adb_con, all_device_lst, device_now, port
-        adb_con = adb.ADB(scan_mode=True)
+        adb_con = adb.ADB(scan_mode=True, settings=settings,delay=0.3)
         device_lst = adb_con.get_device_list()
 
         print("0. 指定地址")
@@ -152,13 +158,15 @@ def scan():
             on_device_selected()
             break
 
+
 @exception_handle
 def adb_test():
     global adb_con
     while True:
         mode = int(input("\n1.adb命令行工具(实验性功能)\n2.坐标测试与换算工具\n3.返回主菜单\n请选择需要的工具:"))
         if mode == 1:
-            print("\n可以输入adb命令进行调试, 也可以输入exit退出(注: 使用getevent一类需要持续监听的命令只能用ctrl+c退出)")
+            print(
+                "\n可以输入adb命令进行调试, 也可以输入exit退出(注: 使用getevent一类需要持续监听的命令只能用ctrl+c退出)")
             while True:
                 cmd = input("ADB CMD> ")
                 if cmd == "exit":
@@ -189,6 +197,7 @@ def adb_test():
             print("请选择正确的工具")
             continue
 
+
 @exception_handle
 def settings_menu():
     while True:
@@ -200,7 +209,7 @@ def settings_menu():
         print(f"5. 开/关主线收益(可多十连抽) 当前为: {settings.main_line}")
         print(f"6. 设置额外赠送抽数(单位: 十抽) 当前为: {settings.recuit_num}")
         print(f"7. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
-        print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}") 
+        print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}")
         print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool})")
         print(f"10. 设置命令执行速度 当前为: {settings.speed}")
         print(f"11. 设置识图错误中断数值(-1为关闭) 当前为: {settings.too_many_errors}")
@@ -273,6 +282,7 @@ def settings_menu():
             print("请选择正确的选项")
             continue
 
+
 @exception_handle
 def load():
     while True:
@@ -299,6 +309,7 @@ def load():
         else:
             print("请输入正确的加载模式")
             continue
+
 
 @exception_handle
 def run(_load: int = 0):

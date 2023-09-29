@@ -1,14 +1,18 @@
-import subprocess, os
-from pathlib import Path
+import os
+import subprocess
+import time
 from io import BytesIO
+from pathlib import Path
+
 from PIL import Image, ImageChops
 from loguru import logger
-import time
 
 from .settings import Settings
 
+
 class ScreenShotCompareError(BaseException):
     pass
+
 
 class ADB:
     """
@@ -41,13 +45,13 @@ class ADB:
         self.setting = settings
 
         if settings.speed == "fast":
-            delay = 0.8
+            self.delay = 0.8
         elif settings.speed == "normal":
-            delay = 1
+            self.delay = 1
         elif settings.speed == "slow":
-            delay = 1.8
+            self.delay = 1.8
         elif settings.speed == "very slow":
-            delay = 3
+            self.delay = 3
         else:
             self.delay = delay
 
@@ -269,7 +273,7 @@ class ADB:
                     white_count += color[0]
 
             now_confidence = white_count / all_count
-            
+
             if now_confidence > confidence:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
             else:
