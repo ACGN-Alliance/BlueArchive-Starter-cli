@@ -1,49 +1,25 @@
 import json
 import os
+import signal
 import subprocess
 import sys
 import time
-import signal
 import traceback
 from pathlib import Path
 from typing import Optional
+
 from loguru import logger
-from dataclasses import dataclass
 
 from script import script
 from utils import adb
+from utils.settings import settings, setting_file
 
-__version__ = "1.0.5.1"
+__version__ = "1.0.6"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
-
-
-"""
-设置相关代码
-"""
-@dataclass
-class Settings:
-    username: str = ""
-    guest: bool = False
-    ratio: str = "16:9"
-    box_scan: bool = False
-    recuit_num: int = 40
-    if_screenshot: bool = False
-
-setting_file = Path("./settings.json")
-if setting_file.exists():
-    setting = json.load(open(setting_file, "r", encoding="utf-8"))
-else:
-    setting = {}
-
-try:
-    settings = Settings(**setting)
-except TypeError:
-    print("WARNING: 配置文件格式错误(可能因为版本升级导致), 已重置配置文件")
-    settings = Settings()
 
 
 # 异常处理装饰器
@@ -57,6 +33,7 @@ def exception_handle(func):
 
     return wrapper
 
+
 # ctrl+c退出时关闭adb server
 def signal_handler(sig, frame):
     global adb_con
@@ -68,7 +45,9 @@ def signal_handler(sig, frame):
 
     sys.exit(0)
 
+
 signal.signal(signal.SIGINT, signal_handler)
+
 
 def menu():
     global port, device_now
@@ -114,14 +93,21 @@ def on_device_selected():
         pname = device_now
         port = 5555
 
-    adb_con = adb.ADB(device_name=f"localhost:{port}", physic_device_name=pname)
+    adb_con = adb.ADB(
+        device_name=f"localhost:{port}",
+        physic_device_name=pname,
+        is_mumu=settings.is_mumu,
+        settings=settings
+    )
+
     print(f"已选择设备: {device_now}")
+
 
 @exception_handle
 def scan():
     while True:
         global adb_con, all_device_lst, device_now, port
-        adb_con = adb.ADB(scan_mode=True)
+        adb_con = adb.ADB(scan_mode=True, settings=settings,delay=0.3)
         device_lst = adb_con.get_device_list()
 
         print("0. 指定地址")
@@ -172,13 +158,15 @@ def scan():
             on_device_selected()
             break
 
+
 @exception_handle
 def adb_test():
     global adb_con
     while True:
         mode = int(input("\n1.adb命令行工具(实验性功能)\n2.坐标测试与换算工具\n3.返回主菜单\n请选择需要的工具:"))
         if mode == 1:
-            print("\n可以输入adb命令进行调试, 也可以输入exit退出(注: 使用getevent一类需要持续监听的命令只能用ctrl+c退出)")
+            print(
+                "\n可以输入adb命令进行调试, 也可以输入exit退出(注: 使用getevent一类需要持续监听的命令只能用ctrl+c退出)")
             while True:
                 cmd = input("ADB CMD> ")
                 if cmd == "exit":
@@ -209,6 +197,7 @@ def adb_test():
             print("请选择正确的工具")
             continue
 
+
 @exception_handle
 def settings_menu():
     while True:
@@ -217,12 +206,16 @@ def settings_menu():
         print(f"2. 调整游客账户模式 当前为: {settings.guest}")
         print(f"3. 设置高宽比(开发中) 当前为: {settings.ratio}")
         print(f"4. 开/关box检测(开发中) 当前为: {settings.box_scan}")
-        print(f"5. 设置总抽数 当前为: {settings.recuit_num}")
-        print(f"6. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
-        print("7. 返回主菜单\n")
+        print(f"5. 开/关主线收益(可多十连抽) 当前为: {settings.main_line}")
+        print(f"6. 设置额外赠送抽数(单位: 十抽) 当前为: {settings.recuit_num}")
+        print(f"7. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
+        print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}")
+        print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool})")
+        print(f"10. 设置命令执行速度 当前为: {settings.speed}")
+        print(f"11. 设置识图错误中断数值(-1为关闭) 当前为: {settings.too_many_errors}")
+        print("12. 返回主菜单\n")
 
         choice = int(input("请选择: "))
-
         if choice == 1:
             name = input("请输入用户名: ")
             if name.isalnum():
@@ -231,6 +224,16 @@ def settings_menu():
                 print("用户名只能包含字母和数字!")
                 continue
         elif choice == 2:
+            if not settings.guest:
+                ans = input("是否有提醒Link Account的弹窗? (y/n): ")
+                if ans == "y":
+                    settings._link_account = True
+                elif ans == "n":
+                    settings._link_account = False
+                else:
+                    print("请输入正确的选项")
+                    continue
+
             settings.guest = not settings.guest
         elif choice == 3:
             print("该功能尚未开发完成, 请等待之后的版本")
@@ -239,20 +242,46 @@ def settings_menu():
             print("该功能尚未开发完成, 请等待之后的版本")
             # settings.box_scan = not settings.box_scan
         elif choice == 5:
-            num = input("请输入总抽数(要求:10的倍数且>=30, 无额外赠送仅支持30&40抽)): ")
-            if num.isdigit() and int(num) % 10 == 0 and int(num) >= 30:
+            settings.main_line = not settings.main_line
+        elif choice == 6:
+            num = input("请输入额外赠送的抽数(指当期活动送的而非新手奖励): ")
+            if num.isdigit() and int(num) >= 0:
                 settings.recuit_num = int(num)
             else:
-                print("总抽数不合法")
+                print("数值不合法")
                 continue
-        elif choice == 6:
-            settings.if_screenshot = not settings.if_screenshot
         elif choice == 7:
+            settings.if_screenshot = not settings.if_screenshot
+        elif choice == 8:
+            settings.is_mumu = not settings.is_mumu
+        elif choice == 9:
+            num = input("请输入需要抽取的卡池位置(倒数): ")
+            if num.isdigit() and int(num) >= 1:
+                settings.pool = int(num)
+            else:
+                print("数值不合法")
+                continue
+        elif choice == 10:
+            speed = input("请输入命令执行速度(fast/normal/slow/very slow): ")
+            if speed in ["fast", "normal", "slow", "very slow"]:
+                settings.speed = speed
+            else:
+                print("请输入正确的速度")
+                continue
+        elif choice == 11:
+            num = input("请输入识图错误中断数值: ")
+            if num.isdigit() and int(num) >= 0:
+                settings.too_many_errors = int(num)
+            else:
+                print("数值不合法")
+                continue
+        elif choice == 12:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
         else:
             print("请选择正确的选项")
             continue
+
 
 @exception_handle
 def load():
@@ -280,6 +309,7 @@ def load():
         else:
             print("请输入正确的加载模式")
             continue
+
 
 @exception_handle
 def run(_load: int = 0):
