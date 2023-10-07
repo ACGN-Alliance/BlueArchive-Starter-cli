@@ -6,8 +6,8 @@ nuitka ^
     --product-name="BlueArchive-Starter" ^
     --windows-icon-from-ico=bas.ico ^
     --disable-plugin=multiprocessing ^
-    --file-version="1.0.6" ^
-    --product-version="1.0.6" ^
+    --file-version="1.0.6.3" ^
+    --product-version="1.0.6.3" ^
     --windows-file-description="BlueArchive Account tool" ^
     --include-data-dir=platform-tools=platform-tools ^
     --include-data-dir=data/16_9=data/16_9 ^

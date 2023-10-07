@@ -22,7 +22,7 @@ class ADB:
         delay (int): 执行ADB命令后的延迟时间，单位为秒，默认为1秒。
         adb_path (str): adb.exe可执行文件的路径。
     """
-    compare_fail_count: int = 0
+    compare_fail_count: int = 1
 
     def __init__(
             self,
@@ -55,7 +55,6 @@ class ADB:
         else:
             self.delay = delay
 
-        # self.adb_path = adb_path or self._find_adb()
         if os.name == "nt":
             self.adb_path = "./platform-tools/adb.exe"
         else:
@@ -129,13 +128,13 @@ class ADB:
             y (float): 点击的y坐标(0-100表示)。
             count (int, optional): 点击的次数。默认为2次。
         """
+        if self.setting.speed == "slow":
+            count += 2
+        elif self.setting.speed == "very slow":
+            count += 5
+
         for _ in range(count):
             self.click(x, y)
-
-            if self.setting.speed == "slow":
-                self.sleep(0.5)
-            elif self.setting.speed == "very slow":
-                self.sleep(1)
 
     def input_text(self, text: str) -> str:
         """在设备上输入文字."""
@@ -188,7 +187,7 @@ class ADB:
 
     def _fail_handle(self) -> bool:
         self.compare_fail_count += 1
-        if self.compare_fail_count >= self.setting.too_many_errors:
+        if self.compare_fail_count >= self.setting.too_many_errors + 1:
             self.compare_fail_count = 0
             raise ScreenShotCompareError("图片对比失败次数过多, 已退出脚本")
 
@@ -276,9 +275,10 @@ class ADB:
 
             if now_confidence > confidence:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
+                self.compare_fail_count = 0 # 重置失败次数
             else:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(<{confidence}), 匹配>>>失败<<<\n已累计: {self.compare_fail_count} 次"
-                if self.setting.too_many_errors != -1:
+                if self.setting.too_many_errors != 0:
                     self._fail_handle()
             logger.debug(info)
 
