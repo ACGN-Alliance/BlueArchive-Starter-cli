@@ -4,6 +4,7 @@ from loguru import logger
 import json
 
 from utils import adb
+from utils.settings import Settings
 
 def checkpoint(
         position: int,
@@ -35,7 +36,7 @@ def script(
         adb_con: adb.ADB,
         path: Path,
         mapping: Any,
-        settings: object,
+        settings: Settings,
         *args,
         load_point: int = 0
 ):
@@ -70,7 +71,8 @@ def script(
         adb_con.click(95, 4)  # 菜单
         adb_con.click(60, 40)  # 账号
         if settings.guest:
-            adb_con.click(99, 4)  # 弹出网页关闭
+            if settings._link_account:
+                adb_con.click(99, 4)  # 弹出网页关闭
             adb_con.click(70, 60)  # 重置账号
         else:
             adb_con.click(70, 50)
@@ -223,8 +225,8 @@ def script(
         adb_con.click(90, 90)
         adb_con.sleep(5)
         adb_con.click(50, 90)
-        adb_con.sleep(5)
-        adb_con.multi_click(90, 90, 5)
+        adb_con.sleep(9)
+        adb_con.multi_click(94, 94, 4)
         load_point += 1
 
     if not checkpoint(10, load_point, alias="开始BOSS作战"):
@@ -260,14 +262,18 @@ def script(
                 adb_con.click(88, 5)
                 adb_con.click(82.5, 94.44)
         adb_con.sleep(1)
-        adb_con.back()
+        while not adb_con.compare_img(
+                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+        ):
+            adb_con.click(50, 96)
         load_point += 1
 
     if not settings.guest:
         load_point = 14
 
     if not checkpoint(13, load_point, alias="绑定账号"):
-        adb_con.multi_click(50, 50, 4)
+        adb_con.sleep(2)
+        adb_con.multi_click(50, 50, 5)
         adb_con.click(95, 4)  # 菜单
         # adb_con.multi_click(50, 50, 5)
         adb_con.sleep(2)
@@ -280,7 +286,7 @@ def script(
             adb_con.back() # 返回主界面
         load_point += 1
 
-    if settings.recuit_num == 30:
+    if not settings.main_line:
         load_point = 15
 
     if not checkpoint(14, load_point, alias="开始获取主线青辉石"):
@@ -373,30 +379,37 @@ def script(
         load_point += 1
     
     if not checkpoint(15, load_point, alias="开始30连抽"):
-
         logger.info("进入抽卡")
-        adb_con.multi_click(70, 90, 3)
-        while not adb_con.compare_img(
-                *mapping["recurit_page.png"], img=path.joinpath("recurit_page.png")
-        ):
-            logger.info("翻页，常驻池")
-            adb_con.click(3, 55)  # 常驻池
+        adb_con.multi_click(70, 90)
+        adb_con.sleep(5)
+        # while not adb_con.compare_img(
+        #         *mapping["recurit_page.png"], img=path.joinpath("recurit_page.png")
+        # ):
+        #     logger.info("翻页，常驻池")
+        #     adb_con.click(3, 55)  # 常驻池
+        for _ in range(settings.pool):
+            adb_con.click(3, 55)
+            adb_con.sleep(3)
         # logger.debug("切换卡池")
         # adb_con.multi_click(3, 55, 2)
         logger.info("开始抽卡")
         adb_con.click(76, 72)
         adb_con.click(60, 70)
         adb_con.sleep(5)
-        for i in range(int(settings.recuit_num / 10) - 1):  # 40抽
+
+        recuit_times = settings.recuit_num + 2 + (1 if settings.main_line else 0)
+        for i in range(recuit_times):  # 40抽
             adb_con.multi_click(50, 75, 5)
             while not adb_con.compare_img(
                     *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
             ):
                 adb_con.multi_click(92, 7, 3)
-            if settings.if_screenshot:
-                adb_con.screenshot(f"{i + 2}.png")
             adb_con.click(50, 90)
             adb_con.sleep(3)
+
+            if settings.if_screenshot:
+                adb_con.screenshot(f"{i + 2}.png")
+                
             adb_con.click(60, 90)
             adb_con.click(60, 65)
         logger.info("回到主菜单")

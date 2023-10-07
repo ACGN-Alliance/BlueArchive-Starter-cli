@@ -1,10 +1,17 @@
-import subprocess, os
-import warnings
-from pathlib import Path
+import os
+import subprocess
+import time
 from io import BytesIO
+from pathlib import Path
+
 from PIL import Image, ImageChops
 from loguru import logger
-import time
+
+from .settings import Settings
+
+
+class ScreenShotCompareError(BaseException):
+    pass
 
 
 class ADB:
@@ -15,6 +22,7 @@ class ADB:
         delay (int): 执行ADB命令后的延迟时间，单位为秒，默认为1秒。
         adb_path (str): adb.exe可执行文件的路径。
     """
+    compare_fail_count: int = 0
 
     def __init__(
             self,
@@ -22,7 +30,9 @@ class ADB:
             device_name: str = "",
             delay: int | float = 1,
             scan_mode: bool = False,
-            physic_device_name: str = ""
+            physic_device_name: str = "",
+            is_mumu: bool = False,
+            settings: Settings = None,
     ):
         """
         初始化针对特定Android设备的ADB接口。
@@ -32,7 +42,19 @@ class ADB:
             delay (int, optional): 执行ADB命令后的延迟时间，单位为秒。默认为1秒。
         """
         self.device_name = device_name
-        self.delay = delay
+        self.setting = settings
+
+        if settings.speed == "fast":
+            self.delay = 0.8
+        elif settings.speed == "normal":
+            self.delay = 1
+        elif settings.speed == "slow":
+            self.delay = 1.8
+        elif settings.speed == "very slow":
+            self.delay = 3
+        else:
+            self.delay = delay
+
         # self.adb_path = adb_path or self._find_adb()
         if os.name == "nt":
             self.adb_path = "./platform-tools/adb.exe"
@@ -49,7 +71,10 @@ class ADB:
             self.device_name = physic_device_name
 
         if not scan_mode:
-            self.screen_width, self.screen_height = self._get_screen_resolution()
+            if is_mumu:
+                self.screen_height, self.screen_width = self._get_screen_resolution()
+            else:
+                self.screen_width, self.screen_height = self._get_screen_resolution()
 
     def _run_command(self, cmd: list[str]) -> str:
         """执行一个ADB命令。"""
@@ -107,13 +132,30 @@ class ADB:
         for _ in range(count):
             self.click(x, y)
 
+            if self.setting.speed == "slow":
+                self.sleep(0.5)
+            elif self.setting.speed == "very slow":
+                self.sleep(1)
+
     def input_text(self, text: str) -> str:
         """在设备上输入文字."""
         return self._run_command(["shell", "input", "text", text])
 
     def sleep(self, time_: int | float = 0) -> None:
         """暂停指定的持续时间。"""
-        return time.sleep(time_ or self.delay)
+        if not time_:
+            time_ = self.delay
+
+        if self.setting.speed == "slow":
+            time.sleep(time_ * 1.15)
+        elif self.setting.speed == "very slow":
+            time.sleep(time_ * 1.3)
+        elif self.setting.speed == "fast":
+            time.sleep(time_ * 0.95)
+        elif self.setting.speed == "normal":
+            time.sleep(1)
+
+        return None
 
     def back(self) -> str:
         """模拟设备上的返回按钮操作。"""
@@ -143,6 +185,14 @@ class ADB:
     def kill_server(self) -> None:
         """停止adb服务"""
         self._run_command(["kill-server"])
+
+    def _fail_handle(self) -> bool:
+        self.compare_fail_count += 1
+        if self.compare_fail_count >= self.setting.too_many_errors:
+            self.compare_fail_count = 0
+            raise ScreenShotCompareError("图片对比失败次数过多, 已退出脚本")
+
+        return False
 
     def screenshot_region(
             self,
@@ -198,10 +248,10 @@ class ADB:
             im_s: Image.Image = Image.open(img)
 
             # 确保两个图像的尺寸一致
-            if im.size[0] / im.size[1] != im_s.size[0] / im_s.size[1]:
-                logger.warning(
-                    "图片尺寸不一致!如果此提示一直出现(>=25条)请向开发者反馈。"
-                )
+            # if im.size[0] / im.size[1] != im_s.size[0] / im_s.size[1]:
+            #     logger.warning(
+            #         "图片尺寸不一致!如果此提示一直出现(>=25条)请向开发者反馈。"
+            #     )
 
             im_s = im_s.resize(im.size)
 
@@ -223,11 +273,13 @@ class ADB:
                     white_count += color[0]
 
             now_confidence = white_count / all_count
-            
+
             if now_confidence > confidence:
-                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}, 匹配成功"
+                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
             else:
-                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}, 匹配失败"
+                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(<{confidence}), 匹配>>>失败<<<\n已累计: {self.compare_fail_count} 次"
+                if self.setting.too_many_errors != -1:
+                    self._fail_handle()
             logger.debug(info)
 
             return now_confidence > confidence
