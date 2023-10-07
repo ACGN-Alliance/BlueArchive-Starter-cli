@@ -265,7 +265,7 @@ def script(
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
-            adb_con.click(50, 96)
+            adb_con.back()
         load_point += 1
 
     if not settings.guest:
