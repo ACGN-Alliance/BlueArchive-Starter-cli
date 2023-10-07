@@ -278,7 +278,7 @@ class ADB:
                 self.compare_fail_count = 0 # 重置失败次数
             else:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(<{confidence}), 匹配>>>失败<<<\n已累计: {self.compare_fail_count} 次"
-                if self.setting.too_many_errors != -1:
+                if self.setting.too_many_errors != 0:
                     self._fail_handle()
             logger.debug(info)
 

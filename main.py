@@ -217,7 +217,7 @@ def settings_menu():
         print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}")
         print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool}")
         print(f"10. 设置命令执行速度 当前为: {settings.speed}")
-        print(f"11. 设置识图错误中断数值(-1为关闭) 当前为: {settings.too_many_errors}")
+        print(f"11. 设置识图错误中断数值(0为关闭) 当前为: {settings.too_many_errors}")
         print("12. 返回主菜单\n")
 
         choice = int(input("请选择: "))
