@@ -129,13 +129,13 @@ class ADB:
             y (float): 点击的y坐标(0-100表示)。
             count (int, optional): 点击的次数。默认为2次。
         """
+        if self.setting.speed == "slow":
+            count += 2
+        elif self.setting.speed == "very slow":
+            count += 5
+
         for _ in range(count):
             self.click(x, y)
-
-            if self.setting.speed == "slow":
-                self.sleep(0.5)
-            elif self.setting.speed == "very slow":
-                self.sleep(1)
 
     def input_text(self, text: str) -> str:
         """在设备上输入文字."""

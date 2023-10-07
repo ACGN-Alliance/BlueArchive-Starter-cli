@@ -14,7 +14,7 @@ from script import script
 from utils import adb
 from utils.settings import settings, setting_file
 
-__version__ = "1.0.6"
+__version__ = "1.0.6.1"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量

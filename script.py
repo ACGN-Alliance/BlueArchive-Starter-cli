@@ -231,7 +231,7 @@ def script(
 
     if not checkpoint(10, load_point, alias="开始BOSS作战"):
         # logger.success("开始BOSS作战")
-        adb_con.multi_click(60, 55, 5)
+        adb_con.multi_click(60, 55, 8)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
