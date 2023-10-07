@@ -28,6 +28,11 @@ def exception_handle(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
+            print("发生异常, 请将以下信息反馈给开发者:")
+            traceback.print_exc()
+            return None
+        except BaseException as e:
+            print("发生异常, 请将以下信息反馈给开发者:")
             traceback.print_exc()
             return None
 
@@ -206,11 +211,11 @@ def settings_menu():
         print(f"2. 调整游客账户模式 当前为: {settings.guest}")
         print(f"3. 设置高宽比(开发中) 当前为: {settings.ratio}")
         print(f"4. 开/关box检测(开发中) 当前为: {settings.box_scan}")
-        print(f"5. 开/关主线收益(可多十连抽) 当前为: {settings.main_line}")
+        print(f"5. 开/关主线剧情收益(可多十连抽) 当前为: {settings.main_line}")
         print(f"6. 设置额外赠送抽数(单位: 十抽) 当前为: {settings.recuit_num}")
         print(f"7. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
         print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}")
-        print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool})")
+        print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool}")
         print(f"10. 设置命令执行速度 当前为: {settings.speed}")
         print(f"11. 设置识图错误中断数值(-1为关闭) 当前为: {settings.too_many_errors}")
         print("12. 返回主菜单\n")
@@ -270,7 +275,7 @@ def settings_menu():
                 continue
         elif choice == 11:
             num = input("请输入识图错误中断数值: ")
-            if num.isdigit() and int(num) >= 0:
+            if num.isdigit():
                 settings.too_many_errors = int(num)
             else:
                 print("数值不合法")
@@ -309,7 +314,6 @@ def load():
         else:
             print("请输入正确的加载模式")
             continue
-
 
 @exception_handle
 def run(_load: int = 0):
