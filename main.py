@@ -383,13 +383,19 @@ def run(_load: int = 0):
         logger.error("未找到资源文件, 请确认下载是否完整")
         return
 
-    script(
-        adb_con,
-        path,
-        mapping,
-        settings,
-        load_point=_load
-    )
+    while True:
+        res = script(
+            adb_con,
+            path,
+            mapping,
+            settings,
+            load_point=_load
+        )
+        if res:
+            break
+        else:
+            _load = 0
+            continue
 
 
 def _verify_device():

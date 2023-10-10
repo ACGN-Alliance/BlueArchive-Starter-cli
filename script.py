@@ -24,8 +24,8 @@ def checkpoint(
     if position != load_point:
         return True
 
-    if position == 15:
-        position = 0  # 重置检查点 
+    # if position == 18:
+    #     position = 0  # 重置检查点 
 
     with open("save.json", "w", encoding="utf-8") as f:
         json.dump({"load_point": position}, f)
@@ -55,8 +55,9 @@ def script(
         adb_con.click(95, 15)
         adb_con.click(63, 71)
 
-    if load_point >= 16:
+    if load_point >= 18:
         logger.error("加载点超出范围, 自动结束脚本")
+        return True
 
     name = settings.username
     if not name:
@@ -98,6 +99,7 @@ def script(
         ):
             adb_con.click(50, 70)
         logger.info("输入名字")
+        adb_con.sleep(1)
         adb_con.click(50, 50)
 
         adb_con.sleep(1)
@@ -153,6 +155,7 @@ def script(
             logger.info(f"第 {i + 1} 段剧情")
             skip_story()
         logger.success("使用技能")
+        adb_con.sleep(2)
         adb_con.multi_click(50, 50, 5)
         adb_con.click(70, 88)
         adb_con.click(80, 20)
@@ -214,7 +217,7 @@ def script(
             adb_con.multi_click(90, 90, 2)
             adb_con.sleep(5)
         adb_con.multi_click(50, 63, 5)
-        adb_con.sleep(15)
+        adb_con.sleep(22)
         logger.info("开启auto")
         adb_con.click(95, 95)
         while not adb_con.compare_img(
@@ -262,6 +265,7 @@ def script(
                 adb_con.click(11.56, 41.11)
                 adb_con.click(88, 5)
                 adb_con.click(88, 5)
+                adb_con.sleep(2)
                 adb_con.click(82.5, 94.44)
         adb_con.sleep(1)
         adb_con.multi_click(5, 5, 3)
@@ -285,97 +289,99 @@ def script(
             adb_con.back() # 返回主界面
         load_point += 1
 
-    if not settings.main_line:
-        load_point = 15
+    if settings.main_line:
+        if not checkpoint(14, load_point, alias="开始获取主线青辉石"):
+            # ==============40抽起始==============
+            adb_con.click(92, 82)
+            adb_con.sleep(2)
+            adb_con.click(95, 5)
+            adb_con.multi_click(5, 50, 10)  # 跳过演示
+            # adb_con.click(48, 70)
+            
+            adb_con.click(85, 35)  # 进入剧情
+            adb_con.multi_click(5, 50, 11)  # 跳过演示
+            adb_con.click(30, 50)  # 进入主线
+            adb_con.sleep(2)
+            adb_con.click(90, 45)  # 第一章
+            adb_con.sleep(2)
 
-    if not checkpoint(14, load_point, alias="开始获取主线青辉石"):
-        # ==============40抽起始==============
-        adb_con.click(92, 82)
-        adb_con.sleep(2)
-        adb_con.click(95, 5)
-        adb_con.multi_click(5, 50, 10)  # 跳过演示
-        # adb_con.click(48, 70)
-        
-        adb_con.click(85, 35)  # 进入剧情
-        adb_con.multi_click(5, 50, 11)  # 跳过演示
-        adb_con.click(30, 50)  # 进入主线
-        adb_con.sleep(2)
-        adb_con.click(90, 45)  # 第一章
-        adb_con.sleep(2)
+            def chapter(ctype: str, 
+                        *args,
+                        is_first_bat: bool = False, 
+                        story_after_bat: bool = True
+                        ):
+                adb_con.sleep(1.5)
+                adb_con.click(85, 48)
+                adb_con.click(50, 70)
+                while not adb_con.compare_img(
+                        *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
+                ):
+                    adb_con.click(50, 50)
+                for _ in range(2):
+                    skip_story()
 
-        def chapter(ctype: str, 
-                    *args,
-                    is_first_bat: bool = False, 
-                    story_after_bat: bool = True
+                if ctype == "battle":
+                    adb_con.multi_click(95, 95, 3)
+                    if is_first_bat:
+                        adb_con.sleep(8)
+                        adb_con.click(95, 95)
+
+                    while not adb_con.compare_img(
+                            *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
                     ):
-            adb_con.sleep(1.5)
-            adb_con.click(85, 48)
-            adb_con.click(50, 70)
+                        adb_con.sleep(1)
+                    adb_con.click(90, 95)
+
+                    if story_after_bat:
+                        while not adb_con.compare_img(
+                                *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
+                        ):
+                            adb_con.sleep(1)
+                        for _ in range(2):
+                            skip_story()
+                    else:
+                        logger.info("此处确保稳定性停顿时间较长, 请耐心等待")
+                        adb_con.sleep(24)
+
+                adb_con.sleep(4)
+                adb_con.multi_click(50, 90, 2)
+
+            chapter("normal")  # 第一话
+            chapter("battle", is_first_bat=True)  # 第二话
+            chapter("battle")  # 第三话
+            chapter("normal")  # 第四话
+            chapter("normal")  # 第五话
+            chapter("battle", story_after_bat=False)  # 第六话
+            chapter("normal")  # 第七话
+            chapter("normal")  # 第八话
+
+            while not adb_con.compare_img(
+                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+            ):
+                adb_con.back()
+
+            adb_con.click(6, 32)  # 进入任务
             while not adb_con.compare_img(
                     *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
             ):
                 adb_con.click(50, 50)
-            for _ in range(2):
-                skip_story()
 
-            if ctype == "battle":
-                adb_con.multi_click(95, 95, 3)
-                if is_first_bat:
-                    adb_con.sleep(8)
-                    adb_con.click(95, 95)
+            skip_story()
 
-                while not adb_con.compare_img(
-                        *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
-                ):
-                    adb_con.sleep(1)
-                adb_con.click(90, 95)
+            adb_con.sleep(5)
+            adb_con.click(90, 95)
+            adb_con.multi_click(50, 90, 5)
 
-                if story_after_bat:
-                    while not adb_con.compare_img(
-                            *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
-                    ):
-                        adb_con.sleep(1)
-                    for _ in range(2):
-                        skip_story()
-                else:
-                    logger.info("此处确保稳定性停顿时间较长, 请耐心等待")
-                    adb_con.sleep(24)
+            while not adb_con.compare_img(
+                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+            ):
+                adb_con.back()
 
-            adb_con.sleep(4)
-            adb_con.multi_click(50, 90, 2)
+            load_point += 1
 
-        chapter("normal")  # 第一话
-        chapter("battle", is_first_bat=True)  # 第二话
-        chapter("battle")  # 第三话
-        chapter("normal")  # 第四话
-        chapter("normal")  # 第五话
-        chapter("battle", story_after_bat=False)  # 第六话
-        chapter("normal")  # 第七话
-        chapter("normal")  # 第八话
-
-        while not adb_con.compare_img(
-            *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
-        ):
-            adb_con.back()
-
-        adb_con.click(6, 32)  # 进入任务
-        while not adb_con.compare_img(
-                *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
-        ):
-            adb_con.click(50, 50)
-
-        skip_story()
-
-        adb_con.sleep(5)
-        adb_con.click(90, 95)
-        adb_con.multi_click(50, 90, 5)
-
-        while not adb_con.compare_img(
-            *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
-        ):
-            adb_con.back()
-
-        load_point += 1
+    else:
+        if load_point == 14:
+            load_point += 1
     
     if not checkpoint(15, load_point, alias="开始抽卡"):
         logger.info("进入抽卡")
@@ -402,7 +408,9 @@ def script(
             while not adb_con.compare_img(
                     *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
             ):
-                adb_con.multi_click(92, 7, 3)
+                adb_con.click(40, 90)
+                adb_con.click(60, 70)
+                adb_con.multi_click(92, 7, 2)
             adb_con.sleep(2)
             adb_con.click(50, 90)
             adb_con.sleep(3)
@@ -418,40 +426,60 @@ def script(
         ):
             adb_con.back()
 
+        load_point += 1
+
     if not settings.box_scan:
         logger.success("脚本执行完毕")
-        return
+        return True
     else:
         if not settings.scan_list:
             logger.error("box检测队列为空")
-            return
+            return True
 
     if not checkpoint(16, load_point, alias="学生清单教学"):
         adb_con.click(25, 92)
         adb_con.multi_click(50, 50 ,3)
         adb_con.click(10, 40)
         adb_con.multi_click(50, 50, 8)
+        adb_con.sleep(2)
         adb_con.click(70, 20)
         adb_con.multi_click(50, 50, 7)
+        adb_con.sleep(1)
         adb_con.click(5, 5)
+        adb_con.sleep(2)
 
         adb_con.multi_click(50, 50, 3)
+        adb_con.sleep(1)
         adb_con.click(10, 40)
         adb_con.multi_click(50, 50, 9)
+        adb_con.sleep(1)
         adb_con.click(5, 5)
+        adb_con.sleep(2)
         
         adb_con.multi_click(50, 50, 3)
+        adb_con.sleep(1)
         adb_con.click(10, 40)
         adb_con.multi_click(50, 50, 4)
+        adb_con.sleep(1)
         adb_con.click(58, 50)
         adb_con.multi_click(50, 50, 5)
+        adb_con.sleep(1)
         adb_con.click(90, 50)
         adb_con.multi_click(95, 95, 10)
+        adb_con.click(5, 5)
+
+        load_point += 1
     
     if not checkpoint(17, load_point, alias="box检查"):
+        adb_con.sleep(2)
         if settings._access_token != "":
             bscan = Scan(adb_con=adb_con)
             bscan.directly_set_token(settings._access_token)
         else:
             print("未检测到access_token， 请先去“设置”=>“获取百度ocr access_token”")
-            return
+            return True
+        
+        if bscan.students_in(settings.scan_list):
+            return True
+        else:
+            return False

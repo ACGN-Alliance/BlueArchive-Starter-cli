@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 from pathlib import Path
 import json
@@ -15,7 +15,7 @@ class Settings:
     _link_account: bool = False  # 用于判断是否已经有link account弹窗出现
     ratio: str = "16:9"
     box_scan: bool = False
-    scan_list: list = []
+    scan_list: list = field(default_factory=list)
     main_line: bool = False
     recuit_num: int = 0
     if_screenshot: bool = False
