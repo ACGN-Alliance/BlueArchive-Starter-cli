@@ -120,16 +120,16 @@ def script(
         # logger.success("3. 战斗1")
         logger.info("跳过介绍")
         adb_con.sleep(4)
-        adb_con.multi_click(50, 70, 25)
+        adb_con.multi_click(50, 70, 23)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
             logger.info("尝试使用技能")
-            for _ in range(2):
-                adb_con.click(80, 88)
-                adb_con.click(80, 35)
-                adb_con.click(70, 88)
-                adb_con.click(43, 52)
+            adb_con.sleep(3)
+            adb_con.click(80, 88)
+            adb_con.click(80, 35)
+            adb_con.click(70, 88)
+            adb_con.click(43, 52)
         logger.info("战斗结束")
         adb_con.click(90, 90)
         load_point += 1
@@ -146,12 +146,12 @@ def script(
 
     if not checkpoint(5, load_point, alias="战斗-2"):
         # logger.success("5. 战斗2")
-        adb_con.multi_click(50, 50, 15)
+        adb_con.multi_click(50, 50, 11)
         for i in range(4):
             while not adb_con.compare_img(
                     *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
             ):
-                adb_con.multi_click(50, 50, 3)
+                adb_con.click(50, 50)
             logger.info(f"第 {i + 1} 段剧情")
             skip_story()
         logger.success("使用技能")
@@ -188,7 +188,7 @@ def script(
         adb_con.sleep(10)
         adb_con.click(76, 72)
         adb_con.click(60, 70)
-        adb_con.multi_click(50, 75, 10)
+        adb_con.multi_click(50, 75, 8)
         while not adb_con.compare_img(
                 *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
         ):
@@ -201,9 +201,9 @@ def script(
 
     if not checkpoint(8, load_point, alias="开始教学作战"):
         # logger.success("2. 开始作战")
-        adb_con.multi_click(88, 35, 4)
+        adb_con.multi_click(88, 35, 6)
         adb_con.multi_click(75, 75, 3)
-        adb_con.multi_click(40, 65, 8)
+        adb_con.multi_click(40, 65, 7)
         logger.info("开始编队")
         adb_con.multi_click(95, 25, 5)
         adb_con.sleep(3)
@@ -217,8 +217,8 @@ def script(
             adb_con.multi_click(90, 90, 2)
             adb_con.sleep(5)
         adb_con.multi_click(50, 63, 5)
-        adb_con.sleep(22)
-        logger.info("开启auto")
+        adb_con.sleep(9)
+        # logger.info("开启auto")
         adb_con.click(95, 95)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
@@ -260,33 +260,33 @@ def script(
         while not adb_con.compare_img(
                 *mapping["no_mail.png"], img=path.joinpath("no_mail.png"), confidence=0.5
         ):
-            for _ in range(2):
-                adb_con.click(12.18, 18.66)
-                adb_con.click(11.56, 41.11)
-                adb_con.click(88, 5)
-                adb_con.click(88, 5)
-                adb_con.sleep(2)
-                adb_con.click(82.5, 94.44)
+            adb_con.click(12.18, 18.66)
+            adb_con.click(11.56, 41.11)
+            adb_con.click(88, 5)
+            adb_con.click(88, 5)
+            adb_con.sleep(2)
+            adb_con.click(82.5, 94.44)
+            adb_con.sleep(1)
         adb_con.sleep(1)
-        adb_con.multi_click(5, 5, 3)
+        adb_con.multi_click(5, 5, 2)
         load_point += 1
 
-    if not settings.guest:
-        load_point = 14
-
-    if not checkpoint(13, load_point, alias="绑定账号"):
-        adb_con.sleep(2)
-        adb_con.multi_click(50, 50, 2)
-        adb_con.click(95, 4)  # 菜单
-        # adb_con.multi_click(50, 50, 5)
-        adb_con.sleep(2)
-        adb_con.click(60, 40)  # 账号
-        adb_con.click(99, 4)   # 弹出网页关闭
-        adb_con.multi_click(50, 50,7)
-        while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
-        ):
-            adb_con.back() # 返回主界面
+    if settings.guest:
+        if not checkpoint(13, load_point, alias="绑定账号"):
+            adb_con.sleep(2)
+            adb_con.multi_click(50, 50, 2)
+            adb_con.click(95, 4)  # 菜单
+            # adb_con.multi_click(50, 50, 5)
+            adb_con.sleep(2)
+            adb_con.click(60, 40)  # 账号
+            adb_con.click(99, 4)   # 弹出网页关闭
+            adb_con.multi_click(50, 50,7)
+            while not adb_con.compare_img(
+                    *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+            ):
+                adb_con.back() # 返回主界面
+            load_point += 1
+    else:
         load_point += 1
 
     if settings.main_line:
@@ -380,8 +380,7 @@ def script(
             load_point += 1
 
     else:
-        if load_point == 14:
-            load_point += 1
+        load_point += 1
     
     if not checkpoint(15, load_point, alias="开始抽卡"):
         logger.info("进入抽卡")

@@ -90,7 +90,7 @@ class ADB:
             elif self.setting.speed == "normal":
                 extra_delay = 0
             elif self.setting.speed == "slow":
-                extra_delay = 0.8
+                extra_delay = 0.6
             elif self.setting.speed == "very slow":
                 extra_delay = 2
 
@@ -138,9 +138,9 @@ class ADB:
             count (int, optional): 点击的次数。默认为2次。
         """
         if self.setting.speed == "slow":
-            count += 2
+            count += 1
         elif self.setting.speed == "very slow":
-            count += 5
+            count += 2
 
         for _ in range(count):
             self.click(x, y)
