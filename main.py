@@ -99,7 +99,12 @@ def on_device_selected():
         port = 5555
 
     try:
-        adb_con = adb.ADB(device_name=f"localhost:{port}", physic_device_name=pname)
+        adb_con = adb.ADB(
+            device_name=f"localhost:{port}",
+            physic_device_name=pname,
+            settings=settings, 
+            is_mumu=settings.is_mumu
+        )
         print(f"已选择设备: {device_now}")
         return True
     except IndexError:
@@ -111,7 +116,7 @@ def on_device_selected():
 def scan():
     while True:
         global adb_con, all_device_lst, device_now, port
-        adb_con = adb.ADB(scan_mode=True, settings=settings,delay=0.3)
+        adb_con = adb.ADB(scan_mode=True, settings=settings, delay=0.3)
         device_lst = adb_con.get_device_list()
 
         print("0. 指定地址")

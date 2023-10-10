@@ -85,7 +85,16 @@ class ADB:
             )
             return result.stdout.decode("utf-8")
         finally:
-            time.sleep(self.delay)
+            if self.setting.speed == "fast":
+                extra_delay = -0.2
+            elif self.setting.speed == "normal":
+                extra_delay = 0
+            elif self.setting.speed == "slow":
+                extra_delay = 0.8
+            elif self.setting.speed == "very slow":
+                extra_delay = 2
+
+            time.sleep(self.delay + extra_delay)
 
     def command(self, cmd: str) -> str:
         args = cmd.removeprefix("adb ").split()
