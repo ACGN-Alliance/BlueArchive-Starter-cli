@@ -75,8 +75,11 @@
 #### 2.报错`No such file or directory: 'temp_full_screenshot.png'`
 请检查一下模拟器是否正确连接到adb(目前接到的此问题的反馈都是因为未正确连接adb引起的)
 
+#### 3.Box检测功能当中学生名在哪里查看?
+[BlueArchive-wiki-en](https://bluearchive.wiki/wiki/Characters)
+
 ## 感谢
-[well404](https://github.com/Well2333) 帮助编写部分核心代码
+[well404](https://github.com/Well2333) 编写了核心代码
 
 [QTeaMix](https://tusiart.com/models/616971961895099597) 本程序图标基于此模型生成
 

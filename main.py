@@ -12,7 +12,8 @@ from loguru import logger
 
 from script import script
 from utils import adb
-from utils.settings import settings, setting_file
+from utils.settings import settings, setting_file, box_scan_preset
+from utils.box_scan import Scan
 
 __version__ = "1.0.6.3"
 
@@ -67,8 +68,9 @@ def menu():
     print("3. ADB工具箱")
     print('4. 配置')
     print("5. 加载")
-    print("6. 运行脚本")
-    print("7. 退出")
+    print("6. box检测清单")
+    print("7. 运行脚本")
+    print("8. 退出")
 
 
 def notice():
@@ -211,12 +213,13 @@ def adb_test():
 
 @exception_handle
 def settings_menu():
+    access_token = "无" if not settings._access_token else ("*" * (len(settings._access_token) - 50))
     while True:
         print("\n欢迎来到设置界面")
         print(f"1. 设置用户名 当前为: {settings.username}")
         print(f"2. 调整游客账户模式 当前为: {settings.guest}")
-        print(f"3. 设置高宽比(开发中) 当前为: {settings.ratio}")
-        print(f"4. 开/关box检测(开发中) 当前为: {settings.box_scan}")
+        print(f"3. 获取百度ocr access_token 当前为: {access_token}")
+        print(f"4. 开/关box检测(BETA) 当前为: {settings.box_scan}")
         print(f"5. 开/关主线剧情收益(可多十连抽) 当前为: {settings.main_line}")
         print(f"6. 设置额外赠送抽数(单位: 十抽) 当前为: {settings.recuit_num}")
         print(f"7. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
@@ -247,11 +250,18 @@ def settings_menu():
 
             settings.guest = not settings.guest
         elif choice == 3:
-            print("该功能尚未开发完成, 请等待之后的版本")
-            # settings.ratio = input("请输入高宽比(如16:9): ")
+            apikey = input("请输入百度OCR API Key: ")
+            secretkey = input("请输入百度OCR Secret Key: ")
+            scan = Scan(adb_con=adb_con)
+            if scan.set_token(apikey, secretkey):
+                print("已成功设置，当前access_key:", scan.access_token)
+                settings._access_token = scan.access_token
+            else:
+                print("设置失败，请检查API Key和Secret Key是否正确")
+                continue
         elif choice == 4:
-            print("该功能尚未开发完成, 请等待之后的版本")
-            # settings.box_scan = not settings.box_scan
+            # print("该功能尚未开发完成, 请等待之后的版本")
+            settings.box_scan = not settings.box_scan
         elif choice == 5:
             settings.main_line = not settings.main_line
         elif choice == 6:
@@ -322,6 +332,48 @@ def load():
             continue
 
 @exception_handle
+def box_scan_settings():
+    while True:
+        print("\n1.查看box检测队列")
+        print("2.添加人物")
+        print("3.删除人物")
+        print("4.清空队列")
+        print("5.选取预设队列")
+        print("6.返回主菜单")
+
+        choice = int(input("请选择: "))
+        if choice == 1:
+            print(settings.scan_list)
+        elif choice == 2:
+            name = input("请输入人物名: ")
+            if name in settings.scan_list:
+                print("该人物已存在")
+                continue
+            settings.scan_list.append(name)
+        elif choice == 3:
+            name = input("请输入人物名: ")
+            if name not in settings.scan_list:
+                print("该人物不存在")
+                continue
+            settings.scan_list.remove(name)
+        elif choice == 4:
+            settings.scan_list = []
+        elif choice == 5:
+            for k, v in box_scan_preset.items():
+                print(f"{k} ==> {v}")
+            choice = input("请选择: ")
+            if box_scan_preset.get(choice, None):
+                for chara in box_scan_preset[choice]:
+                    settings.scan_list.append(chara[0])
+            else:
+                print("请输入正确的预设名")
+        elif choice == 6:
+            return
+        else:
+            print("请输入正确的选项")
+            continue
+
+@exception_handle
 def run(_load: int = 0):
     global adb_con
     path = Path("./data/16_9/")
@@ -351,7 +403,7 @@ def _verify_device():
 
 if __name__ == '__main__':
     print(f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861")
-    time.sleep(2)
+    time.sleep(1)
 
     load_point = 0
 
@@ -377,10 +429,12 @@ if __name__ == '__main__':
         elif mode == 5:
             load_point = load()
         elif mode == 6:
+            box_scan_settings()
+        elif mode == 7:
             if not _verify_device():
                 continue
             run(_load=load_point)
-        elif mode == 7:
+        elif mode == 8:
             print("感谢使用~")
             os.kill(signal.CTRL_C_EVENT, 0)  # 主动触发ctrl+c
         else:

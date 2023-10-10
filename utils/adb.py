@@ -194,6 +194,20 @@ class ADB:
         """停止adb服务"""
         self._run_command(["kill-server"])
 
+    def vertical_swipe(self, x: float, y1: float, y2: float) -> str:
+        """
+        模拟设备屏幕上的垂直滑动操作。
+        参数:
+            x (float): 滑动的x坐标(0-100表示)。
+            y1 (float): 滑动的起始y坐标(0-100表示)。
+            y2 (float): 滑动的结束y坐标(0-100表示)。
+        """
+        real_x, real_y1 = self._normalized_to_real_coordinates(x, y1)
+        _, real_y2 = self._normalized_to_real_coordinates(x, y2)
+        return self._run_command(
+            ["shell", "input", "swipe", str(real_x), str(real_y1), str(real_x), str(real_y2)]
+        )
+
     def _fail_handle(self) -> bool:
         self.compare_fail_count += 1
         if self.compare_fail_count >= self.setting.too_many_errors + 1:

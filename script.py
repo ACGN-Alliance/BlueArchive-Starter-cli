@@ -5,6 +5,7 @@ import json
 
 from utils import adb
 from utils.settings import Settings
+from utils.box_scan import Scan
 
 def checkpoint(
         position: int,
@@ -417,4 +418,40 @@ def script(
         ):
             adb_con.back()
 
-    logger.success("脚本执行完毕")
+    if not settings.box_scan:
+        logger.success("脚本执行完毕")
+        return
+    else:
+        if not settings.scan_list:
+            logger.error("box检测队列为空")
+            return
+
+    if not checkpoint(16, load_point, alias="学生清单教学"):
+        adb_con.click(25, 92)
+        adb_con.multi_click(50, 50 ,3)
+        adb_con.click(10, 40)
+        adb_con.multi_click(50, 50, 8)
+        adb_con.click(70, 20)
+        adb_con.multi_click(50, 50, 7)
+        adb_con.click(5, 5)
+
+        adb_con.multi_click(50, 50, 3)
+        adb_con.click(10, 40)
+        adb_con.multi_click(50, 50, 9)
+        adb_con.click(5, 5)
+        
+        adb_con.multi_click(50, 50, 3)
+        adb_con.click(10, 40)
+        adb_con.multi_click(50, 50, 4)
+        adb_con.click(58, 50)
+        adb_con.multi_click(50, 50, 5)
+        adb_con.click(90, 50)
+        adb_con.multi_click(95, 95, 10)
+    
+    if not checkpoint(17, load_point, alias="box检查"):
+        if settings._access_token != "":
+            bscan = Scan(adb_con=adb_con)
+            bscan.directly_set_token(settings._access_token)
+        else:
+            print("未检测到access_token， 请先去“设置”=>“获取百度ocr access_token”")
+            return
