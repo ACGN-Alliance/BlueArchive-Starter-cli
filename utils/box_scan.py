@@ -92,8 +92,7 @@ class Scan:
         }
         response = requests.post(url, headers=headers, data=data)
         if response.status_code != 200:
-            logger.debug(response.status_code)
-            logger.error("百度OCR接口调用失败")
+            logger.error("百度OCR接口调用失败, 错误信息: " + str(response.status_code) + " " + response.text)
             return ""
         else:
             result = response.json()
@@ -110,9 +109,6 @@ class Scan:
             if "L.1" in stu or "Lv." in stu:
                 student_list.remove(stu)
 
-        # logger.debug(str(getattr(result, "log_id")))
-        # words = getattr(result, "words_result")
-        # logger.info(str(words))
         time.sleep(0.5)
 
         return student_list
@@ -148,88 +144,15 @@ class Scan:
             else:
                 break
 
-            # # 滑动学生清单时位置可能会发生偏移，需要重复滑动以消除
-            # color = sc_img.getpixel(self.adb._normalized_to_real_coordinates(18.75, 28.8))
-            # if abs(color[0] - 10) <= 10 and abs(color[1] - 10) <= 10 and abs(color[2] - 10) <= 10:
-            #     logger.success("学生清单截图成功")
-            # else:
-            #     page = page - 1
-            #     continue
-
-            # for stu_img in stu_lst:
-            #     name_list.append(stu_img)
-
-            # # 判定是否需要滑动翻页
-            # if ...:
-            # #     # TODO 滑页
-            #     self.adb.vertical_swipe(15.625, 50, 11/60)
-            # else:
-            #     break
-
         return name_list
     
     def students_in(self, stu: list | str) -> bool:
-        # local_file_list: list = []  # 本地文件列表
-        # local_temp_list: list = []  # 临时列表，用于用户需要且本地的已存在学生
-        # not_local_list: list = []  # 本地没有的需要ocr的学生清单
-        # matched_group: list = []  # 已匹配到的学生列表
-        # is_all_local: bool = False
-
         if isinstance(stu, str):
             stu = [stu]
 
         student_list = self.scan()
+        logger.info(f"学生清单: {student_list}")
         if stu in student_list:
             return True
         else:
             return False
-
-        # if not os.path.exists("data/names"):
-        #     os.mkdir("data/names")
-        # else:
-        #     for file in os.listdir("data/names"):
-        #         local_file_list.append(file.split(".")[0])
-        #     if stu in local_file_list:
-        #         local_temp_list = stu
-        #         is_all_local = True
-        #     else:
-        #         not_local_list = stu.copy()
-        #         for item in local_file_list:
-        #             if item in stu:
-        #                 local_temp_list.append(item)
-        #                 not_local_list.remove(item)
-
-        # name_imgs = self.scan()
-        # for local_name in local_temp_list:
-        #     temp_img = Image.open(f"data/names/{local_name}.png")
-        #     for name_img in name_imgs:
-        #         if self.adb.compare_img(name_img, temp_img, confidence=0.8):
-        #             name_imgs.remove(name_img)
-        #             local_temp_list.remove(local_name)
-        #             matched_group.append(local_name)
-        #             break
-        
-        # if len(local_temp_list) == 0 and is_all_local:
-        #     return True
-        # elif len(local_temp_list) != 0:
-        #     return False
-        # else:
-        #     name_list = []
-        #     for img in name_imgs:
-        #         for local in local_temp_list:
-        #             temp_img = Image.open(f"data/names/{local}.png")
-        #             if self.adb.compare_img(img, temp_img, confidence=0.8):
-        #                 name_imgs.remove(img)
-
-        #     for img in name_imgs:
-        #         res = self.pic2name(img)
-        #         img.save(f"data/names/{res}.png")
-        #         if res:
-        #             name_list.append(res)
-        #         else:
-        #             continue
-            
-        #     if not_local_list in name_list:
-        #         return True
-        #     else:
-        #         return False

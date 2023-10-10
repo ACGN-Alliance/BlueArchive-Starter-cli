@@ -15,7 +15,7 @@ from utils import adb
 from utils.settings import settings, setting_file, box_scan_preset
 from utils.box_scan import Scan
 
-__version__ = "1.0.6.3"
+__version__ = "1.1.0.0"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量

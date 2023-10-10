@@ -480,6 +480,8 @@ def script(
             return True
         
         if bscan.students_in(settings.scan_list):
+            logger.success("学生已刷齐~")
             return True
         else:
+            logger.error("学生未刷齐~重启执行脚本")
             return False
