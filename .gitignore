@@ -169,5 +169,7 @@ cython_debug/
 temp_full_screenshot.png
 save.json
 settings.json
-data/names
-temp/
+
+# ocr and other
+.ocr_venv
+binaries
