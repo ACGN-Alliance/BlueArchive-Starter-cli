@@ -85,7 +85,16 @@ class ADB:
             )
             return result.stdout.decode("utf-8")
         finally:
-            time.sleep(self.delay)
+            if self.setting.speed == "fast":
+                extra_delay = -0.2
+            elif self.setting.speed == "normal":
+                extra_delay = 0
+            elif self.setting.speed == "slow":
+                extra_delay = 0.6
+            elif self.setting.speed == "very slow":
+                extra_delay = 2
+
+            time.sleep(self.delay + extra_delay)
 
     def command(self, cmd: str) -> str:
         args = cmd.removeprefix("adb ").split()
@@ -129,9 +138,9 @@ class ADB:
             count (int, optional): 点击的次数。默认为2次。
         """
         if self.setting.speed == "slow":
-            count += 2
+            count += 1
         elif self.setting.speed == "very slow":
-            count += 5
+            count += 2
 
         for _ in range(count):
             self.click(x, y)
@@ -184,6 +193,20 @@ class ADB:
     def kill_server(self) -> None:
         """停止adb服务"""
         self._run_command(["kill-server"])
+
+    def vertical_swipe(self, x: float, y1: float, y2: float) -> str:
+        """
+        模拟设备屏幕上的垂直滑动操作。
+        参数:
+            x (float): 滑动的x坐标(0-100表示)。
+            y1 (float): 滑动的起始y坐标(0-100表示)。
+            y2 (float): 滑动的结束y坐标(0-100表示)。
+        """
+        real_x, real_y1 = self._normalized_to_real_coordinates(x, y1)
+        _, real_y2 = self._normalized_to_real_coordinates(x, y2)
+        return self._run_command(
+            ["shell", "input", "swipe", str(real_x), str(real_y1), str(real_x), str(real_y2)]
+        )
 
     def _fail_handle(self) -> bool:
         self.compare_fail_count += 1
