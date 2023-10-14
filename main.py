@@ -213,8 +213,8 @@ def adb_test():
 
 @exception_handle
 def settings_menu():
-    access_token = "无" if not settings._access_token else ("*" * (len(settings._access_token) - 50))
     while True:
+        access_token = "无" if not settings._access_token else ("*" * (len(settings._access_token) - 50))
         print("\n欢迎来到设置界面")
         print(f"1. 设置用户名 当前为: {settings.username}")
         print(f"2. 调整游客账户模式 当前为: {settings.guest}")
@@ -227,7 +227,8 @@ def settings_menu():
         print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool}")
         print(f"10. 设置命令执行速度 当前为: {settings.speed}")
         print(f"11. 设置识图错误中断数值(0为关闭) 当前为: {settings.too_many_errors}")
-        print("12. 返回主菜单\n")
+        print(f"12. box检测ocr模式设置 当前为：{settings.box_scan_mode}")
+        print("13. 返回主菜单\n")
 
         choice = int(input("请选择: "))
         if choice == 1:
@@ -297,6 +298,13 @@ def settings_menu():
                 print("数值不合法")
                 continue
         elif choice == 12:
+            smode = input("请输入ocr模式(online/offline): ")
+            if smode in ["online", "offline"]:
+                settings.box_scan_mode = smode
+            else:
+                print("请输入正确的ocr模式")
+                continue
+        elif choice == 13:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
         else:

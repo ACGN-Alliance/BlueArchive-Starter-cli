@@ -123,10 +123,12 @@ class Scan:
         """
         from utils.ocr import ocr
         student_list = []
-        for box, text, confidence in ocr(stu_name_img.tobytes()):
-            if confidence >= 0.7 and "Lv." not in text:
+        stu_name_img.save("temp/stu_name.png")
+        for box, text, confidence in ocr("temp/stu_name.png"):
+            if confidence >= 0.7 and "lv" not in text.lower():
                 student_list.append(text)
 
+        print("stu_list: " + str(student_list))
         return student_list
 
     def scan(self) -> List[str]:

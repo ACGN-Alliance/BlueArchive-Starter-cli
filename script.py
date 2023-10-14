@@ -286,8 +286,6 @@ def script(
             ):
                 adb_con.back() # 返回主界面
             load_point += 1
-    else:
-        load_point += 1
 
     if settings.main_line:
         if not checkpoint(14, load_point, alias="开始获取主线青辉石"):
@@ -378,9 +376,6 @@ def script(
                 adb_con.back()
 
             load_point += 1
-
-    else:
-        load_point += 1
     
     if not checkpoint(15, load_point, alias="开始抽卡"):
         logger.info("进入抽卡")
@@ -471,13 +466,20 @@ def script(
     
     if not checkpoint(17, load_point, alias="box检查"):
         adb_con.sleep(2)
-        if settings._access_token != "":
-            bscan = Scan(adb_con=adb_con)
-            bscan.directly_set_token(settings._access_token)
+        if settings.box_scan_mode == "offline":
+            offline_mode = True
         else:
-            print("未检测到access_token， 请先去“设置”=>“获取百度ocr access_token”")
-            return True
-        
+            offline_mode = False
+        if not offline_mode:
+            if settings._access_token != "":
+                bscan = Scan(adb_con=adb_con, offline=False)
+                bscan.directly_set_token(settings._access_token)
+            else:
+                print("未检测到access_token， 请先去“设置”=>“获取百度ocr access_token”")
+                return True
+        else:
+            bscan = Scan(adb_con=adb_con, offline=True)
+            
         if bscan.students_in(settings.scan_list):
             logger.success("学生已刷齐~")
             return True
