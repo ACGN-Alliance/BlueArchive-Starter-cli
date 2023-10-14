@@ -41,7 +41,7 @@ try:
     engine = RapidOCR()
     READY = True
 except:
-    pass
+    print(INFO)
 
 
 # decorator
@@ -49,7 +49,7 @@ def engine_ready(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not READY:
-            raise Exception("OCR engine is not ready!\n\n" + INFO)
+            raise RuntimeError("OCR engine is not ready!")
         return func(*args, **kwargs)
 
     return wrapper

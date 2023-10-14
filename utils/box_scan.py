@@ -1,9 +1,12 @@
+import base64
 import os.path
+import time
 from pathlib import Path
-from typing import List, Tuple
-import base64, requests, time
+from typing import List
+
+import requests
+from PIL import Image
 from loguru import logger
-from PIL import Image, ImageChops
 
 from .adb import ADB
 
@@ -20,8 +23,9 @@ page_position = {
 class Scan:
     access_token = ""
 
-    def __init__(self, adb_con: ADB):
+    def __init__(self, adb_con: ADB, offline: bool = False):
         self.adb = adb_con
+        self.offline = offline
 
         if not os.path.exists("temp"):
             os.mkdir("temp")
@@ -29,7 +33,7 @@ class Scan:
     def get_page_students(
             self,
             page_screenshot: Image.Image
-            ) -> List[Image.Image]:
+    ) -> List[Image.Image]:
         """
         从单页学生清单截图中获取学生名称
         """
@@ -62,17 +66,17 @@ class Scan:
         if res_data.get("error"):
             print("无法获取百度云token, 错误信息: " + res_data.get("error_description"))
             return False
-        
+
         self.access_token = res_data.get("access_token")
         return True
 
     def have_token(self) -> bool:
         return self.access_token != ""
-    
+
     def directly_set_token(self, token: str) -> None:
         self.access_token = token
 
-    def pic2name(self, stu_name_img: Image.Image) -> List[str]:
+    def pic2name_online(self, stu_name_img: Image.Image) -> List[str]:
         """
         从学生名称图片中获取学生名称
         """
@@ -99,7 +103,7 @@ class Scan:
         if result.get("error_code"):
             logger.error("百度OCR接口调用失败, 错误信息: " + result.get("error_msg"))
             return ""
-        
+
         student_list = []
         for res in result["words_result"]:
             if res["probability"]["average"] >= 0.98:
@@ -113,7 +117,19 @@ class Scan:
 
         return student_list
 
-    def scan(self) -> List[Image.Image]:
+    def pic2name_offline(self, stu_name_img: Image.Image) -> List[str]:
+        """
+        从学生名称图片中获取学生名称
+        """
+        from utils.ocr import ocr
+        student_list = []
+        for box, text, confidence in ocr(stu_name_img.tobytes()):
+            if confidence >= 0.7 and "Lv." not in text:
+                student_list.append(text)
+
+        return student_list
+
+    def scan(self) -> List[str]:
         # 读取学生清单
         page = 0
         name_list = []
@@ -124,14 +140,18 @@ class Scan:
             page = page + 1
             self.adb.screenshot(f"temp/{page}.png")
             sc_img = Image.open(Path(f"temp/{page}.png"))
-            # os.remove(Path(f"temp/{page}.png"))
 
             pos_1 = self.adb._normalized_to_real_coordinates(4, 25)
             pos_2 = self.adb._normalized_to_real_coordinates(99, 97)
             pos = (pos_1[0], pos_1[1], pos_2[0], pos_2[1])
-            stu_lst = self.pic2name(
-                sc_img.crop(pos)
-            )
+            if self.offline:
+                stu_lst = self.pic2name_offline(
+                    sc_img.crop(pos)
+                )
+            else:
+                stu_lst = self.pic2name_online(
+                    sc_img.crop(pos)
+                )
             for stu in stu_lst:
                 if "Owned" in stu:
                     is_finish = True
@@ -145,7 +165,7 @@ class Scan:
                 break
 
         return name_list
-    
+
     def students_in(self, stu: list | str) -> bool:
         if isinstance(stu, str):
             stu = [stu]
