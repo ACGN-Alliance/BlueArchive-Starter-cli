@@ -1,6 +1,7 @@
 import enum
 import os.path
 import subprocess
+import warnings
 
 __all__ = ['CompareMetrics', 'compare_images']
 
@@ -91,16 +92,16 @@ def get_compare_binary():
         return BASE_DIR + 'binaries/compare.exe'
 
 
-def compare_images(img1_path: str, img2_path: str, metric: CompareMetrics = CompareMetrics.SSIM) -> float:
+def compare_images(dst_path: str, src_path: str, metric: CompareMetrics = CompareMetrics.SSIM) -> float:
+    warnings.warn(f"dont use this function, it has not been fully tested!:compare_images", DeprecationWarning)
     compare_binary = get_compare_binary()
     cmds = [
         compare_binary,
         '-metric',
         metric.value,
-        img1_path,
-        img2_path,
+        dst_path,
+        src_path,
         'null:'
     ]
     result = subprocess.run(cmds, capture_output=True, text=True, check=False).stderr
     return float(result)
-
