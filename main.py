@@ -12,7 +12,13 @@ from loguru import logger
 
 from script import script
 from utils import adb
-from utils.settings import settings, setting_file, box_scan_preset
+from utils.settings import (settings,
+                            setting_file, 
+                            box_scan_preset,
+                            smenu,
+                            OptionType,
+                            Option
+                            )
 from utils.box_scan import Scan
 
 __version__ = "1.1.0.1"
@@ -213,92 +219,25 @@ def adb_test():
 
 @exception_handle
 def settings_menu():
-    access_token = "无" if not settings._access_token else ("*" * (len(settings._access_token) - 50))
+    def set_ocr_token():
+        apikey = input("请输入百度OCR API Key: ")
+        secretkey = input("请输入百度OCR Secret Key: ")
+        scan = Scan(adb_con=adb_con)
+        if scan.set_token(apikey, secretkey):
+            print("已成功设置，当前access_key:", scan.access_token)
+            settings._access_token = scan.access_token
+        else:
+            print("设置失败，请检查API Key和Secret Key是否正确")
+
+    smenu.append(Option("获取百度ocr access_token", OptionType.FUNC, None, func=set_ocr_token))
     while True:
-        print("\n欢迎来到设置界面")
-        print(f"1. 设置用户名 当前为: {settings.username}")
-        print(f"2. 调整游客账户模式 当前为: {settings.guest}")
-        print(f"3. 获取百度ocr access_token 当前为: {access_token}")
-        print(f"4. 开/关box检测(BETA) 当前为: {settings.box_scan}")
-        print(f"5. 开/关主线剧情收益(可多十连抽) 当前为: {settings.main_line}")
-        print(f"6. 设置额外赠送抽数(单位: 十抽) 当前为: {settings.recuit_num}")
-        print(f"7. 开/关抽卡结果截图 当前为: {settings.if_screenshot}")
-        print(f"8. 开/关mumu模拟器模式 当前为: {settings.is_mumu}")
-        print(f"9. 设置需要抽取的卡池位置(*倒数*第几个) 当前为: {settings.pool}")
-        print(f"10. 设置命令执行速度 当前为: {settings.speed}")
-        print(f"11. 设置识图错误中断数值(0为关闭) 当前为: {settings.too_many_errors}")
-        print("12. 返回主菜单\n")
-
+        smenu.show()
         choice = int(input("请选择: "))
-        if choice == 1:
-            name = input("请输入用户名: ")
-            if name.isalnum():
-                settings.username = name
-            else:
-                print("用户名只能包含字母和数字!")
-                continue
-        elif choice == 2:
-            if not settings.guest:
-                ans = input("是否有提醒Link Account的弹窗? (y/n): ")
-                if ans == "y":
-                    settings._link_account = True
-                elif ans == "n":
-                    settings._link_account = False
-                else:
-                    print("请输入正确的选项")
-                    continue
-
-            settings.guest = not settings.guest
-        elif choice == 3:
-            apikey = input("请输入百度OCR API Key: ")
-            secretkey = input("请输入百度OCR Secret Key: ")
-            scan = Scan(adb_con=adb_con)
-            if scan.set_token(apikey, secretkey):
-                print("已成功设置，当前access_key:", scan.access_token)
-                settings._access_token = scan.access_token
-            else:
-                print("设置失败，请检查API Key和Secret Key是否正确")
-                continue
-        elif choice == 4:
-            # print("该功能尚未开发完成, 请等待之后的版本")
-            settings.box_scan = not settings.box_scan
-        elif choice == 5:
-            settings.main_line = not settings.main_line
-        elif choice == 6:
-            num = input("请输入额外赠送的抽数(指当期活动送的而非新手奖励): ")
-            if num.isdigit() and int(num) >= 0:
-                settings.recuit_num = int(num)
-            else:
-                print("数值不合法")
-                continue
-        elif choice == 7:
-            settings.if_screenshot = not settings.if_screenshot
-        elif choice == 8:
-            settings.is_mumu = not settings.is_mumu
-        elif choice == 9:
-            num = input("请输入需要抽取的卡池位置(倒数): ")
-            if num.isdigit() and int(num) >= 1:
-                settings.pool = int(num)
-            else:
-                print("数值不合法")
-                continue
-        elif choice == 10:
-            speed = input("请输入命令执行速度(fast/normal/slow/very slow): ")
-            if speed in ["fast", "normal", "slow", "very slow"]:
-                settings.speed = speed
-            else:
-                print("请输入正确的速度")
-                continue
-        elif choice == 11:
-            num = input("请输入识图错误中断数值: ")
-            if num.isdigit():
-                settings.too_many_errors = int(num)
-            else:
-                print("数值不合法")
-                continue
-        elif choice == 12:
+        if choice == smenu.length + 1:
             json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
             return
+        elif choice >= 1 and choice <= smenu.length:
+            smenu.choose(choice)
         else:
             print("请选择正确的选项")
             continue

@@ -171,3 +171,5 @@ save.json
 settings.json
 data/names
 temp/
+
+.ocr_venv/
