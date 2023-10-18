@@ -1,8 +1,5 @@
 import os
 import time
-from io import BytesIO
-
-from PIL import Image
 
 from utils import ocr
 
@@ -12,14 +9,8 @@ if __name__ == '__main__':
 
     print("file: ", r"tests/ocr_test.png")
 
-    image = Image.open(r"tests/ocr_test.png")
-
-    bio = BytesIO()
-    image.save(bio, format='PNG')
-
     begin = time.time()
-    for box, text, confidence in ocr.ocr(bio.getvalue()):
-
+    for box, text, confidence in ocr.ocr(r"tests/img.png"):
         box = str(box)
         print(f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}")
     print("time: ", time.time() - begin)

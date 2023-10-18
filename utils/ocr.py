@@ -14,7 +14,7 @@ sys.path.append(
 
 # for release
 sys.path.append(
-    "ocr_dependencies"
+    os.path.join(os.getcwd(), "ocr_dependencies")
 )
 
 READY = False
@@ -22,7 +22,7 @@ INFO = \
     """
     安装OCR依赖后才能使用OCR功能,
     1.如果实在开发环境下,请先运行:create_ocr_venv.bat 或 create_ocr_venv.sh
-    2.如果是正式环境,请下载ocr_dependencies.zip并解压到当前目录:
+    2.如果是正式环境,请下载 'ocr_dependencies_<win/linux>.zip' 并解压到当前目录:
         ba-starter-dir-
             |-data 
            *|-ocr_dependencies            <--  解压后的文件夹
@@ -30,18 +30,19 @@ INFO = \
             |    |-_yaml
             |    |-coloredlogs
             |    |-...
-            |-PIL
+           *|-PIL                         <--  解压后的文件夹(合并原PIL文件夹)
             |-...
            *|-main.exe                    <--  主程序
             |-...
     """
 try:
+    print("正在加载OCR引擎,请稍等...")
     from rapidocr_onnxruntime import RapidOCR
 
     engine = RapidOCR()
     READY = True
-except:
-    print(INFO)
+except Exception as e:
+    print(e)
 
 
 # decorator
@@ -49,7 +50,7 @@ def engine_ready(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not READY:
-            raise RuntimeError("OCR engine is not ready!")
+            raise RuntimeError("OCR engine is not ready!\n\n" + INFO )
         return func(*args, **kwargs)
 
     return wrapper

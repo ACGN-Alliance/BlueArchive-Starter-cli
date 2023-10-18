@@ -23,7 +23,7 @@ page_position = {
 class Scan:
     access_token = ""
 
-    def __init__(self, adb_con: ADB, offline: bool = False):
+    def __init__(self, adb_con: ADB, offline: bool = True):
         self.adb = adb_con
         self.offline = offline
 

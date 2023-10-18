@@ -45,7 +45,7 @@ dependencies = [
 
 [[package]]
 name = "nuitka"
-version = "1.8.2"
+version = "1.8.4"
 summary = "Python compiler with full language support and CPython compatibility"
 dependencies = [
     "ordered-set>=4.1.0",
@@ -283,8 +283,8 @@ content_hash = "sha256:6264173d0cde2c9a77b8fe9a02b914306b033cd4aabda4fa5d498b07e
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/03/0a/4f6fed21aa246c6b49b561ca55facacc2a44b87d65b8b92362a8e99ba202/loguru-0.7.2-py3-none-any.whl", hash = "sha256:003d71e3d3ed35f0f8984898359d65b79e5b21943f78af86aa5491210429b8eb"},
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/9e/30/d87a423766b24db416a46e9335b9602b054a72b96a88a241f2b09b560fa8/loguru-0.7.2.tar.gz", hash = "sha256:e671a53522515f34fd406340ee968cb9ecafbc4b36c679da03c18fd8d0bd51ac"},
 ]
-"nuitka 1.8.2" = [
-    {url = "https://pypi.tuna.tsinghua.edu.cn/packages/a9/3e/930725e987a2e864aef6ed93b744fc16666088c9a51eb13372af26ce6d4d/Nuitka-1.8.2.tar.gz", hash = "sha256:720db0cae384d44bf713c200cf062b8e0e927b948783f92e5c667d662879c92c"},
+"nuitka 1.8.4" = [
+    {url = "https://pypi.tuna.tsinghua.edu.cn/packages/67/fd/4b345844e11d9a49ce5f51bbca358fcfcf621e0f036e8095dce36b10ca78/Nuitka-1.8.4.tar.gz", hash = "sha256:a0a3896a5260226918081f017c2c71da34d9959cd2c9a2631f3c54e821adb99b"},
 ]
 "ordered-set 4.1.0" = [
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/33/55/af02708f230eb77084a299d7b08175cff006dea4f2721074b92cdb0296c0/ordered_set-4.1.0-py3-none-any.whl", hash = "sha256:046e1132c71fcf3330438a539928932caf51ddbc582496833e23de611de14562"},
