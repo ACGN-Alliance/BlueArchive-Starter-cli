@@ -11,6 +11,7 @@ nuitka ^
     --windows-file-description="BlueArchive Account tool" ^
     --include-data-dir=platform-tools=platform-tools ^
     --include-data-dir=data/16_9=data/16_9 ^
+    --nofollow-import-to=tqdm ^
     --copyright="Copyright @ACGN-Alliance. All right reserved." ^
     --remove-output ^
     main.py ^

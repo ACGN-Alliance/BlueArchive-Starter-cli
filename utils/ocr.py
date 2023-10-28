@@ -2,38 +2,12 @@ import os.path
 import sys
 from functools import wraps
 
-# for development
-sys.path.append(
-    os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        ".ocr_venv",
-        "Lib",
-        "site-packages"
-    )
-)
-
-# for release
-sys.path.append(
-    os.path.join(os.getcwd(), "ocr_dependencies")
-)
-
 READY = False
 INFO = \
     """
-    安装OCR依赖后才能使用OCR功能,
-    1.如果实在开发环境下,请先运行:create_ocr_venv.bat 或 create_ocr_venv.sh
-    2.如果是正式环境,请下载 'ocr_dependencies_<win/linux>.zip' 并解压到当前目录:
-        ba-starter-dir-
-            |-data 
-           *|-ocr_dependencies            <--  解压后的文件夹
-            |    |-_distutils_hack
-            |    |-_yaml
-            |    |-coloredlogs
-            |    |-...
-           *|-PIL                         <--  解压后的文件夹(合并原PIL文件夹)
-            |-...
-           *|-main.exe                    <--  主程序
-            |-...
+    \033[91m安装OCR依赖后才能使用OCR功能,
+    1.如果是在开发环境下,请先运行:create_ocr_venv.bat 或 create_ocr_venv.sh
+    2.如果是正式环境,请下载 'ocr_dependencies_win_3.10.zip' 到当前目录,然后运行主菜单的8号选项执行安装\033[0m
     """
 try:
     print("正在加载OCR引擎,请稍等...")

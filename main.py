@@ -7,19 +7,20 @@ import time
 import traceback
 from pathlib import Path
 from typing import Optional
+from zipfile import ZipFile
 
 from loguru import logger
 
 from script import script
 from utils import adb
+from utils.box_scan import Scan
 from utils.settings import (settings,
-                            setting_file, 
+                            setting_file,
                             box_scan_preset,
                             smenu,
                             OptionType,
                             Option
                             )
-from utils.box_scan import Scan
 
 __version__ = "1.1.0.1"
 
@@ -76,7 +77,8 @@ def menu():
     print("5. 加载")
     print("6. box检测清单")
     print("7. 运行脚本")
-    print("8. 退出")
+    print("8. 安装OCR依赖")
+    print("9. 退出")
 
 
 def notice():
@@ -110,7 +112,7 @@ def on_device_selected():
         adb_con = adb.ADB(
             device_name=f"localhost:{port}",
             physic_device_name=pname,
-            settings=settings, 
+            settings=settings,
             is_mumu=settings.is_mumu
         )
         print(f"已选择设备: {device_now}")
@@ -118,6 +120,32 @@ def on_device_selected():
     except IndexError:
         print("ERROR: 设备无效, 请重新选择")
         return False
+
+
+def install_ocr_deps():
+    try:
+        from utils import ocr
+        for box, text, confidence in ocr.ocr(r"tests/img.png"):
+            box = str(box)
+            print(f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}")
+        print("OCR依赖已安装, 无需重复安装")
+        del ocr
+        return
+
+    except Exception as e:
+        dep = [f for f in os.listdir(os.getcwd()) if f.startswith("ocr_dependencies") and f.endswith(".zip")]
+        print(f"{os.getcwd()=}, {dep=}")
+        if len(dep) == 0:
+            print(
+                "\033[91m未找到依赖包, 请先去对应的release中下载ocr_dependencies_win_3.10.zip并移动到程序目录下\033[0m")
+            return
+        dep = dep[0]
+        print(f"正在安装依赖: {dep}...")
+        # extract zip file to current dir,if dir or file exists,overwrite or merge
+        with ZipFile(dep, "r") as zip_file:
+            zip_file.extractall(os.getcwd())
+        print("\033[91m安装完成,重启程序以生效\033[0m")
+        os.remove(dep)
 
 
 @exception_handle
@@ -228,6 +256,7 @@ def settings_menu():
             settings._access_token = scan.access_token
         else:
             print("设置失败，请检查API Key和Secret Key是否正确")
+
     smenu.append(Option("获取百度ocr access_token", OptionType.FUNC, None, func=set_ocr_token))
     while True:
         smenu.show()
@@ -268,6 +297,7 @@ def load():
         else:
             print("请输入正确的加载模式")
             continue
+
 
 @exception_handle
 def box_scan_settings():
@@ -311,6 +341,7 @@ def box_scan_settings():
             print("请输入正确的选项")
             continue
 
+
 @exception_handle
 def run(_load: int = 0):
     global adb_con
@@ -345,7 +376,15 @@ def _verify_device():
         return True
 
 
+def register_ocr_path():
+    # for user
+    sys.path.append(os.path.abspath("ocr_dependencies"))
+    # for developer
+    sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
+
+
 if __name__ == '__main__':
+    register_ocr_path()
     print(f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861")
     time.sleep(1)
 
@@ -379,6 +418,8 @@ if __name__ == '__main__':
                 continue
             run(_load=load_point)
         elif mode == 8:
+            install_ocr_deps()
+        elif mode == 9:
             print("感谢使用~")
             os.kill(signal.CTRL_C_EVENT, 0)  # 主动触发ctrl+c
         else:
