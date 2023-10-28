@@ -13,7 +13,7 @@ QQ: 769521861
 
 ## 支持平台
 操作端: Windows/Linux  
-被控端: Android 手机/Android 模拟器以及其他支持 Adb(安卓调试桥) 的 Android 平台
+被控端: Android 模拟器以及其他支持 Adb(安卓调试桥) 的 Android 平台
 > 不保证较低版本平台兼容性, 具体兼容性有待测试
 
 ### 推荐配置
@@ -25,15 +25,14 @@ QQ: 769521861
 
 [测试版]() 最新版本，致力于修复群友实时反馈的bug，请加群下载(其实是不想每次都传github，太麻烦了)
 
-> 因为Windows下使用`--onefile`打包有概率报毒，因此将dll与pyd文件拆开了
-
 ## 使用
 ### 视频版(推荐)
 [Bilibili](https://www.bilibili.com/video/BV1ku4y1z71F/)
 
-### 文字版
-> README仅提供基础用法，之后会出详细教程，敬请期待
+### 文档
+[BAS使用文档](https://acgn-alliance.github.io/BAS-doc/)
 
+### 简易版
 1. 在可执行文件目录下打开命令行(Windows为`main.exe`, Linux为`bas-for-linux.bin`), 执行程序。
 
 2. 输入`1`查看`注意事项`。
@@ -59,16 +58,6 @@ QQ: 769521861
 - 语言请使用`English`
 - 确保宽高比为`16:9`(非16:9可能会导致一些问题)
 - 如果加入了社团请先退出, 否则会导致操作失败
-
-## 常见问题解答
-#### 1.模拟器开了但没扫描到是为什么？  
-请检查你所用模拟器的adb调试设置是否打开，比如蓝叠的开关默认为关闭。但是有群友反馈开了也扫描不到，目前尚不清楚原因，可使用`指定地址`模式连接
-
-#### 2.报错`No such file or directory: 'temp_full_screenshot.png'`
-请检查一下模拟器是否正确连接到adb(目前接到的此问题的反馈都是因为未正确连接adb引起的)
-
-#### 3.Box检测功能当中学生名在哪里查看?
-[BlueArchive-wiki-en](https://bluearchive.wiki/wiki/Characters)
 
 ## 感谢
 [well404](https://github.com/Well2333) 编写了核心代码
