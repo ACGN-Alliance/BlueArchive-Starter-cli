@@ -172,4 +172,6 @@ settings.json
 data/names
 temp/
 
-.ocr_venv/
+# ocr and other
+.ocr_venv
+binaries
