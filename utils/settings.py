@@ -130,6 +130,7 @@ smenu.append(
         func_args=["fast", "normal", "slow", "very slow"])
     )
 smenu.append(Option("设置识图错误中断数值(0为关闭)", OptionType.NUM, "too_many_errors"))
+smenu.append(Option("设置ocr模式(online/offline)", OptionType.LITERAL_STR, "box_scan_mode", func_args=["online", "offline"]))
 
 box_scan_preset = {
     "group-1": [("Ako", "亚子"), ("Himar", "阳葵/轮椅")],

@@ -468,7 +468,7 @@ def script(
         adb_con.sleep(2)
         if settings.box_scan_mode == "offline":
             offline_mode = True
-        else:
+        elif settings.box_scan_mode == "online":
             offline_mode = False
         if not offline_mode:
             if settings._access_token != "":
