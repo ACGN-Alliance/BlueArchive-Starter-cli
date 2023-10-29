@@ -69,7 +69,7 @@ class Option:
                 setattr(settings, self.setting_name, i)
             if self.type_ == OptionType.LITERAL_STR:
                 i = input("请输入新的值: ")
-                if i in self.args:
+                if i in self.func_args:
                     setattr(settings, self.setting_name, i)
                 else:
                     print("输入不合法")
