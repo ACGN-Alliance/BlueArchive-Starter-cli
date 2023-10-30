@@ -3,6 +3,10 @@ import os
 import signal
 import subprocess
 import sys
+# for user
+sys.path.append(os.path.abspath("ocr_dependencies"))
+# for developer
+sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
 import time
 import traceback
 from pathlib import Path

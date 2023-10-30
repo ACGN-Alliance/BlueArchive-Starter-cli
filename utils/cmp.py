@@ -1,9 +1,13 @@
 import enum
 import os.path
 import subprocess
+import sys
 import warnings
 
 __all__ = ['CompareMetrics', 'compare_images']
+
+from PIL import ImageChops
+from PIL.Image import Image
 
 IMAGE_MAGICK_LINK = 'https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-20-portable-Q16-x86.zip'
 BASE_DIR = './'
@@ -105,3 +109,59 @@ def compare_images(dst_path: str, src_path: str, metric: CompareMetrics = Compar
     ]
     result = subprocess.run(cmds, capture_output=True, text=True, check=False).stderr
     return float(result)
+
+
+def compare_images_binary_cv2(
+        srcIm: Image,
+        dstIm: Image,
+) -> float:
+    srcIm = cv2.cvtColor(np.asarray(srcIm), cv2.COLOR_RGB2BGR)
+    dstIm = cv2.cvtColor(np.asarray(dstIm), cv2.COLOR_RGB2BGR)
+
+    # 生成灰度图
+    srcIm = cv2.cvtColor(srcIm, cv2.COLOR_BGR2GRAY)
+    dstIm = cv2.cvtColor(dstIm, cv2.COLOR_BGR2GRAY)
+
+    # 二值化
+    srcIm = cv2.threshold(srcIm, 127, 255, cv2.THRESH_BINARY)[1]
+    dstIm = cv2.threshold(dstIm, 127, 255, cv2.THRESH_BINARY)[1]
+
+    # 计算差异
+    diff = cv2.absdiff(srcIm, dstIm)
+    total_pixels = diff.shape[0] * diff.shape[1]
+    diff_pixels = cv2.countNonZero(diff)
+
+    return (total_pixels - diff_pixels) / total_pixels
+
+
+def compare_images_binary_pil(
+        srcIm: Image,
+        dstIm: Image,
+) -> float:
+    # 生成灰度图
+    srcIm = srcIm.convert('L')
+    dstIm = dstIm.convert('L')
+
+    # 二值化
+    srcIm = srcIm.point(lambda x: 0 if x < 127 else 255, '1')
+    dstIm = dstIm.point(lambda x: 0 if x < 127 else 255, '1')
+
+    # 计算差异
+    diff = ImageChops.difference(srcIm, dstIm)
+    total_pixels = diff.size[0] * diff.size[1]
+    zero_pixels = 0
+    for x in range(diff.size[0]):
+        for y in range(diff.size[1]):
+            if diff.getpixel((x, y)) == 0:
+                zero_pixels += 1
+    return (zero_pixels) / total_pixels
+
+
+def compare_images_binary(
+        srcIm: Image,
+        dstIm: Image,
+) -> float:
+    if "cv2" in sys.modules and ("np" in sys.modules or "numpy" in sys.modules):
+        return compare_images_binary_cv2(srcIm, dstIm)  # faster
+    else:
+        return compare_images_binary_pil(srcIm, dstIm)  # standard
