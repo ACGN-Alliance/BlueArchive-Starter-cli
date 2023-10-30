@@ -4,9 +4,10 @@ import time
 from io import BytesIO
 from pathlib import Path
 
-from PIL import Image, ImageChops
+from PIL import Image
 from loguru import logger
 
+from .cmp import compare_images_binary
 from .settings import Settings
 
 
@@ -251,7 +252,7 @@ class ADB:
             x2: float,
             y2: float,
             img: str | Path | BytesIO,
-            confidence: float = 0.5,
+            confidence: float = 0.93,
     ) -> bool:
         """
         比较截图区域与指定图片的相似度。
@@ -282,23 +283,11 @@ class ADB:
             im_s = im_s.convert("RGB")
 
             # 计算两个图像的差异
-            compare = ImageChops.difference(im, im_s)
-
-            # 判断对比合成图有多少RGB(0, 0, 0)像素点
-            # 如果有超过阈值的像素点，则认为两张图不相似
-            colors = compare.getcolors(maxcolors=16384)
-            all_count = len(im.getdata())
-
-            white_count = 0
-            for color in colors:
-                if sum(color[1]) < 10 / confidence:  # type: ignore
-                    white_count += color[0]
-
-            now_confidence = white_count / all_count
+            now_confidence = compare_images_binary(im_s, im)
 
             if now_confidence > confidence:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
-                self.compare_fail_count = 0 # 重置失败次数
+                self.compare_fail_count = 0  # 重置失败次数
             else:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(<{confidence}), 匹配>>>失败<<<\n已累计: {self.compare_fail_count} 次"
                 if self.setting.too_many_errors != 0:

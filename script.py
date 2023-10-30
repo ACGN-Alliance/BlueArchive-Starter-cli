@@ -193,7 +193,7 @@ def script(
     if not checkpoint(7, load_point, alias="教学抽卡"):
         # logger.success("1. 开局抽卡")
         while not adb_con.compare_img(
-                *mapping["main_recurit.png"], img=path.joinpath("main_recurit.png"), confidence=0.6
+                *mapping["main_recurit.png"], img=path.joinpath("main_recurit.png")
         ):
             adb_con.multi_click(50, 50, 3)
         adb_con.click(70, 90)
@@ -270,7 +270,7 @@ def script(
     if not checkpoint(12, load_point, alias="MomoTalk & 收取邮件"):
         # logger.success("10. MomoTalk & 收取邮件")
         while not adb_con.compare_img(
-                *mapping["no_mail.png"], img=path.joinpath("no_mail.png"), confidence=0.5
+                *mapping["no_mail.png"], img=path.joinpath("no_mail.png")
         ):
             adb_con.click(12.18, 18.66)
             adb_con.click(11.56, 41.11)
