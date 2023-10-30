@@ -166,8 +166,8 @@ cython_debug/
 .pdm-python
 
 # project
-temp_full_screenshot.png
-save.json
+# temp_full_screenshot.png
+# save.json
 settings.json
 data/names
 temp/

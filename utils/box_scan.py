@@ -30,25 +30,6 @@ class Scan:
         if not os.path.exists("temp"):
             os.mkdir("temp")
 
-    def get_page_students(
-            self,
-            page_screenshot: Image.Image
-    ) -> List[Image.Image]:
-        """
-        从单页学生清单截图中获取学生名称
-        """
-        img_lst = []
-
-        for k, v in page_position.items():
-            real_x1, real_y1 = self.adb._normalized_to_real_coordinates(v[0], v[1])
-            real_x2, real_y2 = self.adb._normalized_to_real_coordinates(v[2], v[3])
-            img_lst.append(page_screenshot.crop((real_x1, real_y1, real_x2, real_y2)))
-
-        for i, img in enumerate(img_lst):
-            img.save(f"temp/1-{i}.png")
-
-        return img_lst
-
     def set_token(self, APIkey: str, secretKey: str) -> bool:
         headers = {
             'Content-Type': 'application/json',
