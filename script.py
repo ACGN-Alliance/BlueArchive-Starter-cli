@@ -7,6 +7,8 @@ from utils import adb
 from utils.settings import Settings
 from utils.box_scan import Scan
 
+_is_no_checkpoint = True
+
 def checkpoint(
         position: int,
         load_point: int,
@@ -21,7 +23,9 @@ def checkpoint(
     :param alias: 检查点别名
     :return: bool, : 是否需要跳过
     """
-    if position != load_point:
+    logger.debug("_is_no_checkpoint: "+str(_is_no_checkpoint))
+
+    if position != load_point and not _is_no_checkpoint:
         return True
 
     # if position == 18:
@@ -58,10 +62,18 @@ def script(
     if load_point >= 18:
         logger.error("加载点超出范围, 自动结束脚本")
         return True
+    
+    global _is_no_checkpoint
+    if load_point == 0:
+        _is_no_checkpoint = True
+    else:
+        _is_no_checkpoint = False
 
     name = settings.username
     if not name:
         name = input("未设置昵称, 请输入你想要的昵称(禁止非法字符): ")
+
+    logger.debug("checkpoint: " + str(checkpoint(0, load_point, alias="重置账号")))
 
     if not checkpoint(0, load_point, alias="重置账号"):
         while not adb_con.compare_img(
@@ -73,8 +85,8 @@ def script(
         adb_con.click(95, 4)  # 菜单
         adb_con.click(60, 40)  # 账号
         if settings.guest:
-            if settings._link_account:
-                adb_con.click(99, 4)  # 弹出网页关闭
+            adb_con.sleep(2)
+            adb_con.click(99, 4)  # 弹出网页关闭
             adb_con.click(70, 60)  # 重置账号
         else:
             adb_con.click(70, 50)
@@ -271,118 +283,120 @@ def script(
         adb_con.multi_click(5, 5, 2)
         load_point += 1
 
-    if settings.guest:
-        if not checkpoint(13, load_point, alias="绑定账号"):
-            adb_con.sleep(2)
-            adb_con.multi_click(50, 50, 2)
-            adb_con.click(95, 4)  # 菜单
-            # adb_con.multi_click(50, 50, 5)
-            adb_con.sleep(2)
-            adb_con.click(60, 40)  # 账号
-            adb_con.click(99, 4)   # 弹出网页关闭
-            adb_con.multi_click(50, 50,7)
-            while not adb_con.compare_img(
-                    *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
-            ):
-                adb_con.back() # 返回主界面
+    if not checkpoint(13, load_point, alias="绑定账号") and settings.guest:
+        adb_con.sleep(2)
+        adb_con.multi_click(50, 50, 2)
+        adb_con.click(95, 4)  # 菜单
+        # adb_con.multi_click(50, 50, 5)
+        adb_con.sleep(2)
+        adb_con.click(60, 40)  # 账号
+        adb_con.click(99, 4)   # 弹出网页关闭
+        adb_con.multi_click(50, 50,7)
+        while not adb_con.compare_img(
+                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+        ):
+            adb_con.back() # 返回主界面
+        load_point += 1
+    else:
+        if _is_no_checkpoint:
             load_point += 1
 
-    if settings.main_line:
-        if not checkpoint(14, load_point, alias="开始获取主线青辉石"):
-            # ==============40抽起始==============
-            adb_con.click(92, 82)
-            adb_con.sleep(2)
-            adb_con.click(95, 5)
-            adb_con.multi_click(5, 50, 10)  # 跳过演示
-            # adb_con.click(48, 70)
-            
-            adb_con.click(85, 35)  # 进入剧情
-            adb_con.multi_click(5, 50, 11)  # 跳过演示
-            adb_con.click(30, 50)  # 进入主线
-            adb_con.sleep(2)
-            adb_con.click(90, 45)  # 第一章
-            adb_con.sleep(2)
+    if not checkpoint(14, load_point, alias="开始获取主线青辉石") and settings.main_line:
+        # ==============40抽起始==============
+        adb_con.click(92, 82)
+        adb_con.sleep(2)
+        adb_con.click(95, 5)
+        adb_con.multi_click(5, 50, 10)  # 跳过演示
+        # adb_con.click(48, 70)
+        
+        adb_con.click(85, 35)  # 进入剧情
+        adb_con.multi_click(5, 50, 11)  # 跳过演示
+        adb_con.click(30, 50)  # 进入主线
+        adb_con.sleep(2)
+        adb_con.click(90, 45)  # 第一章
+        adb_con.sleep(2)
 
-            def chapter(ctype: str, 
-                        *args,
-                        is_first_bat: bool = False, 
-                        story_after_bat: bool = True
-                        ):
-                adb_con.sleep(1.5)
-                adb_con.click(85, 48)
-                adb_con.click(50, 70)
-                while not adb_con.compare_img(
-                        *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
-                ):
-                    adb_con.click(50, 50)
-                for _ in range(2):
-                    skip_story()
-
-                if ctype == "battle":
-                    adb_con.multi_click(95, 95, 3)
-                    if is_first_bat:
-                        adb_con.sleep(8)
-                        adb_con.click(95, 95)
-
-                    while not adb_con.compare_img(
-                            *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
+        def chapter(ctype: str, 
+                    *args,
+                    is_first_bat: bool = False, 
+                    story_after_bat: bool = True
                     ):
-                        adb_con.sleep(1)
-                    adb_con.click(90, 95)
-
-                    if story_after_bat:
-                        while not adb_con.compare_img(
-                                *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
-                        ):
-                            adb_con.sleep(1)
-                        for _ in range(2):
-                            skip_story()
-                    else:
-                        logger.info("此处确保稳定性停顿时间较长, 请耐心等待")
-                        adb_con.sleep(24)
-
-                adb_con.sleep(4)
-                adb_con.multi_click(50, 90, 2)
-
-            chapter("normal")  # 第一话
-            chapter("battle", is_first_bat=True)  # 第二话
-            chapter("battle")  # 第三话
-            chapter("normal")  # 第四话
-            chapter("normal")  # 第五话
-            chapter("battle", story_after_bat=False)  # 第六话
-            chapter("normal")  # 第七话
-            chapter("normal")  # 第八话
-
-            while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
-            ):
-                adb_con.back()
-
-            adb_con.click(6, 32)  # 进入任务
+            adb_con.sleep(1.5)
+            adb_con.click(85, 48)
+            adb_con.click(50, 70)
             while not adb_con.compare_img(
                     *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
             ):
                 adb_con.click(50, 50)
+            for _ in range(2):
+                skip_story()
 
-            skip_story()
+            if ctype == "battle":
+                adb_con.multi_click(95, 95, 3)
+                if is_first_bat:
+                    adb_con.sleep(8)
+                    adb_con.click(95, 95)
 
-            adb_con.sleep(5)
-            adb_con.click(90, 95)
-            adb_con.multi_click(50, 90, 5)
+                while not adb_con.compare_img(
+                        *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
+                ):
+                    adb_con.sleep(1)
+                adb_con.click(90, 95)
 
-            while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
-            ):
-                adb_con.back()
+                if story_after_bat:
+                    while not adb_con.compare_img(
+                            *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
+                    ):
+                        adb_con.sleep(1)
+                    for _ in range(2):
+                        skip_story()
+                else:
+                    logger.info("此处确保稳定性停顿时间较长, 请耐心等待")
+                    adb_con.sleep(24)
 
-            load_point += 1
-    else:
+            adb_con.sleep(4)
+            adb_con.multi_click(50, 90, 2)
+
+        chapter("normal")  # 第一话
+        chapter("battle", is_first_bat=True)  # 第二话
+        chapter("battle")  # 第三话
+        chapter("normal")  # 第四话
+        chapter("normal")  # 第五话
+        chapter("battle", story_after_bat=False)  # 第六话
+        chapter("normal")  # 第七话
+        chapter("normal")  # 第八话
+
+        while not adb_con.compare_img(
+            *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+        ):
+            adb_con.back()
+
+        adb_con.click(6, 32)  # 进入任务
+        while not adb_con.compare_img(
+                *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
+        ):
+            adb_con.click(50, 50)
+
+        skip_story()
+
+        adb_con.sleep(5)
+        adb_con.click(90, 95)
+        adb_con.multi_click(50, 90, 5)
+
+        while not adb_con.compare_img(
+            *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+        ):
+            adb_con.back()
+
         load_point += 1
+    else:
+        if _is_no_checkpoint:
+            load_point += 1
 
     if not checkpoint(15, load_point, alias="开始抽卡"):
         logger.info("进入抽卡")
         adb_con.multi_click(70, 90)
-        adb_con.sleep(5)
+        adb_con.sleep(8)
         for _ in range(settings.pool):
             adb_con.click(3, 55)
             adb_con.sleep(3)

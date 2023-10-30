@@ -22,7 +22,7 @@ from utils.settings import (settings,
                             Option
                             )
 
-__version__ = "1.1.2.1"
+__version__ = "1.1.2.2"
 
 device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
