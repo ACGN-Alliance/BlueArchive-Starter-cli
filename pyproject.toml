@@ -11,6 +11,7 @@ dependencies = [
     "pillow>=10.0.0",
     "nuitka>=1.7.10",
     "requests>=2.31.0",
+    "tqdm>=4.66.1",
 ]
 requires-python = ">=3.8"
 license = {text = "MIT"}

@@ -83,6 +83,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "tqdm"
+version = "4.66.1"
+requires_python = ">=3.7"
+summary = "Fast, Extensible Progress Meter"
+dependencies = [
+    "colorama; platform_system == \"Windows\"",
+]
+
+[[package]]
 name = "urllib3"
 version = "2.0.6"
 requires_python = ">=3.7"
@@ -106,7 +115,7 @@ dependencies = [
 [metadata]
 lock_version = "4.2"
 groups = ["default"]
-content_hash = "sha256:6264173d0cde2c9a77b8fe9a02b914306b033cd4aabda4fa5d498b07ef4fe78c"
+content_hash = "sha256:7e8c10bc3347f71d30f8bcbe6fe08906280ac7506070396942bbf3db9b52b70c"
 
 [metadata.files]
 "certifi 2023.7.22" = [
@@ -353,6 +362,10 @@ content_hash = "sha256:6264173d0cde2c9a77b8fe9a02b914306b033cd4aabda4fa5d498b07e
 "requests 2.31.0" = [
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/70/8e/0e2d847013cb52cd35b38c009bb167a1a26b2ce6cd6965bf26b47bc0bf44/requests-2.31.0-py3-none-any.whl", hash = "sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"},
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/9d/be/10918a2eac4ae9f02f6cfe6414b7a155ccd8f7f9d4380d62fd5b955065c3/requests-2.31.0.tar.gz", hash = "sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1"},
+]
+"tqdm 4.66.1" = [
+    {url = "https://pypi.tuna.tsinghua.edu.cn/packages/00/e5/f12a80907d0884e6dff9c16d0c0114d81b8cd07dc3ae54c5e962cc83037e/tqdm-4.66.1-py3-none-any.whl", hash = "sha256:d302b3c5b53d47bce91fea46679d9c3c6508cf6332229aa1e7d8653723793386"},
+    {url = "https://pypi.tuna.tsinghua.edu.cn/packages/62/06/d5604a70d160f6a6ca5fd2ba25597c24abd5c5ca5f437263d177ac242308/tqdm-4.66.1.tar.gz", hash = "sha256:d88e651f9db8d8551a62556d3cff9e3034274ca5d66e93197cf2490e2dcb69c7"},
 ]
 "urllib3 2.0.6" = [
     {url = "https://pypi.tuna.tsinghua.edu.cn/packages/26/40/9957270221b6d3e9a3b92fdfba80dd5c9661ff45a664b47edd5d00f707f5/urllib3-2.0.6-py3-none-any.whl", hash = "sha256:7a7c7003b000adf9e7ca2a377c9688bbc54ed41b985789ed576570342a375cd2"},
