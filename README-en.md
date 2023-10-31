@@ -4,15 +4,15 @@
 
 BlueArchive initial account tool(Cli version)
 
-As we known, BlueArchive Global banned initial account frequently, so we need to reset the account to get a good start account. When I found tools to do these things, I cant find a satisfied tools, they are basically made using macro scripts in conjunction with some screen operation software, or use the built-in operation record of the android simulator, but I think it's troublesome and cant know if the account has students we want to determine if we need to reset the account, so I made this tool.
+As we known, BlueArchive Global banned initial account frequently, so we need to reset the account to get a good start account. When I found tools to do this, I cant find a satisfied tool, most of them are basically made using macro scripts in conjunction with some screen operation software, or use built-in operation record of the android emulator, but I think it's troublesome and cant know if the account has students we want to determine if we need to reset the account automatically, so I develop this tool.
 
 ## Support Platforms
-Operation: Windows or Linux
-Controlled: Android simulator or other android platform that supports `adb`(Android Debug Bridge)
+Operation: Windows or Linux  
+Controlled: Android emulator or other android platform that supports `adb`(Android Debug Bridge)
 > Compatibility with lower version platforms is not guaranteed, specific compatibility needs to be further tested
 
 ### Recommend Configuration
-BlueStack 5 global or BlueStack Pie 64bit, resolution ratio `1280*720`(DPI: 240) or `1920*1080`(DPI: 240), scale is `100%`，these tested to run normally。  
+BlueStack 5 global or BlueStack Pie 64bit, resolution ratio `1280*720`(DPI: 240) or `1920*1080`(DPI: 240), scale is `100%`，these tested to run normally.
 We cant ensure the stability of other platforms，if you have problems when using this tool, please post issues in [discussion | 模拟器识图问题收集区](https://github.com/ACGN-Alliance/BlueArchive-Starter-cli/issues/13).
 
 ### Download
@@ -36,7 +36,7 @@ We cant ensure the stability of other platforms，if you have problems when usin
 4. Input `2` to scan connected devices, then choose the device you need.
 > tips: If it is a physical Android device, when you do this, it will tell you to verify rsa key, choose `yes`(The following steps will also require).
 
-> If you cant scan the device, please check if you open `USB debug` option，if you cant find these please search if the simulator has `adb`.
+> If you cant scan the device, please check if you open `USB debug` option in emulator settings，if you cant find these please search if the emulator has `adb`.
 
 5. Input `4` to enter settings menu, set user name and other settings. 
 

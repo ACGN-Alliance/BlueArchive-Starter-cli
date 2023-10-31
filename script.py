@@ -23,9 +23,10 @@ def checkpoint(
     :param alias: 检查点别名
     :return: bool, : 是否需要跳过
     """
-    logger.debug("_is_no_checkpoint: "+str(_is_no_checkpoint))
+    # logger.debug("_is_no_checkpoint: "+str(_is_no_checkpoint))
 
     if position != load_point and not _is_no_checkpoint:
+        logger.info(f"跳过检查点 {position}.{alias}")
         return True
 
     # if position == 18:
@@ -36,6 +37,8 @@ def checkpoint(
 
     logger.info(f"到达检查点 {position}.{alias}")
     return False
+
+
 
 def script(
         adb_con: adb.ADB,

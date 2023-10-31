@@ -3,6 +3,7 @@ import os.path
 import subprocess
 import sys
 import warnings
+import loguru
 
 __all__ = ['CompareMetrics', 'compare_images']
 
@@ -113,7 +114,7 @@ def compare_images(dst_path: str, src_path: str, metric: CompareMetrics = Compar
 
 
 def get_thresh(path: str | Path):
-    if path.endswith(".png"):
+    if str(path).endswith(".png"):
         fn = os.path.basename(path)
         fn = fn[:-4]
         for _file in os.listdir(os.path.dirname(path)):
@@ -205,7 +206,7 @@ def compare_images_binary(
     t, p = get_thresh(dstIm)
     if t == -1:
         evaluated = False
-        print("WARNING: compare_images_binary: dstIm is not evaluated image, it will be evaluated by default method.")
+        loguru.logger.warning("WARNING: compare_images_binary: dstIm is not evaluated image, it will be evaluated by default method.")
 
     if "cv2" in sys.modules and 'np' in sys.modules:
         return compare_images_binary_cv2(srcIm, p, evaluated, thresh=t)  # faster
