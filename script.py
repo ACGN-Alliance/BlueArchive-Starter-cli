@@ -7,38 +7,75 @@ from utils import adb
 from utils.settings import Settings
 from utils.box_scan import Scan
 
-_is_no_checkpoint = True
+# _is_no_checkpoint = True
 
-def checkpoint(
-        position: int,
+# def checkpoint(
+#         position: int,
+#         load_point: int,
+#         *args,
+#         alias: str = ""
+# ) -> bool:
+#     """
+#     检查点
+
+#     :param position: 当前位置
+#     :param load_point: 检查点位置
+#     :param alias: 检查点别名
+#     :return: bool, : 是否需要跳过
+#     """
+#     # logger.debug("_is_no_checkpoint: "+str(_is_no_checkpoint))
+
+#     if position != load_point and not _is_no_checkpoint:
+#         logger.info(f"跳过检查点 {position}.{alias}")
+#         return True
+
+#     # if position == 18:
+#     #     position = 0  # 重置检查点 
+
+#     with open("save.json", "w", encoding="utf-8") as f:
+#         json.dump({"load_point": position}, f)
+
+#     logger.info(f"到达检查点 {position}.{alias}")
+#     return False
+
+def checkpoint_new(
+        current_position: int,
         load_point: int,
-        *args,
+        is_start_from_zero: bool = True,
+        settings: Settings = None,
         alias: str = ""
-) -> bool:
+):
     """
     检查点
 
-    :param position: 当前位置
+    :param current_position: 当前位置
     :param load_point: 检查点位置
+    :param is_start_from_zero: 是否从0开始
+    :param settings: 设置
     :param alias: 检查点别名
-    :return: bool, : 是否需要跳过
+    :return: bool, : 是否进入流程
     """
-    # logger.debug("_is_no_checkpoint: "+str(_is_no_checkpoint))
+    if_run = True
 
-    if position != load_point and not _is_no_checkpoint:
-        logger.info(f"跳过检查点 {position}.{alias}")
-        return True
+    if current_position == 13 and not settings.guest:
+        if_run = False
+    elif current_position == 14 and not settings.main_line:
+        if_run = False
+    elif current_position in [16, 17] and not settings.box_scan:
+        if_run = False
 
-    # if position == 18:
-    #     position = 0  # 重置检查点 
+    if is_start_from_zero:
+        pass
+    else:
+        if load_point > current_position:
+            if_run = False
 
-    with open("save.json", "w", encoding="utf-8") as f:
-        json.dump({"load_point": position}, f)
+    if if_run:
+        logger.info(f"到达检查点 {current_position}.{alias}")
+    else:
+        logger.info(f"跳过检查点 {current_position}.{alias}")
 
-    logger.info(f"到达检查点 {position}.{alias}")
-    return False
-
-
+    return if_run
 
 def script(
         adb_con: adb.ADB,
@@ -62,23 +99,19 @@ def script(
         adb_con.click(95, 15)
         adb_con.click(63, 71)
 
+    if load_point == 0:
+        is_start_from_zero = True
+    else:
+        is_start_from_zero = False
     if load_point >= 18:
         logger.error("加载点超出范围, 自动结束脚本")
         return True
-    
-    global _is_no_checkpoint
-    if load_point == 0:
-        _is_no_checkpoint = True
-    else:
-        _is_no_checkpoint = False
 
     name = settings.username
     if not name:
         name = input("未设置昵称, 请输入你想要的昵称(禁止非法字符): ")
 
-    logger.debug("checkpoint: " + str(checkpoint(0, load_point, alias="重置账号")))
-
-    if not checkpoint(0, load_point, alias="重置账号"):
+    if checkpoint_new(0, load_point, alias="重置账号", is_start_from_zero=is_start_from_zero, settings=settings):
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
@@ -98,9 +131,8 @@ def script(
         adb_con.click(58, 67)
         adb_con.click(58, 67)
         adb_con.multi_click(55, 70, 5)
-        load_point+=1
 
-    if not checkpoint(1, load_point, alias="创建新账号"):
+    if checkpoint_new(1, load_point, alias="创建新账号", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("1. 创建账号")
         while not adb_con.compare_img(
                 *mapping["start_menu_icon.png"], img=path.joinpath("start_menu_icon.png")
@@ -120,18 +152,16 @@ def script(
         adb_con.sleep(1)
         adb_con.input_text(name)
         adb_con.multi_click(50, 70, 40)
-        load_point += 1
 
-    if not checkpoint(2, load_point, alias="初始剧情"):
+    if checkpoint_new(2, load_point, alias="初始剧情", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("2. 初始剧情")
         while not adb_con.compare_img(
                 *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
         ):
             adb_con.click(50, 50)
         skip_story()
-        load_point += 1
 
-    if not checkpoint(3, load_point, alias="战斗-1"):
+    if checkpoint_new(3, load_point, alias="战斗-1", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("3. 战斗1")
         logger.info("跳过介绍")
         adb_con.sleep(4)
@@ -147,9 +177,8 @@ def script(
             adb_con.click(43, 52)
         logger.info("战斗结束")
         adb_con.click(90, 90)
-        load_point += 1
 
-    if not checkpoint(4, load_point, alias="剧情"):
+    if checkpoint_new(4, load_point, alias="剧情", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("4. 两段剧情")
         for _ in range(2):
             while not adb_con.compare_img(
@@ -157,9 +186,8 @@ def script(
             ):
                 adb_con.click(50, 50)
             skip_story()
-        load_point += 1
 
-    if not checkpoint(5, load_point, alias="战斗-2"):
+    if checkpoint_new(5, load_point, alias="战斗-2", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("5. 战斗2")
         adb_con.multi_click(50, 50, 11)
         for i in range(4):
@@ -179,9 +207,8 @@ def script(
         ):
             adb_con.sleep(1)
         adb_con.click(90, 90)
-        load_point += 1
 
-    if not checkpoint(6, load_point, alias="剧情"):
+    if checkpoint_new(6, load_point, alias="剧情", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("5. 两段剧情")
         while not adb_con.compare_img(
                 *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
@@ -191,9 +218,8 @@ def script(
             skip_story()
         logger.info("OP 动画")
         adb_con.multi_click(60, 70, 9)
-        load_point += 1
 
-    if not checkpoint(7, load_point, alias="教学抽卡"):
+    if checkpoint_new(7, load_point, alias="教学抽卡", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("1. 开局抽卡")
         while not adb_con.compare_img(
                 *mapping["main_recurit.png"], img=path.joinpath("main_recurit.png")
@@ -212,9 +238,8 @@ def script(
             adb_con.screenshot("1.png")
         adb_con.click(50, 90)
         adb_con.sleep(10)
-        load_point += 1
 
-    if not checkpoint(8, load_point, alias="开始教学作战"):
+    if checkpoint_new(8, load_point, alias="开始教学作战", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("2. 开始作战")
         adb_con.multi_click(88, 35, 6)
         adb_con.multi_click(75, 75, 3)
@@ -223,9 +248,8 @@ def script(
         adb_con.multi_click(95, 25, 5)
         adb_con.sleep(3)
         adb_con.multi_click(25, 50, 7)
-        load_point += 1
 
-    if not checkpoint(9, load_point, alias="进入第一步作战"):
+    if checkpoint_new(9, load_point, alias="进入第一步作战", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("道中作战")
         adb_con.multi_click(90, 80, 2)
         for _ in range(2):
@@ -246,9 +270,8 @@ def script(
         adb_con.click(50, 90)
         adb_con.sleep(9)
         adb_con.multi_click(94, 94, 4)
-        load_point += 1
 
-    if not checkpoint(10, load_point, alias="开始BOSS作战"):
+    if checkpoint_new(10, load_point, alias="开始BOSS作战", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("开始BOSS作战")
         adb_con.multi_click(95, 95, 6)
         adb_con.click(60, 55)
@@ -259,18 +282,16 @@ def script(
         logger.success("完成作战")
         adb_con.multi_click(90, 90, 5)
         adb_con.multi_click(85, 90, 10)
-        load_point += 1
 
-    if not checkpoint(11, load_point, alias="返回大厅"):
+    if checkpoint_new(11, load_point, alias="返回大厅", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("9. 返回大厅")
         adb_con.multi_click(40, 90, 18)
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
             adb_con.multi_click(40, 90, 5)
-        load_point += 1
 
-    if not checkpoint(12, load_point, alias="MomoTalk & 收取邮件"):
+    if checkpoint_new(12, load_point, alias="MomoTalk & 收取邮件", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("10. MomoTalk & 收取邮件")
         while not adb_con.compare_img(
                 *mapping["no_mail.png"], img=path.joinpath("no_mail.png")
@@ -284,9 +305,8 @@ def script(
             adb_con.sleep(1)
         adb_con.sleep(1)
         adb_con.multi_click(5, 5, 2)
-        load_point += 1
 
-    if (not checkpoint(13, load_point, alias="绑定账号")) and settings.guest:
+    if checkpoint_new(13, load_point, alias="绑定账号", is_start_from_zero=is_start_from_zero, settings=settings):
         adb_con.sleep(2)
         adb_con.multi_click(50, 50, 2)
         adb_con.click(95, 4)  # 菜单
@@ -299,12 +319,8 @@ def script(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
             adb_con.back() # 返回主界面
-        load_point += 1
-    else:
-        if _is_no_checkpoint:
-            load_point += 1
 
-    if (not checkpoint(14, load_point, alias="开始获取主线青辉石")) and settings.main_line:
+    if checkpoint_new(14, load_point, alias="开始获取主线青辉石", is_start_from_zero=is_start_from_zero, settings=settings):
         # ==============40抽起始==============
         adb_con.click(92, 82)
         adb_con.sleep(2)
@@ -379,24 +395,17 @@ def script(
                 *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
         ):
             adb_con.click(50, 50)
-
         skip_story()
 
         adb_con.sleep(5)
         adb_con.click(90, 95)
         adb_con.multi_click(50, 90, 5)
-
         while not adb_con.compare_img(
             *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
         ):
             adb_con.back()
 
-        load_point += 1
-    else:
-        if _is_no_checkpoint:
-            load_point += 1
-
-    if not checkpoint(15, load_point, alias="开始抽卡"):
+    if checkpoint_new(15, load_point, alias="开始抽卡", is_start_from_zero=is_start_from_zero, settings=settings):
         logger.info("进入抽卡")
         adb_con.multi_click(70, 90)
         adb_con.sleep(8)
@@ -432,17 +441,10 @@ def script(
         ):
             adb_con.back()
 
-        load_point += 1
-
-    if not settings.box_scan:
-        logger.success("脚本执行完毕")
-        return True
-    else:
+    if checkpoint_new(16, load_point, alias="学生清单教学", is_start_from_zero=is_start_from_zero, settings=settings):
         if not settings.scan_list:
             logger.error("box检测队列为空")
             return True
-
-    if not checkpoint(16, load_point, alias="学生清单教学"):
         adb_con.click(25, 92)
         adb_con.multi_click(50, 50 ,3)
         adb_con.click(10, 40)
@@ -473,10 +475,8 @@ def script(
         adb_con.click(90, 50)
         adb_con.multi_click(95, 95, 10)
         adb_con.click(5, 5)
-
-        load_point += 1
     
-    if not checkpoint(17, load_point, alias="box检查"):
+    if checkpoint_new(17, load_point, alias="box检查", is_start_from_zero=is_start_from_zero, settings=settings):
         adb_con.sleep(2)
         if settings.box_scan_mode == "offline":
             offline_mode = True
@@ -498,3 +498,6 @@ def script(
         else:
             logger.error("学生未刷齐~重启执行脚本")
             return False
+        
+    
+    logger.success("脚本执行完毕")

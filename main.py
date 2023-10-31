@@ -32,6 +32,7 @@ device_now = ""
 adb_con: Optional[adb.ADB] = None  # adb类变量
 all_device_lst = {}
 port = 0
+load_point = 0
 
 
 # 异常处理装饰器
@@ -277,27 +278,26 @@ def settings_menu():
 
 @exception_handle
 def load():
+    global load_point
+
     while True:
-        print("\n1.从文件加载(save.json)")
-        print("2.从输入加载")
-        print("3.返回主菜单")
+        print(f"\n当前加载点: {load_point}\n")
+        print("1.从输入加载")
+        print("2.返回主菜单")
         load_mode = int(input("请选择加载模式: "))
         if load_mode == 1:
-            try:
-                cot = json.load(open("save.json", "r", encoding="utf-8"))
-            except FileNotFoundError:
-                print("未找到save.json文件")
-                continue
-            return cot.get('load_point', 0)
-        elif load_mode == 2:
             point = input("请输入加载点: ")
             if point.isdigit():
-                return int(point)
+                if int(point) < 18:
+                    load_point = int(point)
+                else:
+                    print("加载点必须小于18")
+                    continue
             else:
-                print("加载点必须是数字, 详见文档")
+                print("加载点必须是数字")
                 continue
-        elif load_mode == 3:
-            return 0
+        elif load_mode == 2:
+            return
         else:
             print("请输入正确的加载模式")
             continue
@@ -392,8 +392,6 @@ if __name__ == '__main__':
     print(f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861")
     time.sleep(1)
 
-    load_point = 0
-
     while True:
         menu()
         mode = input("请选择模式: ")
@@ -414,7 +412,7 @@ if __name__ == '__main__':
         elif mode == 4:
             settings_menu()
         elif mode == 5:
-            load_point = load()
+            load()
         elif mode == 6:
             box_scan_settings()
         elif mode == 7:
