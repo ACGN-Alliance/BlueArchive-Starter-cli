@@ -6,8 +6,9 @@ import warnings
 
 __all__ = ['CompareMetrics', 'compare_images']
 
-from PIL import ImageChops
-from PIL.Image import Image
+from pathlib import Path
+
+from PIL import ImageChops, Image
 
 IMAGE_MAGICK_LINK = 'https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-20-portable-Q16-x86.zip'
 BASE_DIR = './'
@@ -111,40 +112,78 @@ def compare_images(dst_path: str, src_path: str, metric: CompareMetrics = Compar
     return float(result)
 
 
+def get_thresh(path: str | Path):
+    if path.endswith(".png"):
+        fn = os.path.basename(path)
+        fn = fn[:-4]
+        for _file in os.listdir(os.path.dirname(path)):
+            if fn + '.thresh' in _file:
+                file = _file
+                break
+        else:
+            return -1, path
+
+        s = file.split('.')
+        if len(s) > 2:
+            if s[-2].startswith("thresh"):
+                try:
+                    return int(s[-2][6:]), os.path.join(os.path.dirname(path), file)
+                except ValueError:
+                    pass
+
+
 def compare_images_binary_cv2(
-        srcIm: Image,
-        dstIm: Image,
+        srcIm: Image.Image,
+        dstIm: str | Path,
+        evaluated: bool = False,
+        thresh=127
 ) -> float:
-    srcIm = cv2.cvtColor(np.asarray(srcIm), cv2.COLOR_RGB2BGR)
-    dstIm = cv2.cvtColor(np.asarray(dstIm), cv2.COLOR_RGB2BGR)
+    dstIm = cv2.imread(dstIm)
+    srcIm = np.asarray(srcIm)
+    srcIm = cv2.cvtColor(srcIm, cv2.COLOR_RGB2BGR)
+    # resize
+    dstIm = cv2.resize(dstIm, (srcIm.shape[1], srcIm.shape[0]), interpolation=cv2.INTER_AREA)
 
     # 生成灰度图
     srcIm = cv2.cvtColor(srcIm, cv2.COLOR_BGR2GRAY)
-    dstIm = cv2.cvtColor(dstIm, cv2.COLOR_BGR2GRAY)
 
     # 二值化
-    srcIm = cv2.threshold(srcIm, 127, 255, cv2.THRESH_BINARY)[1]
-    dstIm = cv2.threshold(dstIm, 127, 255, cv2.THRESH_BINARY)[1]
+    srcIm = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
+
+    if not evaluated:  # binary
+        dstIm = cv2.cvtColor(dstIm, cv2.COLOR_RGB2BGR)
+        dstIm = cv2.cvtColor(dstIm, cv2.COLOR_BGR2GRAY)
+        dstIm = cv2.threshold(dstIm, thresh, 255, cv2.THRESH_BINARY)[1]
+    else:
+        # read red channel
+        dstIm = dstIm[:, :, 2]
 
     # 计算差异
     diff = cv2.absdiff(srcIm, dstIm)
     total_pixels = diff.shape[0] * diff.shape[1]
     diff_pixels = cv2.countNonZero(diff)
-
     return (total_pixels - diff_pixels) / total_pixels
 
 
 def compare_images_binary_pil(
-        srcIm: Image,
-        dstIm: Image,
+        srcIm: Image.Image,
+        dstIm: str | Path,
+        evaluated: bool = False,
+        thresh=127
 ) -> float:
+    dstIm = Image.open(dstIm)
+    # resize
+    dstIm = dstIm.resize((srcIm.size[0], srcIm.size[1]))
+
     # 生成灰度图
     srcIm = srcIm.convert('L')
-    dstIm = dstIm.convert('L')
 
     # 二值化
-    srcIm = srcIm.point(lambda x: 0 if x < 127 else 255, '1')
-    dstIm = dstIm.point(lambda x: 0 if x < 127 else 255, '1')
+    srcIm = srcIm.point(lambda x: 0 if x < thresh else 255, '1')
+
+    if not evaluated:  # binary
+        dstIm = dstIm.convert('L')
+        dstIm = dstIm.point(lambda x: 0 if x < thresh else 255, '1')
 
     # 计算差异
     diff = ImageChops.difference(srcIm, dstIm)
@@ -158,10 +197,17 @@ def compare_images_binary_pil(
 
 
 def compare_images_binary(
-        srcIm: Image,
-        dstIm: Image,
+        dstIm: str | Path,
+        srcIm: Image.Image,
 ) -> float:
-    if "cv2" in sys.modules and ("np" in sys.modules or "numpy" in sys.modules):
-        return compare_images_binary_cv2(srcIm, dstIm)  # faster
+    # find evaluated image
+    evaluated = True
+    t, p = get_thresh(dstIm)
+    if t == -1:
+        evaluated = False
+        print("WARNING: compare_images_binary: dstIm is not evaluated image, it will be evaluated by default method.")
+
+    if "cv2" in sys.modules and 'np' in sys.modules:
+        return compare_images_binary_cv2(srcIm, p, evaluated, thresh=t)  # faster
     else:
-        return compare_images_binary_pil(srcIm, dstIm)  # standard
+        return compare_images_binary_pil(srcIm, p, evaluated, thresh=t)  # standard
