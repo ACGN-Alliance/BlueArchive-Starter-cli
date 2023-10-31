@@ -2,6 +2,8 @@
 
 # BlueArchive-Starter-cli
 
+[中文](./README.md) | [English](./README-en.md)
+
 碧蓝档案初始号工具CLI版本(原[BlueArchive-Starter](https://github.com/ACGN-Alliance/BlueArchive-Starter)项目)  
 
 众所周知, 碧蓝档案国际服初始号封号现象特别严重, 因此要想有个好一点的box必须在建号的时候不停的重置帐号来刷取.

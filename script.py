@@ -283,7 +283,7 @@ def script(
         adb_con.multi_click(5, 5, 2)
         load_point += 1
 
-    if not checkpoint(13, load_point, alias="绑定账号") and settings.guest:
+    if (not checkpoint(13, load_point, alias="绑定账号")) and settings.guest:
         adb_con.sleep(2)
         adb_con.multi_click(50, 50, 2)
         adb_con.click(95, 4)  # 菜单
@@ -301,7 +301,7 @@ def script(
         if _is_no_checkpoint:
             load_point += 1
 
-    if not checkpoint(14, load_point, alias="开始获取主线青辉石") and settings.main_line:
+    if (not checkpoint(14, load_point, alias="开始获取主线青辉石")) and settings.main_line:
         # ==============40抽起始==============
         adb_con.click(92, 82)
         adb_con.sleep(2)
