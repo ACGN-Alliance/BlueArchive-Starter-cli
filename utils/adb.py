@@ -1,7 +1,6 @@
 import os
 import subprocess
 import time
-from io import BytesIO
 from pathlib import Path
 
 from PIL import Image
@@ -251,8 +250,8 @@ class ADB:
             y1: float,
             x2: float,
             y2: float,
-            img: str | Path | BytesIO,
-            confidence: float = 0.93,
+            img: str | Path,
+            confidence: float = 0.91,
     ) -> bool:
         """
         比较截图区域与指定图片的相似度。
@@ -268,22 +267,9 @@ class ADB:
         try:
             # 截图并从区域获取Image对象
             im: Image.Image = self.screenshot_region(x1, y1, x2, y2)
-            im_s: Image.Image = Image.open(img)
-
-            # 确保两个图像的尺寸一致
-            # if im.size[0] / im.size[1] != im_s.size[0] / im_s.size[1]:
-            #     logger.warning(
-            #         "图片尺寸不一致!如果此提示一直出现(>=25条)请向开发者反馈。"
-            #     )
-
-            im_s = im_s.resize(im.size)
-
-            # 转换为RGB以确保图像格式一致
-            im = im.convert("RGB")
-            im_s = im_s.convert("RGB")
 
             # 计算两个图像的差异
-            now_confidence = compare_images_binary(im_s, im)
+            now_confidence = compare_images_binary(img, im)
 
             if now_confidence > confidence:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
