@@ -1,12 +1,14 @@
 import os
 import subprocess
 import time
+import traceback
 from pathlib import Path
 
 from PIL import Image
 from loguru import logger
 
-from .cmp import compare_images_binary
+from .cmp import compare_images_binary_old
+from .cmp_server import ImageComparatorServer
 from .settings import Settings
 
 
@@ -251,7 +253,8 @@ class ADB:
             x2: float,
             y2: float,
             img: str | Path,
-            confidence: float = 0.91,
+            thresh=207,
+            confidence: float = 0.93,
     ) -> bool:
         """
         比较截图区域与指定图片的相似度。
@@ -267,20 +270,41 @@ class ADB:
         try:
             # 截图并从区域获取Image对象
             im: Image.Image = self.screenshot_region(x1, y1, x2, y2)
+            im_s = Image.open(img)
+
+            # 确保两个图像的尺寸一致
+            # if im.size[0] / im.size[1] != im_s.size[0] / im_s.size[1]:
+            #     logger.warning(
+            #         "图片尺寸不一致!如果此提示一直出现(>=25条)请向开发者反馈。"
+            #     )
+
+            im_s = im_s.resize(im.size)
+
+            # 转换为RGB以确保图像格式一致
+            im = im.convert("RGB")
+            im_s = im_s.convert("RGB")
 
             # 计算两个图像的差异
-            now_confidence = compare_images_binary(img, im)
+            now_confidence, diff, thresh = compare_images_binary_old(im_s, im, thresh=thresh)
+            instance = ImageComparatorServer.get_global_instance()
+            instance.send_srcImage(im_s)
+            instance.send_dstImage(im)
+            instance.send_diffImage(diff)
+            instance.send_text("thresh", str(thresh))
+            instance.send_text("similarity", f"{now_confidence:.2f}")
 
             if now_confidence > confidence:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
                 self.compare_fail_count = 0  # 重置失败次数
+                logger.success(info)
             else:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(<{confidence}), 匹配>>>失败<<<\n已累计: {self.compare_fail_count} 次"
                 if self.setting.too_many_errors != 0:
                     self._fail_handle()
-            logger.debug(info)
+                logger.debug(info)
 
             return now_confidence > confidence
         except Exception as e:
             logger.error(f"图片对比失败 {type(e)} {e}")
+            traceback.print_exception(type(e), e, e.__traceback__)
             return False

@@ -175,3 +175,8 @@ temp/
 # ocr and other
 .ocr_venv
 binaries
+
+# image comparator
+img_comparator/build
+img_comparator/**/*.exe
+.img_comparator_venv

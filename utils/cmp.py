@@ -3,7 +3,18 @@ import os.path
 import subprocess
 import sys
 import warnings
-import loguru
+from typing import Any, Tuple
+
+from PIL.Image import Image
+
+sys.path.append(os.path.abspath("../.ocr_venv/Lib/site-packages"))
+from utils.evaluate_images import evaluate_image, EvaluateMetric, evaluate_thresh, evaluate_thresh_runtime
+
+try:
+    import cv2
+    import numpy
+except ImportError:
+    pass
 
 __all__ = ['CompareMetrics', 'compare_images']
 
@@ -136,14 +147,15 @@ def get_thresh(path: str | Path):
 def compare_images_binary_cv2(
         srcIm: Image.Image,
         dstIm: str | Path,
-        evaluated: bool = False,
+        # evaluated: bool = False,
         thresh=127
 ) -> float:
     dstIm = cv2.imread(dstIm)
-    srcIm = np.asarray(srcIm)
+    srcIm = numpy.asarray(srcIm)
     srcIm = cv2.cvtColor(srcIm, cv2.COLOR_RGB2BGR)
     # resize
-    dstIm = cv2.resize(dstIm, (srcIm.shape[1], srcIm.shape[0]), interpolation=cv2.INTER_AREA)
+    dstIm = cv2.resize(dstIm, (srcIm.shape[1], srcIm.shape[0]))
+    print(srcIm.shape, dstIm.shape, thresh)
 
     # 生成灰度图
     srcIm = cv2.cvtColor(srcIm, cv2.COLOR_BGR2GRAY)
@@ -151,13 +163,7 @@ def compare_images_binary_cv2(
     # 二值化
     srcIm = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
 
-    if not evaluated:  # binary
-        dstIm = cv2.cvtColor(dstIm, cv2.COLOR_RGB2BGR)
-        dstIm = cv2.cvtColor(dstIm, cv2.COLOR_BGR2GRAY)
-        dstIm = cv2.threshold(dstIm, thresh, 255, cv2.THRESH_BINARY)[1]
-    else:
-        # read red channel
-        dstIm = dstIm[:, :, 2]
+    dstIm = dstIm[:, :, 2]
 
     # 计算差异
     diff = cv2.absdiff(srcIm, dstIm)
@@ -169,7 +175,7 @@ def compare_images_binary_cv2(
 def compare_images_binary_pil(
         srcIm: Image.Image,
         dstIm: str | Path,
-        evaluated: bool = False,
+        # evaluated: bool = False,
         thresh=127
 ) -> float:
     dstIm = Image.open(dstIm)
@@ -181,10 +187,6 @@ def compare_images_binary_pil(
 
     # 二值化
     srcIm = srcIm.point(lambda x: 0 if x < thresh else 255, '1')
-
-    if not evaluated:  # binary
-        dstIm = dstIm.convert('L')
-        dstIm = dstIm.point(lambda x: 0 if x < thresh else 255, '1')
 
     # 计算差异
     diff = ImageChops.difference(srcIm, dstIm)
@@ -201,14 +203,124 @@ def compare_images_binary(
         dstIm: str | Path,
         srcIm: Image.Image,
 ) -> float:
+    import loguru
+    dstIm = str(dstIm)
     # find evaluated image
-    evaluated = True
     t, p = get_thresh(dstIm)
     if t == -1:
-        evaluated = False
-        loguru.logger.warning("WARNING: compare_images_binary: dstIm is not evaluated image, it will be evaluated by default method.")
+        loguru.logger.warning(
+            "WARNING: compare_images_binary: dstIm is not evaluated image, it will be evaluated automatically.")
+        # evaluate image
+        if "cv2" in sys.modules and "numpy" in sys.modules:
+            t, c, p = evaluate_image(dstIm, metric=EvaluateMetric.CV2, target=0.15, error=0.05)
+        else:
+            t, c, p = evaluate_image(dstIm, metric=EvaluateMetric.PIL, target=0.15, error=0.05)
+        loguru.logger.debug(
+            f"compare_images_binary: evaluating image: {dstIm}, thresh: {t}, criterion: {c:.2f}, evaluated image: {p}")
 
-    if "cv2" in sys.modules and 'np' in sys.modules:
-        return compare_images_binary_cv2(srcIm, p, evaluated, thresh=t)  # faster
+    if "cv2" in sys.modules and "numpy" in sys.modules and False:
+        loguru.logger.debug("compare_images_binary: using cv2")
+        return compare_images_binary_cv2(srcIm, p, thresh=t)  # faster
     else:
-        return compare_images_binary_pil(srcIm, p, evaluated, thresh=t)  # standard
+        loguru.logger.debug("compare_images_binary: using PIL")
+        return compare_images_binary_pil(srcIm, p, thresh=t)  # standard
+
+
+def compare_images_binary_cv2_old(
+        srcIm: Image,
+        dstIm: Image,
+        thresh=127
+) -> tuple[Any, Any, int]:
+    """
+    :param srcIm: 本地图片
+    :param dstIm: 游戏截图
+    :return:
+    """
+
+    srcIm = cv2.cvtColor(numpy.asarray(srcIm), cv2.COLOR_RGB2BGR)
+    dstIm = cv2.cvtColor(numpy.asarray(dstIm), cv2.COLOR_RGB2BGR)
+
+    # 生成灰度图
+    srcIm = cv2.cvtColor(srcIm, cv2.COLOR_BGR2GRAY)
+    dstIm = cv2.cvtColor(dstIm, cv2.COLOR_BGR2GRAY)
+
+    # 二值化
+    srcIm1 = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
+
+    total_pixels = srcIm1.shape[0] * srcIm1.shape[1]
+    if cv2.countNonZero(srcIm1) / total_pixels < 0.1:  #
+        thresh = evaluate_thresh_runtime(srcIm1, target=0.12, error=0.02, metric=EvaluateMetric.CV2)[0]
+        srcIm = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
+    else:
+        srcIm = srcIm1
+
+    dstIm = cv2.threshold(dstIm, thresh, 255, cv2.THRESH_BINARY)[1]
+
+    # 计算差异
+    diff = cv2.absdiff(srcIm, dstIm)
+    diff_pixels = cv2.countNonZero(diff)
+    return (total_pixels - diff_pixels) / total_pixels, diff,thresh
+
+
+def compare_images_binary_pil_old(
+        srcIm: Image,
+        dstIm: Image,
+        thresh=127
+) -> tuple[float | Any, Image, int]:
+    """
+    :param srcIm: 本地图片
+    :param dstIm: 游戏截图
+    :return:
+    """
+    # 生成灰度图
+    srcIm = srcIm.convert('L')
+    dstIm = dstIm.convert('L')
+
+    # 二值化
+    srcIm1 = srcIm.point(lambda x: 0 if x < thresh else 255, '1')
+
+    black_pixels = 0
+    for x in range(srcIm1.size[0]):
+        for y in range(srcIm1.size[1]):
+            if srcIm1.getpixel((x, y)) != 0:
+                black_pixels += 1
+    if black_pixels / (srcIm1.size[0] * srcIm1.size[1]) < 0.1:  #
+        thresh = evaluate_thresh_runtime(srcIm1, target=0.12, error=0.02, metric=EvaluateMetric.PIL)[0]
+        srcIm = srcIm.point(lambda x: 0 if x < thresh else 255, '1')
+    else:
+        srcIm = srcIm1
+
+    dstIm = dstIm.point(lambda x: 0 if x < thresh else 255, '1')
+
+    # 计算差异
+    diff = ImageChops.difference(srcIm, dstIm)
+    total_pixels = diff.size[0] * diff.size[1]
+    zero_pixels = 0
+    for x in range(diff.size[0]):
+        for y in range(diff.size[1]):
+            if diff.getpixel((x, y)) == 0:
+                zero_pixels += 1
+    return (zero_pixels) / total_pixels, diff,thresh
+
+
+def compare_images_binary_old(
+        srcIm: Image,
+        dstIm: Image,
+        thresh=127
+) -> tuple[Any, Any, int] | tuple[float | Any, Any, int]:
+    """
+    :param srcIm: 本地图片
+    :param dstIm: 游戏截图
+    :return:
+    """
+    if "cv2" in sys.modules and ("np" in sys.modules or "numpy" in sys.modules):
+        return compare_images_binary_cv2_old(srcIm, dstIm, thresh)  # faster
+    else:
+        return compare_images_binary_pil_old(srcIm, dstIm, thresh)  # standard
+
+
+if __name__ == '__main__':
+    print(compare_images_binary(
+        dstIm=r"../data/16_9/no_mail.png",
+        srcIm=Image.open(r"../data/16_9/no_mail.png")
+    ))
