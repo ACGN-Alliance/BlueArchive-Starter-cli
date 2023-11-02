@@ -48,7 +48,7 @@ class HeartBeatThread(QThread):
             while not self.STOP:
                 time.sleep(1)
                 try:
-                    self.socket.sendall(b'HEARTBEAT REQ'.rjust(32, b'\x00'))
+                    self.socket.sendall(b'HEARTBEAT REQ'.ljust(32, b'\x00'))
                     rv = self.socket.recv(32)
                     if not (r := rv.replace(b'\x00', b'')) == b'HEARTBEAT ACK':
                         raise Exception("Heartbeat error, received: %s" % r)
@@ -67,7 +67,7 @@ class HeartBeatThread(QThread):
                     break
 
         if self.state:
-            self.socket.sendall(b'FIN'.rjust(32, b'\x00'))
+            self.socket.sendall(b'FIN'.ljust(32, b'\x00'))
             self.socket.close()
 
     def changeState(self, state: bool):
@@ -144,13 +144,46 @@ class Client(QObject):
 
         self.receivedText.emit(key, value)
 
+    def receivedRawText(self, key: str, value: str):
+        self.receivedText.emit(key, value)
+
+    def receiveAll(self, data: bytes):
+        pointer = 32
+        srcLen, dstLen, diffLen, now_confidence_len, thresh_len, passed_len = struct.unpack('6i',
+                                                                                            data[pointer:pointer + 24])
+        pointer += 24
+        src = data[pointer:pointer + srcLen]
+        pointer += srcLen
+        dst = data[pointer:pointer + dstLen]
+        pointer += dstLen
+        diff = data[pointer:pointer + diffLen]
+        pointer += diffLen
+        now_confidence = data[pointer:pointer + now_confidence_len]
+        pointer += now_confidence_len
+        thresh = data[pointer:pointer + thresh_len]
+        pointer += thresh_len
+        passed = data[pointer:pointer + passed_len]
+
+        now_confidence = now_confidence.decode('utf-8').replace('\x00', '')
+        thresh = thresh.decode('utf-8').replace('\x00', '')
+        passed = passed.decode('utf-8').replace('\x00', '')
+
+        self.receiveImage(src)
+        self.receiveImage(dst)
+        self.receiveImage(diff)
+        self.receivedRawText('similarity', now_confidence)
+        self.receivedRawText('thresh', thresh)
+        self.receivedRawText('passed', passed)
+
     def receiveAny(self, data: bytes):
         name = data[:32]
         name = name.decode('utf-8').replace('\x00', '')
         if "Image" in name:
             return self.receiveImage(data)
-        elif "text" in name:
+        elif "Text" in name:
             return self.receiveText(data)
+        elif "All" in name:
+            return self.receiveAll(data)
 
     def stop(self):
         self.heartBeatThread.STOP = True

@@ -249,7 +249,7 @@ def compare_images_binary_cv2_old(
 
     total_pixels = srcIm1.shape[0] * srcIm1.shape[1]
     if cv2.countNonZero(srcIm1) / total_pixels < 0.1:  #
-        thresh = evaluate_thresh_runtime(srcIm1, target=0.12, error=0.02, metric=EvaluateMetric.CV2)[0]
+        thresh = evaluate_thresh_runtime(srcIm, target=0.12, error=0.02, metric=EvaluateMetric.CV2)[0]
         srcIm = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
     else:
         srcIm = srcIm1
@@ -285,7 +285,7 @@ def compare_images_binary_pil_old(
             if srcIm1.getpixel((x, y)) != 0:
                 black_pixels += 1
     if black_pixels / (srcIm1.size[0] * srcIm1.size[1]) < 0.1:  #
-        thresh = evaluate_thresh_runtime(srcIm1, target=0.12, error=0.02, metric=EvaluateMetric.PIL)[0]
+        thresh = evaluate_thresh_runtime(srcIm, target=0.12, error=0.02, metric=EvaluateMetric.PIL)[0]
         srcIm = srcIm.point(lambda x: 0 if x < thresh else 255, '1')
     else:
         srcIm = srcIm1
@@ -313,10 +313,9 @@ def compare_images_binary_old(
     :param dstIm: 游戏截图
     :return:
     """
-    if "cv2" in sys.modules and ("np" in sys.modules or "numpy" in sys.modules):
-        return compare_images_binary_cv2_old(srcIm, dstIm, thresh)  # faster
-    else:
-        return compare_images_binary_pil_old(srcIm, dstIm, thresh)  # standard
+    # if "cv2" in sys.modules and ("np" in sys.modules or "numpy" in sys.modules):
+    #     return compare_images_binary_cv2_old(srcIm, dstIm, thresh)  # faster
+    return compare_images_binary_pil_old(srcIm, dstIm, thresh)  # standard
 
 
 if __name__ == '__main__':

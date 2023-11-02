@@ -73,6 +73,8 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.diffImage)
         self.horizontalLayout.addLayout(self.verticalLayout_3)
         self.verticalLayout_4.addLayout(self.horizontalLayout)
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding)
+        self.verticalLayout_4.addItem(spacerItem)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
@@ -111,6 +113,25 @@ class Ui_MainWindow(object):
         self.thresh.setObjectName("thresh")
         self.horizontalLayout_4.addWidget(self.thresh)
         self.verticalLayout_4.addLayout(self.horizontalLayout_4)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.label_6 = QtWidgets.QLabel(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
+        self.label_6.setSizePolicy(sizePolicy)
+        self.label_6.setObjectName("label_6")
+        self.horizontalLayout_2.addWidget(self.label_6)
+        self.passed = QtWidgets.QLabel(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.passed.sizePolicy().hasHeightForWidth())
+        self.passed.setSizePolicy(sizePolicy)
+        self.passed.setObjectName("passed")
+        self.horizontalLayout_2.addWidget(self.passed)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -129,7 +150,8 @@ class Ui_MainWindow(object):
         self.similarity.setText(_translate("MainWindow", "TextLabel"))
         self.label_5.setText(_translate("MainWindow", "二值化阈值"))
         self.thresh.setText(_translate("MainWindow", "TextLabel"))
-
+        self.label_6.setText(_translate("MainWindow", "是否通过:"))
+        self.passed.setText(_translate("MainWindow", "TextLabel"))
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -149,6 +171,9 @@ class MainWindow(QMainWindow):
         self.tcpClient.connected.connect(self.onConnected)
         self.tcpClient.disconnected.connect(self.onDisconnected)
         self.tcpClient.noConnection.connect(self.onNoConnection)
+
+        # 置顶
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
     def onConnected(self):
         self.setWindowTitle(self.title_text + 'connected')

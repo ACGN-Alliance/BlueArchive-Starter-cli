@@ -7,7 +7,8 @@ from typing import Any
 
 from PIL import Image
 
-from .cmp import compare_images_binary_old
+
+# from .cmp import compare_images_binary_old
 
 
 class RestartServerThread(Exception):
@@ -161,7 +162,7 @@ class ImageComparatorServer:
     def send(self, name, data: bytes):
         # name 32Bytes + data
         if self.heartBeatThread.state:
-            self.send_bytes(struct.pack('32s', name.encode('utf-8')) + data)
+            self.send_bytes(name.encode('utf-8').ljust(32, b'\x00') + data)
         else:
             # print('### cannot send data because client disconnected, passed')
             ...
@@ -169,7 +170,10 @@ class ImageComparatorServer:
     def send_srcImage(self, data: Image.Image | Any):
         self.send_image('srcImage', data)
 
-    def pack_image(self, name, data: Image.Image | Any):
+    @classmethod
+    def pack_image(cls, name, data: Image.Image | Any):
+        if not isinstance(data, Image.Image):
+            data = Image.fromarray(data)
         w, h = data.size
         mode = data.mode
         return struct.pack('32s2i8s', name.encode('utf-8'), w, h, mode.encode('utf-8')) + data.tobytes()
@@ -188,8 +192,9 @@ class ImageComparatorServer:
         self.send(name, struct.pack('2i8s', w, h, mode.encode('utf-8')) + data.tobytes())
 
     def send_text(self, key, value):
-        self.send('text', struct.pack('32s', key.encode('utf-8')) + value.encode('utf-8'))
+        self.send('Text', struct.pack('32s', key.encode('utf-8')) + value.encode('utf-8'))
 
+    @classmethod
     def receive_image(self, data: bytes) -> tuple[str, Image.Image]:
         name, w, h, mode = struct.unpack('32s2i8s', data[:48])
         name = name.decode('utf-8').replace('\x00', '')
@@ -198,26 +203,116 @@ class ImageComparatorServer:
         data = Image.frombytes(mode, (w, h), data)
         return name, data
 
-    def receive_text(self, data: bytes) -> tuple[str, str]:
+    @classmethod
+    def receive_text(cls, data: bytes) -> tuple[str, str]:
         key, value = struct.unpack('32s', data[:32])
         key = key.decode('utf-8').replace('\x00', '')
         value = value.decode('utf-8').replace('\x00', '')
         return key, value
 
-    def send_all(self, dstImage: Image.Image, srcImage: Image.Image, diffImage: Image.Image):
-        dst = self.pack_image('dstImage', dstImage)
-        src = self.pack_image('srcImage', srcImage)
-        diff = self.pack_image('diffImage', diffImage)
-        # construct head
-        head = struct.pack('3i', len(dst), len(src), len(diff))
-        self.send_bytes(head + dst + src + diff)
+    def send_all(
+            self,
+            srcIm,
+            dstIm,
+            diffIm,
+            now_confidence,
+            thresh,
+            passed,
+    ):
+        """
+        header:
+            srcIm len,
+            dstIm len,
+            diffIm len,
+            now_confidence len,
+            thresh len,
+            passed len,
 
-    def received_all(self, data: bytes):
-        dst_len, src_len, diff_len = struct.unpack('3i', data[:12])
-        dst = data[12:12 + dst_len]
-        src = data[12 + dst_len:12 + dst_len + src_len]
-        diff = data[12 + dst_len + src_len:12 + dst_len + src_len + diff_len]
-        return self.receive_image(dst), self.receive_image(src), self.receive_image(diff)
+        body:
+            srcIm,
+            dstIm,
+            diffIm,
+            now_confidence,
+            thresh,
+            passed,
+
+        :param srcIm: image
+        :param dstIm: image
+        :param diffIm: image
+        :param now_confidence: text
+        :param thresh: text
+        :param passed: text
+        :return:
+        """
+
+        srcLen = len(src := self.pack_image('srcImage', srcIm))
+        dstLen = len(dst := self.pack_image('dstImage', dstIm))
+        diffLen = len(diff := self.pack_image('diffImage', diffIm))
+        now_confidence = now_confidence.encode('utf-8')
+        thresh = thresh.encode('utf-8')
+        passed = passed.encode('utf-8')
+        header = struct.pack(
+            '6i',
+            srcLen, dstLen, diffLen,
+            len(now_confidence), len(thresh), len(passed)
+        )
+        body = src + dst + diff + now_confidence + thresh + passed
+        self.send('All', header + body)
+
+    @classmethod
+    def construct_all(
+            cls,
+            srcIm,
+            dstIm,
+            diffIm,
+            now_confidence,
+            thresh,
+            passed,
+    ):
+        srcLen = len(src := cls.pack_image('srcImage', srcIm))
+        dstLen = len(dst := cls.pack_image('dstImage', dstIm))
+        diffLen = len(diff := cls.pack_image('diffImage', diffIm))
+        now_confidence = now_confidence.encode('utf-8')
+        thresh = thresh.encode('utf-8')
+        passed = passed.encode('utf-8')
+        header = struct.pack(
+            '6i',
+            srcLen, dstLen, diffLen,
+            len(now_confidence), len(thresh), len(passed)
+        )
+        body = src + dst + diff + now_confidence + thresh + passed
+        return "All".encode('utf-8').ljust(32, b'\x00') + header + body
+
+    @classmethod
+    def receive_all(cls, data: bytes):
+        pointer = 32
+        srcLen, dstLen, diffLen, now_confidence_len, thresh_len, passed_len = struct.unpack('6i',
+                                                                                            data[pointer:pointer + 24])
+        pointer += 24
+        src = data[pointer:pointer + srcLen]
+        pointer += srcLen
+        dst = data[pointer:pointer + dstLen]
+        pointer += dstLen
+        diff = data[pointer:pointer + diffLen]
+        pointer += diffLen
+        now_confidence = data[pointer:pointer + now_confidence_len]
+        pointer += now_confidence_len
+        thresh = data[pointer:pointer + thresh_len]
+        pointer += thresh_len
+        passed = data[pointer:pointer + passed_len]
+
+        now_confidence = now_confidence.decode('utf-8').replace('\x00', '')
+        thresh = thresh.decode('utf-8').replace('\x00', '')
+        passed = passed.decode('utf-8').replace('\x00', '')
+
+        return (
+            cls.receive_image(src)[1],
+            cls.receive_image(dst)[1],
+            cls.receive_image(diff)[1],
+            now_confidence,
+            thresh,
+            passed,
+        )
 
     def received_any(self, data: bytes):
         name = data[:32]
@@ -234,24 +329,30 @@ class ImageComparatorServer:
             print("Image Comparator服务端已启动")
         return ImageComparatorServer.globalInstance
 
-if __name__ == '__main__':
 
-    server = ImageComparatorServer(65534)
-    while True:
-        if input("按任意键继续") == 'q':
-            break
-        # print("服务端开始计算")
-        srcImage = Image.open(r'../data/16_9/no_mail.png')
-        dstImage = Image.open(r'../data/16_9/no_mail.png')
-        dstImage.resize(srcImage.size)
-        srcImage.convert('RGB')
-        dstImage.convert('RGB')
-        now_confidence, diffImage, thresh = compare_images_binary_old(dstImage, srcImage)
-        # print("服务端计算完成,准备传送数据")
-        server.send_srcImage(srcImage)
-        server.send_dstImage(dstImage)
-        server.send_diffImage(diffImage)
-        server.send_text('similarity', f'{now_confidence:.2f}')
-        server.send_text('thresh', f'{thresh}')
-        # print("服务端传送数据完成")
-    server.stop()
+if __name__ == '__main__':
+    # server = ImageComparatorServer(65534)
+    # while True:
+    #     if input("按任意键继续") == 'q':
+    #         break
+    #     # print("服务端开始计算")
+    #     srcImage = Image.open(r'../data/16_9/no_mail.png')
+    #     dstImage = Image.open(r'../data/16_9/no_mail.png')
+    #     dstImage.resize(srcImage.size)
+    #     srcImage.convert('RGB')
+    #     dstImage.convert('RGB')
+    #     now_confidence, diffImage, thresh = compare_images_binary_old(dstImage, srcImage)
+    #     # print("服务端计算完成,准备传送数据")
+    #     server.send_srcImage(srcImage)
+    #     server.send_dstImage(dstImage)
+    #     server.send_diffImage(diffImage)
+    #     server.send_text('similarity', f'{now_confidence:.2f}')
+    #     server.send_text('thresh', f'{thresh}')
+    #     # print("服务端传送数据完成")
+    # server.stop()
+    srcImage = Image.open(r'../data/16_9/no_mail.png')
+    dstImage = Image.open(r'../data/16_9/recurit_confirm.png')
+    d = ImageComparatorServer.construct_all(srcImage, dstImage, srcImage, '0.9', '0.9', 'True')
+    a, b, c, d, e, f = ImageComparatorServer.receive_all(d)
+    a.show()
+    b.show()

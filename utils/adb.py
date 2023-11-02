@@ -271,6 +271,8 @@ class ADB:
             # 截图并从区域获取Image对象
             im: Image.Image = self.screenshot_region(x1, y1, x2, y2)
             im_s = Image.open(img)
+            dst = im.copy()
+            src = im_s.copy()
 
             # 确保两个图像的尺寸一致
             # if im.size[0] / im.size[1] != im_s.size[0] / im_s.size[1]:
@@ -287,11 +289,14 @@ class ADB:
             # 计算两个图像的差异
             now_confidence, diff, thresh = compare_images_binary_old(im_s, im, thresh=thresh)
             instance = ImageComparatorServer.get_global_instance()
-            instance.send_srcImage(im_s)
-            instance.send_dstImage(im)
-            instance.send_diffImage(diff)
-            instance.send_text("thresh", str(thresh))
-            instance.send_text("similarity", f"{now_confidence:.2f}")
+            instance.send_all(
+                src,
+                dst,
+                diff,
+                str(now_confidence),
+                str(thresh),
+                "True" if now_confidence > confidence else "False",
+            )
 
             if now_confidence > confidence:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
