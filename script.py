@@ -265,6 +265,7 @@ def script(
         ):
             adb_con.sleep(1)
 
+        adb_con.sleep(1.5)
         logger.success("完成作战")
         adb_con.click(90, 90)
         adb_con.sleep(5)
