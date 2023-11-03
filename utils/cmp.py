@@ -3,12 +3,12 @@ import os.path
 import subprocess
 import sys
 import warnings
-from typing import Any, Tuple
+from typing import Any
 
 from PIL.Image import Image
 
 sys.path.append(os.path.abspath("../.ocr_venv/Lib/site-packages"))
-from utils.evaluate_images import evaluate_image, EvaluateMetric, evaluate_thresh, evaluate_thresh_runtime
+from utils.evaluate_images import evaluate_image, EvaluateMetric, evaluate_thresh_runtime
 
 try:
     import cv2
@@ -150,6 +150,7 @@ def compare_images_binary_cv2(
         # evaluated: bool = False,
         thresh=127
 ) -> float:
+    warnings.warn("compare_images_binary_cv2 is deprecated", DeprecationWarning)
     dstIm = cv2.imread(dstIm)
     srcIm = numpy.asarray(srcIm)
     srcIm = cv2.cvtColor(srcIm, cv2.COLOR_RGB2BGR)
@@ -178,6 +179,7 @@ def compare_images_binary_pil(
         # evaluated: bool = False,
         thresh=127
 ) -> float:
+    warnings.warn("compare_images_binary_pil is deprecated", DeprecationWarning)
     dstIm = Image.open(dstIm)
     # resize
     dstIm = dstIm.resize((srcIm.size[0], srcIm.size[1]))
@@ -203,6 +205,7 @@ def compare_images_binary(
         dstIm: str | Path,
         srcIm: Image.Image,
 ) -> float:
+    warnings.warn("compare_images_binary is deprecated", DeprecationWarning)
     import loguru
     dstIm = str(dstIm)
     # find evaluated image
@@ -236,7 +239,7 @@ def compare_images_binary_cv2_old(
     :param dstIm: 游戏截图
     :return:
     """
-
+    warnings.warn(f"compare_images_binary_cv2_old is deprecated", DeprecationWarning)
     srcIm = cv2.cvtColor(numpy.asarray(srcIm), cv2.COLOR_RGB2BGR)
     dstIm = cv2.cvtColor(numpy.asarray(dstIm), cv2.COLOR_RGB2BGR)
 
@@ -259,7 +262,7 @@ def compare_images_binary_cv2_old(
     # 计算差异
     diff = cv2.absdiff(srcIm, dstIm)
     diff_pixels = cv2.countNonZero(diff)
-    return (total_pixels - diff_pixels) / total_pixels, diff,thresh
+    return (total_pixels - diff_pixels) / total_pixels, diff, thresh
 
 
 def compare_images_binary_pil_old(
@@ -300,14 +303,14 @@ def compare_images_binary_pil_old(
         for y in range(diff.size[1]):
             if diff.getpixel((x, y)) == 0:
                 zero_pixels += 1
-    return (zero_pixels) / total_pixels, diff,thresh
+    return (zero_pixels) / total_pixels, diff, thresh
 
 
 def compare_images_binary_old(
         srcIm: Image,
         dstIm: Image,
         thresh=127
-) -> tuple[Any, Any, int] | tuple[float | Any, Any, int]:
+) -> tuple[float, Any, int]:
     """
     :param srcIm: 本地图片
     :param dstIm: 游戏截图

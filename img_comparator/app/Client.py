@@ -83,6 +83,7 @@ class HeartBeatThread(QThread):
 class Client(QObject):
     receivedImage = QtCore.pyqtSignal(str, QPixmap)
     receivedText = QtCore.pyqtSignal(str, str)
+    onReceived = QtCore.pyqtSignal(bytes)
 
     def __init__(self, port):
         super().__init__()
@@ -176,6 +177,7 @@ class Client(QObject):
         self.receivedRawText('passed', passed)
 
     def receiveAny(self, data: bytes):
+        self.onReceived.emit(data)
         name = data[:32]
         name = name.decode('utf-8').replace('\x00', '')
         if "Image" in name:
