@@ -293,7 +293,7 @@ class ADB:
                 src,
                 dst,
                 diff,
-                str(now_confidence),
+                f"{now_confidence:.2f}",
                 str(thresh),
                 "True" if now_confidence > confidence else "False",
             )
