@@ -1,11 +1,12 @@
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any
+
 from loguru import logger
-import json
 
 from utils import adb
-from utils.settings import Settings
 from utils.box_scan import Scan
+from utils.settings import Settings
+
 
 # _is_no_checkpoint = True
 
@@ -77,6 +78,7 @@ def checkpoint_new(
 
     return if_run
 
+
 def script(
         adb_con: adb.ADB,
         path: Path,
@@ -94,6 +96,7 @@ def script(
     settings: 设置
     load_point: 起始位置
     """
+
     def skip_story():
         adb_con.click(95, 5)
         adb_con.click(95, 15)
@@ -259,7 +262,8 @@ def script(
         adb_con.multi_click(50, 63, 5)
         adb_con.sleep(9)
         logger.info("开启auto")
-        adb_con.click(92, 95)
+        adb_con.sleep(2)
+        adb_con.click(95, 97)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
@@ -297,7 +301,8 @@ def script(
         ):
             adb_con.multi_click(40, 90, 5)
 
-    if checkpoint_new(12, load_point, alias="MomoTalk & 收取邮件", is_start_from_zero=is_start_from_zero, settings=settings):
+    if checkpoint_new(12, load_point, alias="MomoTalk & 收取邮件", is_start_from_zero=is_start_from_zero,
+                      settings=settings):
         # logger.success("10. MomoTalk & 收取邮件")
         while not adb_con.compare_img(
                 *mapping["no_mail.png"], img=path.joinpath("no_mail.png")
@@ -319,15 +324,16 @@ def script(
         # adb_con.multi_click(50, 50, 5)
         adb_con.sleep(2)
         adb_con.click(60, 40)  # 账号
-        adb_con.click(99, 4)   # 弹出网页关闭
-        adb_con.multi_click(50, 50,7)
+        adb_con.click(99, 4)  # 弹出网页关闭
+        adb_con.multi_click(50, 50, 7)
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
                 confidence=0.89
         ):
-            adb_con.back() # 返回主界面
+            adb_con.back()  # 返回主界面
 
-    if checkpoint_new(14, load_point, alias="开始获取主线青辉石", is_start_from_zero=is_start_from_zero, settings=settings):
+    if checkpoint_new(14, load_point, alias="开始获取主线青辉石", is_start_from_zero=is_start_from_zero,
+                      settings=settings):
         # ==============40抽起始==============
         adb_con.click(92, 82)
         adb_con.sleep(2)
@@ -393,8 +399,8 @@ def script(
         chapter("normal")  # 第八话
 
         while not adb_con.compare_img(
-            *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
-            confidence=0.89
+                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
+                confidence=0.89
         ):
             adb_con.back()
 
@@ -409,8 +415,8 @@ def script(
         adb_con.click(90, 95)
         adb_con.multi_click(50, 90, 5)
         while not adb_con.compare_img(
-            *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
-            confidence=0.89
+                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
+                confidence=0.89
         ):
             adb_con.back()
 
@@ -456,14 +462,14 @@ def script(
         if not settings.scan_list:
             logger.error("box检测队列为空")
             return True
-        
+
         while not adb_con.compare_img(
                 *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
                 confidence=0.89
         ):
             adb_con.back()
         adb_con.click(25, 92)
-        adb_con.multi_click(50, 50 ,3)
+        adb_con.multi_click(50, 50, 3)
         adb_con.click(10, 40)
         adb_con.multi_click(50, 50, 8)
         adb_con.sleep(2)
@@ -515,6 +521,5 @@ def script(
         else:
             logger.error("学生未刷齐~重启执行脚本")
             return False
-
 
     logger.success("脚本执行完毕")
