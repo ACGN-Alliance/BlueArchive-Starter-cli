@@ -254,7 +254,7 @@ class ADB:
             y2: float,
             img: str | Path,
             thresh=207,
-            confidence: float = 0.93,
+            confidence: float = 0.91,
     ) -> bool:
         """
         比较截图区域与指定图片的相似度。
