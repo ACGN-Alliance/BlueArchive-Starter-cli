@@ -3,6 +3,9 @@ import os
 import signal
 import subprocess
 import sys
+
+from utils.cmp_server import ImageComparatorServer
+
 # for user
 sys.path.append(os.path.abspath("ocr_dependencies"))
 # for developer
@@ -61,6 +64,7 @@ def signal_handler(sig, frame):
     if settings:
         json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
 
+    ImageComparatorServer.get_global_instance().stop()  # stop server
     sys.exit(0)
 
 
@@ -391,6 +395,7 @@ if __name__ == '__main__':
     register_ocr_path()
     print(f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861")
     time.sleep(1)
+    ImageComparatorServer.get_global_instance()  # start Server
 
     while True:
         menu()
