@@ -253,7 +253,7 @@ class ADB:
             x2: float,
             y2: float,
             img: str | Path,
-            thresh=207,
+            thresh=127,
             confidence: float = 0.91,
     ) -> bool:
         """

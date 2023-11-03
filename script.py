@@ -140,8 +140,9 @@ def script(
         while not adb_con.compare_img(
                 *mapping["start_menu_icon.png"], img=path.joinpath("start_menu_icon.png")
         ):
-            adb_con.click(95, 5)
             adb_con.sleep(1)
+        adb_con.click(95, 5)
+        adb_con.sleep(1)
         logger.info("已进入开始界面")
         adb_con.click(99, 4)  # 弹出网页关闭
         adb_con.multi_click(50, 70, 4)
@@ -301,8 +302,7 @@ def script(
         ):
             adb_con.multi_click(40, 90, 5)
 
-    if checkpoint_new(12, load_point, alias="MomoTalk & 收取邮件", is_start_from_zero=is_start_from_zero,
-                      settings=settings):
+    if checkpoint_new(12, load_point, alias="MomoTalk & 收取邮件", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("10. MomoTalk & 收取邮件")
         while not adb_con.compare_img(
                 *mapping["no_mail.png"], img=path.joinpath("no_mail.png")
@@ -314,8 +314,16 @@ def script(
             adb_con.sleep(2)
             adb_con.click(82.5, 94.44)
             adb_con.sleep(1)
-        adb_con.sleep(1)
-        adb_con.multi_click(5, 5, 2)
+        adb_con.sleep(3)
+
+        if not settings.guest:  # 三周年弹窗
+            while not adb_con.compare_img(
+                    *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
+                    confidence=0.89
+            ):
+                adb_con.back()  # 返回主界面
+        else:
+            adb_con.multi_click(5, 5, 2)
 
     if checkpoint_new(13, load_point, alias="绑定账号", is_start_from_zero=is_start_from_zero, settings=settings):
         adb_con.sleep(2)
@@ -332,8 +340,7 @@ def script(
         ):
             adb_con.back()  # 返回主界面
 
-    if checkpoint_new(14, load_point, alias="开始获取主线青辉石", is_start_from_zero=is_start_from_zero,
-                      settings=settings):
+    if checkpoint_new(14, load_point, alias="开始获取主线青辉石", is_start_from_zero=is_start_from_zero, settings=settings):
         # ==============40抽起始==============
         adb_con.click(92, 82)
         adb_con.sleep(2)
