@@ -79,7 +79,6 @@ class HeartBeatThread(threading.Thread):
         self.hasConnected = False
 
     def run(self) -> None:
-        print(f'### listening on {self.heart_beat_socket.getsockname()}: ', end='')
         s, addr = self.heart_beat_socket.accept()
         self.hasConnected = True
         print(f'accepted heart beat connection from {addr}')

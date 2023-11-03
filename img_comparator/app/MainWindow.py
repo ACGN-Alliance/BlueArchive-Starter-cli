@@ -286,6 +286,8 @@ class MainWindow(QMainWindow):
         # adjust label size
         label.setFixedSize(img.size())
         label.setPixmap(img)
+        # adjust window size
+        self.adjustSize()
 
     def receiveText(self, key, value):
         label = getattr(self.ui, key)

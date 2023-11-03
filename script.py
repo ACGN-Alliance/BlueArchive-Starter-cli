@@ -257,8 +257,8 @@ def script(
             adb_con.sleep(5)
         adb_con.multi_click(50, 63, 5)
         adb_con.sleep(9)
-        # logger.info("开启auto")
-        adb_con.click(95, 95)
+        logger.info("开启auto")
+        adb_con.click(95, 97)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
@@ -268,6 +268,8 @@ def script(
         adb_con.click(90, 90)
         adb_con.sleep(5)
         adb_con.click(50, 90)
+        adb_con.sleep(1)
+        adb_con.click(50, 95)
         adb_con.sleep(9)
         adb_con.multi_click(94, 94, 4)
 
@@ -327,7 +329,7 @@ def script(
         adb_con.click(95, 5)
         adb_con.multi_click(5, 50, 10)  # 跳过演示
         # adb_con.click(48, 70)
-        
+
         adb_con.click(85, 35)  # 进入剧情
         adb_con.multi_click(5, 50, 11)  # 跳过演示
         adb_con.click(30, 50)  # 进入主线
@@ -335,9 +337,9 @@ def script(
         adb_con.click(90, 45)  # 第一章
         adb_con.sleep(2)
 
-        def chapter(ctype: str, 
+        def chapter(ctype: str,
                     *args,
-                    is_first_bat: bool = False, 
+                    is_first_bat: bool = False,
                     story_after_bat: bool = True
                     ):
             adb_con.sleep(1.5)
@@ -423,6 +425,7 @@ def script(
             while not adb_con.compare_img(
                     *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
             ):
+                adb_con.sleep(1)
                 adb_con.click(40, 90)
                 adb_con.click(60, 70)
                 adb_con.multi_click(92, 7, 2)
@@ -432,7 +435,7 @@ def script(
 
             if settings.if_screenshot:
                 adb_con.screenshot(f"{i + 2}.png")
-                
+
             adb_con.click(60, 90)
             adb_con.click(60, 65)
         logger.info("回到主菜单")
@@ -463,7 +466,7 @@ def script(
         adb_con.sleep(1)
         adb_con.click(5, 5)
         adb_con.sleep(2)
-        
+
         adb_con.multi_click(50, 50, 3)
         adb_con.sleep(1)
         adb_con.click(10, 40)
@@ -475,7 +478,7 @@ def script(
         adb_con.click(90, 50)
         adb_con.multi_click(95, 95, 10)
         adb_con.click(5, 5)
-    
+
     if checkpoint_new(17, load_point, alias="box检查", is_start_from_zero=is_start_from_zero, settings=settings):
         adb_con.sleep(2)
         if settings.box_scan_mode == "offline":
@@ -491,13 +494,13 @@ def script(
                 return True
         else:
             bscan = Scan(adb_con=adb_con, offline=True)
-            
+
         if bscan.students_in(settings.scan_list):
             logger.success("学生已刷齐~")
             return True
         else:
             logger.error("学生未刷齐~重启执行脚本")
             return False
-        
-    
+
+
     logger.success("脚本执行完毕")
