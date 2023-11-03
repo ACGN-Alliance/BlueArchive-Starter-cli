@@ -22,13 +22,14 @@ class ServerThread(threading.Thread):
         self.queue = queue.Queue()
         self.STOP = False
         self.blockSize = 16384
+        self.hasConnected = False
 
     def run(self) -> None:
         while not self.STOP:
             try:
-
                 s, addr = self.server.accept()
-                # print(f'accepted connection from {addr}')
+                self.hasConnected = True
+                print(f'accepted connection from {addr}')
                 time.sleep(1)
                 while True:
                     data2send = self.queue.get(block=True)
@@ -75,11 +76,13 @@ class HeartBeatThread(threading.Thread):
         self.STOP = False
         self.state = False
         self.serverObj = serverObj
+        self.hasConnected = False
 
     def run(self) -> None:
-        # print(f'### listening on {self.heart_beat_socket.getsockname()}: ', end='')
+        print(f'### listening on {self.heart_beat_socket.getsockname()}: ', end='')
         s, addr = self.heart_beat_socket.accept()
-        # print(f'accepted heart beat connection from {addr}')
+        self.hasConnected = True
+        print(f'accepted heart beat connection from {addr}')
         time.sleep(1)
         while not self.STOP:
             try:
@@ -125,6 +128,10 @@ class HeartBeatThread(threading.Thread):
     def request_restart(self):
         self.serverObj.restart_listening()
 
+    @property
+    def socket(self):
+        return self.heart_beat_socket
+
 
 class ImageComparatorServer:
     globalInstance = None
@@ -149,9 +156,25 @@ class ImageComparatorServer:
 
     def stop_thread(self):
         self.serverThread.put(b'STOP')
+        self.serverThread.STOP = True
         self.heartBeatThread.STOP = True
+        if not self.serverThread.hasConnected:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(('127.0.0.1', self.port))
+            while self.serverThread.hasConnected:
+                time.sleep(0.1)
+            s.close()
+        if not self.heartBeatThread.hasConnected:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(('127.0.0.1', self.port + 1))
+            while self.heartBeatThread.hasConnected:
+                time.sleep(0.1)
+            s.close()
+
         self.serverThread.join()
+        print('server thread stopped')
         self.heartBeatThread.join()
+        print('heart beat thread stopped')
 
     def restart_listening(self):
         self.serverThread.put(b'RESTART')
@@ -350,9 +373,7 @@ if __name__ == '__main__':
     #     server.send_text('thresh', f'{thresh}')
     #     # print("服务端传送数据完成")
     # server.stop()
-    srcImage = Image.open(r'../data/16_9/no_mail.png')
-    dstImage = Image.open(r'../data/16_9/recurit_confirm.png')
-    d = ImageComparatorServer.construct_all(srcImage, dstImage, srcImage, '0.9', '0.9', 'True')
-    a, b, c, d, e, f = ImageComparatorServer.receive_all(d)
-    a.show()
-    b.show()
+    instance = ImageComparatorServer.get_global_instance()
+    time.sleep(1)
+    print("kill server")
+    instance.stop()
