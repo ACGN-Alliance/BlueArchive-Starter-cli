@@ -375,7 +375,6 @@ class MainProgram:
         print("程序退出")
         try:
             self.adb_con.kill_server()
-            ImageComparatorServer.get_global_instance().stop()  # stop server
             os.kill(signal.CTRL_C_EVENT, 0)
         except Exception as e:
             print(e)
@@ -385,9 +384,10 @@ def signal_handler(sig, frame):
     if settings:
         json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
 
-    # try:
-    # except:
-    #     pass
+    try:
+        ImageComparatorServer.get_global_instance().stop()  # stop server
+    except:
+        pass
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
