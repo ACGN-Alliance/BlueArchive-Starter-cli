@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import sys
+import shutil
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from tqdm import tqdm
@@ -151,7 +152,7 @@ class Distributor:
         for root, dirs, files in os.walk("platform-tools"):
             for file in files:
                 if file.endswith(".dll"):
-                    os.replace(os.path.join(root, file), os.path.join("build/main.dist/platform-tools", file))
+                    shutil.copyfile(os.path.join(root, file), os.path.join("build/main.dist/platform-tools", file))
                     print(f"\tmoved {file}")
 
         print("upx files in dir 'build/main.dist'")

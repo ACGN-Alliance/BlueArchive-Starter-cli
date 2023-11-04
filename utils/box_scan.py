@@ -4,7 +4,6 @@ import time
 from pathlib import Path
 from typing import List
 
-import requests
 from PIL import Image
 from loguru import logger
 

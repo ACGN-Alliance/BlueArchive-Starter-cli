@@ -180,3 +180,4 @@ binaries
 img_comparator/build
 img_comparator/**/*.exe
 .img_comparator_venv
+pdm.lock

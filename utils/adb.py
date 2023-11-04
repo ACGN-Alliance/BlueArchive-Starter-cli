@@ -237,6 +237,9 @@ class ADB:
         full_screenshot_path = "temp_full_screenshot.png"
         self.screenshot(full_screenshot_path)
 
+        # i = Path(".").iterdir()
+        # logger.debug(list(i))
+
         with Image.open(full_screenshot_path) as img:
             real_x1, real_y1 = self._normalized_to_real_coordinates(x1, y1)
             real_x2, real_y2 = self._normalized_to_real_coordinates(x2, y2)
@@ -245,7 +248,7 @@ class ADB:
         if save_path:
             region.save(save_path)
 
-        os.remove(full_screenshot_path)
+        # logger.debug("已保存")
         return region
 
     def compare_img(
@@ -315,3 +318,6 @@ class ADB:
             logger.error(f"图片对比失败 {type(e)} {e}")
             traceback.print_exception(type(e), e, e.__traceback__)
             return False
+        
+    def clear_compare_fail_count(self):
+        self.compare_fail_count = 0

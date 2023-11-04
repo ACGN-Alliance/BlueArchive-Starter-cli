@@ -7,38 +7,6 @@ from utils import adb
 from utils.box_scan import Scan
 from utils.settings import Settings
 
-
-# _is_no_checkpoint = True
-
-# def checkpoint(
-#         position: int,
-#         load_point: int,
-#         *args,
-#         alias: str = ""
-# ) -> bool:
-#     """
-#     检查点
-
-#     :param position: 当前位置
-#     :param load_point: 检查点位置
-#     :param alias: 检查点别名
-#     :return: bool, : 是否需要跳过
-#     """
-#     # logger.debug("_is_no_checkpoint: "+str(_is_no_checkpoint))
-
-#     if position != load_point and not _is_no_checkpoint:
-#         logger.info(f"跳过检查点 {position}.{alias}")
-#         return True
-
-#     # if position == 18:
-#     #     position = 0  # 重置检查点 
-
-#     with open("save.json", "w", encoding="utf-8") as f:
-#         json.dump({"load_point": position}, f)
-
-#     logger.info(f"到达检查点 {position}.{alias}")
-#     return False
-
 def checkpoint_new(
         current_position: int,
         load_point: int,
@@ -109,6 +77,8 @@ def script(
     if load_point >= 18:
         logger.error("加载点超出范围, 自动结束脚本")
         return True
+    
+    adb_con.clear_compare_fail_count()
 
     name = settings.username
     if not name:
