@@ -57,6 +57,8 @@ class ADB:
         else:
             self.delay = delay
 
+        self.delay += settings.extra_delay
+
         if os.name == "nt":
             self.adb_path = "./platform-tools/adb.exe"
         else:

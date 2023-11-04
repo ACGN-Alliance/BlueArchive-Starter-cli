@@ -508,19 +508,7 @@ def script(
 
     if checkpoint_new(17, load_point, alias="box检查", is_start_from_zero=is_start_from_zero, settings=settings):
         adb_con.sleep(2)
-        if settings.box_scan_mode == "offline":
-            offline_mode = True
-        elif settings.box_scan_mode == "online":
-            offline_mode = False
-        if not offline_mode:
-            if settings._access_token != "":
-                bscan = Scan(adb_con=adb_con, offline=False)
-                bscan.directly_set_token(settings._access_token)
-            else:
-                print("未检测到access_token， 请先去“设置”=>“获取百度ocr access_token”")
-                return True
-        else:
-            bscan = Scan(adb_con=adb_con, offline=True)
+        bscan = Scan(adb_con=adb_con, offline=True)
 
         if bscan.students_in(settings.scan_list):
             logger.success("学生已刷齐~")

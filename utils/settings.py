@@ -16,7 +16,6 @@ class Settings:
     _link_account: bool = False  # 用于判断是否已经有link account弹窗出现
     ratio: str = "16:9"
     box_scan: bool = False
-    box_scan_mode: str = "online"
     scan_list: list = field(default_factory=list)
     main_line: bool = False
     recuit_num: int = 0
@@ -25,7 +24,7 @@ class Settings:
     pool: int = 1
     speed: Literal["fast", "normal", "slow", "very slow"] = "normal"
     too_many_errors: int = 30
-    _access_token: str = ""
+    extra_delay: int = 0
 
 class OptionType(Enum):
     BOOL = "bool"
@@ -129,8 +128,8 @@ smenu.append(
         "speed",
         func_args=["fast", "normal", "slow", "very slow"])
     )
+smenu.append(Option("设置额外延迟(单位: 秒)", OptionType.NUM, "extra_delay"))
 smenu.append(Option("设置识图错误中断数值(0为关闭)", OptionType.NUM, "too_many_errors"))
-smenu.append(Option("设置ocr模式(online/offline)", OptionType.LITERAL_STR, "box_scan_mode", func_args=["online", "offline"]))
 
 box_scan_preset = {
     "group-1": [("Ako", "亚子"), ("Himar", "阳葵/轮椅")],

@@ -256,17 +256,6 @@ def adb_test():
 
 @exception_handle
 def settings_menu():
-    def set_ocr_token():
-        apikey = input("请输入百度OCR API Key: ")
-        secretkey = input("请输入百度OCR Secret Key: ")
-        scan = Scan(adb_con=adb_con)
-        if scan.set_token(apikey, secretkey):
-            print("已成功设置，当前access_key:", scan.access_token)
-            settings._access_token = scan.access_token
-        else:
-            print("设置失败，请检查API Key和Secret Key是否正确")
-
-    smenu.append(Option("获取百度ocr access_token", OptionType.FUNC, None, func=set_ocr_token))
     while True:
         smenu.show()
         choice = int(input("请选择: "))
