@@ -6,8 +6,6 @@ import warnings
 from typing import Any
 
 from PIL.Image import Image
-from cv2 import Mat
-from numpy import ndarray, generic, dtype
 
 sys.path.append(os.path.abspath("../.ocr_venv/Lib/site-packages"))
 from utils.evaluate_images import evaluate_image, EvaluateMetric, evaluate_thresh_runtime
@@ -217,24 +215,11 @@ def compare_images_binary_pil_old(
     srcIm = srcIm.convert('L')
     dstIm = dstIm.convert('L')
 
-    # 二值化
-    srcIm1 = srcIm.point(lambda x: 0 if x < thresh else 255, '1')
-
-    black_pixels = 0
-    for x in range(srcIm1.size[0]):
-        for y in range(srcIm1.size[1]):
-            if srcIm1.getpixel((x, y)) != 0:
-                black_pixels += 1
-
     if thresh == -1:
-        criterion = black_pixels / (srcIm1.size[0] * srcIm1.size[1])
-        if criterion < 0.1 or criterion > 0.9:  #
-            thresh = evaluate_thresh_runtime(srcIm, target=0.5, error=0.4, metric=EvaluateMetric.PIL)[0]
-            srcIm = srcIm.point(lambda x: 0 if x < thresh else 255, '1')
-        else:
-            srcIm = srcIm1
+        thresh = evaluate_thresh_runtime(srcIm, target=0.5, error=0.4, metric=EvaluateMetric.PIL)[0]
+        srcIm = srcIm.point(lambda x: 0 if x < thresh else 255, '1')
     else:
-        srcIm = srcIm1
+        srcIm = srcIm.point(lambda x: 0 if x < thresh else 255, '1')
 
     dstIm = dstIm.point(lambda x: 0 if x < thresh else 255, '1')
 

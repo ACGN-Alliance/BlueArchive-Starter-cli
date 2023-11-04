@@ -30,25 +30,18 @@ def compare_images_binary_cv2_old(
     srcIm = cv2.cvtColor(srcIm, cv2.COLOR_BGR2GRAY)
     dstIm = cv2.cvtColor(dstIm, cv2.COLOR_BGR2GRAY)
 
-    # 二值化
-    srcIm1 = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
-
-    total_pixels = srcIm1.shape[0] * srcIm1.shape[1]
     if thresh == -1:
-        criterion = cv2.countNonZero(srcIm1) / total_pixels
-        if criterion < 0.1 or criterion > 0.9:  #
-            thresh = evaluate_thresh_runtime(srcIm, target=0.5, error=0.4, metric=EvaluateMetric.CV2)[0]
-            srcIm = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
-        else:
-            srcIm = srcIm1
+        thresh = evaluate_thresh_runtime(srcIm, target=0.5, error=0.4, metric=EvaluateMetric.CV2)[0]
+        srcIm = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
     else:
-        srcIm = srcIm1
+        srcIm = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
 
     dstIm = cv2.threshold(dstIm, thresh, 255, cv2.THRESH_BINARY)[1]
 
     # 计算差异
     diff = cv2.absdiff(srcIm, dstIm)
     diff_pixels = cv2.countNonZero(diff)
+    total_pixels = diff.shape[0] * diff.shape[1]
     return (total_pixels - diff_pixels) / total_pixels, diff, thresh
 
 
