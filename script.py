@@ -124,8 +124,9 @@ def script(
         adb_con.click(95, 4)  # 菜单
         adb_con.click(60, 40)  # 账号
         if settings.guest:
-            adb_con.sleep(5)
+            adb_con.sleep(6)        # todo 需要优化
             adb_con.click(99, 4)  # 弹出网页关闭
+            adb_con.sleep(1)
             adb_con.click(70, 60)  # 重置账号
         else:
             adb_con.click(70, 50)
@@ -142,7 +143,7 @@ def script(
         ):
             adb_con.sleep(1)
         adb_con.click(95, 5)
-        adb_con.sleep(1)
+        adb_con.sleep(2)
         logger.info("已进入开始界面")
         adb_con.click(99, 4)  # 弹出网页关闭
         adb_con.multi_click(50, 70, 4)
@@ -261,14 +262,13 @@ def script(
             adb_con.multi_click(90, 90, 2)
             adb_con.sleep(5)
         adb_con.multi_click(50, 63, 5)
-        adb_con.sleep(9)
-        logger.info("开启auto")
-        adb_con.sleep(2)
+        adb_con.sleep(7)
+        logger.info("开启auto")     # todo 需要优化
         adb_con.click(95, 97)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
-            adb_con.sleep(1)
+            adb_con.click(50, 63)
 
         adb_con.sleep(1.5)
         logger.success("完成作战")
@@ -306,7 +306,7 @@ def script(
         # logger.success("10. MomoTalk & 收取邮件")
         while not adb_con.compare_img(
                 *mapping["no_mail.png"], img=path.joinpath("no_mail.png")
-        ):
+        ):      # todo 逻辑优化
             adb_con.click(12.18, 18.66)
             adb_con.click(11.56, 41.11)
             adb_con.click(88, 5)
@@ -458,6 +458,7 @@ def script(
                 adb_con.screenshot(f"{i + 2}.png")
 
             adb_con.click(60, 90)
+            adb_con.sleep(2)
             adb_con.click(60, 65)
         logger.info("回到主菜单")
         while not adb_con.compare_img(
