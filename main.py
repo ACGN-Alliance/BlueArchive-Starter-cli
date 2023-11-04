@@ -372,25 +372,14 @@ class MainProgram:
         sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
 
     def __del__(self):
-        print("程序退出")
+        print("\n使用ctrl+c退出程序或直接关闭窗口\n")
         try:
             self.adb_con.kill_server()
-            os.kill(signal.CTRL_C_EVENT, 0)
+            ImageComparatorServer.get_global_instance().stop()  # stop server
         except Exception as e:
             print(e)
 
-# ctrl+c退出时关闭adb server
-def signal_handler(sig, frame):
-    if settings:
-        json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
-
-    try:
-        ImageComparatorServer.get_global_instance().stop()  # stop server
-    except:
-        pass
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
+        sys.exit(0)
 
 def register_ocr_path():
     # for user
@@ -436,7 +425,7 @@ if __name__ == '__main__':
         elif mode == 8:
             program.install_ocr_deps()
         elif mode == 9:
-            os.kill(signal.CTRL_C_EVENT, 0)  # 主动触发ctrl+c
+            # os.kill(signal.CTRL_C_EVENT, 0)  # 主动触发ctrl+c
             break
         else:
             print("请选择正确的模式")
