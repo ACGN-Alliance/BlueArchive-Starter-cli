@@ -1,0 +1,1 @@
+from .pil_compare import compare_images_binary_old

@@ -64,7 +64,6 @@ def signal_handler(sig, frame):
     if settings:
         json.dump(settings.__dict__, open(setting_file, "w", encoding="utf-8"))
 
-    ImageComparatorServer.get_global_instance().stop()  # stop server
     sys.exit(0)
 
 
@@ -428,6 +427,7 @@ if __name__ == '__main__':
             install_ocr_deps()
         elif mode == 9:
             print("感谢使用~")
+            ImageComparatorServer.get_global_instance().stop()  # stop server
             os.kill(signal.CTRL_C_EVENT, 0)  # 主动触发ctrl+c
         else:
             print("请选择正确的模式")

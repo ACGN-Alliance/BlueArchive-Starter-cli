@@ -24,6 +24,8 @@ class ServerThread(threading.Thread):
         self.blockSize = 16384
         self.hasConnected = False
 
+        self.daemon = True  # 必须在start之前设置
+
     def run(self) -> None:
         while not self.STOP:
             try:
@@ -77,6 +79,8 @@ class HeartBeatThread(threading.Thread):
         self.state = False
         self.serverObj = serverObj
         self.hasConnected = False
+
+        self.daemon = True  # 必须在start之前设置
 
     def run(self) -> None:
         s, addr = self.heart_beat_socket.accept()
