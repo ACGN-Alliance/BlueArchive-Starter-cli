@@ -7,7 +7,7 @@ from pathlib import Path
 from PIL import Image
 from loguru import logger
 
-from .cmp import compare_images_binary_old
+from .image_compare import compare_images_binary_old
 from .cmp_server import ImageComparatorServer
 from .settings import Settings
 
@@ -258,7 +258,7 @@ class ADB:
             x2: float,
             y2: float,
             img: str | Path,
-            thresh=127,
+            thresh=-1,  # -1: 自动计算阈值
             confidence: float = 0.91,
     ) -> bool:
         """

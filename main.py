@@ -437,6 +437,7 @@ if __name__ == '__main__':
             program.install_ocr_deps()
         elif mode == 9:
             os.kill(signal.CTRL_C_EVENT, 0)  # 主动触发ctrl+c
+            break
         else:
             print("请选择正确的模式")
             continue
