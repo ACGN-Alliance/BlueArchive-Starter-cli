@@ -31,7 +31,7 @@ class ServerThread(threading.Thread):
             try:
                 s, addr = self.server.accept()
                 self.hasConnected = True
-                print(f'accepted connection from {addr}')
+                # print(f'accepted connection from {addr}')
                 time.sleep(1)
                 while True:
                     data2send = self.queue.get(block=True)
@@ -85,7 +85,7 @@ class HeartBeatThread(threading.Thread):
     def run(self) -> None:
         s, addr = self.heart_beat_socket.accept()
         self.hasConnected = True
-        print(f'accepted heart beat connection from {addr}')
+        # print(f'accepted heart beat connection from {addr}')
         time.sleep(1)
         while not self.STOP:
             try:
@@ -154,30 +154,34 @@ class ImageComparatorServer:
         self.heartBeatThread.start()
 
     def stop(self):
+        print("server 正在关闭...")
         self.stop_thread()
         self.server.close()
 
     def stop_thread(self):
+
         self.serverThread.put(b'STOP')
         self.serverThread.STOP = True
-        self.heartBeatThread.STOP = True
-        if not self.serverThread.hasConnected:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(('127.0.0.1', self.port))
-            while self.serverThread.hasConnected:
-                time.sleep(0.1)
-            s.close()
-        if not self.heartBeatThread.hasConnected:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(('127.0.0.1', self.port + 1))
-            while self.heartBeatThread.hasConnected:
-                time.sleep(0.1)
-            s.close()
+        if self.serverThread.is_alive():
+            if not self.serverThread.hasConnected:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect(('127.0.0.1', self.port))
+                while self.serverThread.hasConnected:
+                    time.sleep(0.1)
+                s.close()
+            self.serverThread.join(timeout=1)
+            print('server thread stopped')
 
-        self.serverThread.join()
-        print('server thread stopped')
-        self.heartBeatThread.join()
-        print('heart beat thread stopped')
+        if self.heartBeatThread.is_alive():
+            self.heartBeatThread.STOP = True
+            if not self.heartBeatThread.hasConnected:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect(('127.0.0.1', self.port + 1))
+                while self.heartBeatThread.hasConnected:
+                    time.sleep(0.1)
+                s.close()
+            self.heartBeatThread.join(timeout=1)
+            print('heart beat thread stopped')
 
     def restart_listening(self):
         self.serverThread.put(b'RESTART')
