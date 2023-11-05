@@ -374,7 +374,7 @@ class MainProgram:
         sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
 
     def __del__(self):
-        print("\n使用ctrl+c退出程序或直接关闭窗口\n")
+        print("\n正在退出程序...")
         try:
             if self.adb_con:
                 self.adb_con.kill_server()
