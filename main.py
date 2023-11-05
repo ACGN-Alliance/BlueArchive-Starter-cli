@@ -199,7 +199,8 @@ class MainProgram:
     def adb_test(self):
         while True:
             mode = int(input(
-                "\n1.adb命令行工具(实验性功能)\n2.坐标测试与换算工具\n3.截图&坐标记录工具\n4.返回主菜单\n请选择需要的工具:"))
+                "\n1.adb命令行工具(实验性功能)\n2.坐标测试与换算工具\n3.截图&坐标记录工具\n4.图像对比工具\n5.返回主菜单\n请选择需要的工具:"
+                ))
             if mode == 1:
                 print(
                     "\n可以输入adb命令进行调试, 也可以输入exit退出(注: 使用getevent一类需要持续监听的命令只能用ctrl+c退出)")
@@ -220,8 +221,7 @@ class MainProgram:
 
                     pos_args = pos.split()
                     if pos_args[0].isdigit() and pos_args[1].isdigit():
-                        real_x, real_y = self.adb_con._normalized_to_real_coordinates(int(pos_args[0]),
-                                                                                      int(pos_args[1]))
+                        real_x, real_y = self.adb_con._normalized_to_real_coordinates(int(pos_args[0]), int(pos_args[1]))
                         print("坐标转换结果: " + str(real_x) + " " + str(real_y))
                         self.adb_con.click(int(pos_args[0]), int(pos_args[1]))
                     else:
@@ -253,6 +253,13 @@ class MainProgram:
                     self.adb_con.screenshot_region(x1, y1, x2, y2, "temp/adb_test.png")
                     Path("temp/mapping.json").write_text(json.dumps({"adb_test.png": (x1, y1, x2, y2)}))
             elif mode == 4:
+                mapping = json.load(open("temp/mapping.json", "r", encoding="utf-8"))
+                self.adb_con.compare_img(
+                    *mapping["adb_test.png"],
+                    img = Path("./temp/adb_test.png"),
+                    debug=True
+                )
+            elif mode == 5:
                 return
             else:
                 print("请选择正确的工具")

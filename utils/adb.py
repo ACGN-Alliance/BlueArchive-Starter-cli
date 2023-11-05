@@ -260,6 +260,7 @@ class ADB:
             img: str | Path,
             thresh=-1,  # -1: 自动计算阈值
             confidence: float = 0.91,
+            debug: bool = False,
     ) -> bool:
         """
         比较截图区域与指定图片的相似度。
@@ -302,6 +303,10 @@ class ADB:
                 str(thresh),
                 "True" if now_confidence > confidence else "False",
             )
+
+            if debug:
+                logger.debug(f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}")
+                return
 
             if now_confidence > confidence:
                 info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
