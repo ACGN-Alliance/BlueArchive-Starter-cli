@@ -165,7 +165,7 @@ class ADB:
         elif self.setting.speed == "fast":
             time.sleep(time_ * 0.95)
         elif self.setting.speed == "normal":
-            time.sleep(1)
+            time.sleep(time_)
 
         return None
 

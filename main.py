@@ -25,7 +25,7 @@ from utils.settings import (settings,
                             smenu
                             )
 
-__version__ = "1.1.3"
+__version__ = "1.1.3.2"
 
 
 # 异常处理装饰器
@@ -381,7 +381,6 @@ class MainProgram:
         sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
 
     def __del__(self):
-        print("\n使用ctrl+c退出程序或直接关闭窗口\n")
         try:
             if self.adb_con:
                 self.adb_con.kill_server()

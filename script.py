@@ -86,15 +86,24 @@ def script(
 
     if checkpoint_new(0, load_point, alias="重置账号", is_start_from_zero=is_start_from_zero, settings=settings):
         while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+                *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
         ):
             adb_con.back()
 
         logger.info("已回到主菜单，开始销号")
         adb_con.click(95, 4)  # 菜单
+        adb_con.sleep(2)
         adb_con.click(60, 40)  # 账号
         if settings.guest:
-            adb_con.sleep(6)        # todo 需要优化
+            time_count = 0 
+            while not adb_con.compare_img(
+                    *mapping["lk_tip.png"], img=path.joinpath("lk_tip.png")
+            ):
+                time_count += 1
+
+                if time_count > 3:
+                    break
+
             adb_con.click(99, 4)  # 弹出网页关闭
             adb_con.sleep(1)
             adb_con.click(70, 60)  # 重置账号
@@ -103,16 +112,15 @@ def script(
         adb_con.click(55, 45)
         adb_con.input_text("BlueArchive")
         adb_con.click(58, 67)
-        adb_con.click(58, 67)
-        adb_con.multi_click(55, 70, 5)
+        adb_con.sleep(2)
+        adb_con.multi_click(58, 67, 3)
 
     if checkpoint_new(1, load_point, alias="创建新账号", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("1. 创建账号")
         while not adb_con.compare_img(
                 *mapping["start_menu_icon.png"], img=path.joinpath("start_menu_icon.png")
         ):
-            adb_con.sleep(1)
-        adb_con.click(95, 5)
+            pass
         adb_con.sleep(2)
         logger.info("已进入开始界面")
         adb_con.click(99, 4)  # 弹出网页关闭
@@ -124,37 +132,52 @@ def script(
         logger.info("输入名字")
         adb_con.sleep(1)
         adb_con.click(50, 50)
-
-        adb_con.sleep(1)
         adb_con.input_text(name)
-        adb_con.multi_click(50, 70, 40)
+        adb_con.multi_click(50, 70, 5)
+        adb_con.sleep(20)
+        adb_con.click(50, 50)
+        adb_con.sleep(18)
+        # adb_con.multi_click(50, 70, 40)
 
     if checkpoint_new(2, load_point, alias="初始剧情", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("2. 初始剧情")
         while not adb_con.compare_img(
                 *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
         ):
-            adb_con.click(50, 50)
+            adb_con.click(50, 70)
+            adb_con.sleep(3)
         skip_story()
 
     if checkpoint_new(3, load_point, alias="战斗-1", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("3. 战斗1")
-        logger.info("跳过介绍")
-        adb_con.sleep(4)
-        adb_con.multi_click(50, 70, 25)
+        adb_con.sleep(5)
+        adb_con.multi_click(50, 70, 10)
+
+        while not adb_con.compare_img(
+            *mapping["student_1.png"], img=path.joinpath("student_1.png")
+        ):
+            adb_con.multi_click(50, 70, 3)
+
+        adb_con.click(80, 88)
+        adb_con.click(80, 35)
+
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
-            logger.info("尝试使用技能")
-            adb_con.click(80, 88)
-            adb_con.click(80, 35)
+            logger.info("尝试使用技能~")
+            adb_con.multi_click(50, 50, 2)
             adb_con.click(70, 88)
             adb_con.click(43, 52)
-        logger.info("战斗结束")
+            adb_con.sleep(1)
+            adb_con.click(80, 88)
+            adb_con.click(80, 35)
+
+        logger.success("战斗结束")
         adb_con.click(90, 90)
 
     if checkpoint_new(4, load_point, alias="剧情", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("4. 两段剧情")
+        adb_con.sleep(1)
         for _ in range(2):
             while not adb_con.compare_img(
                     *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
@@ -164,7 +187,8 @@ def script(
 
     if checkpoint_new(5, load_point, alias="战斗-2", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("5. 战斗2")
-        adb_con.multi_click(50, 50, 13)
+        adb_con.sleep(10)
+        adb_con.multi_click(50, 50, 7)
         for i in range(4):
             while not adb_con.compare_img(
                     *mapping["story_menu.png"], img=path.joinpath("story_menu.png")
@@ -172,15 +196,21 @@ def script(
                 adb_con.click(50, 50)
             logger.info(f"第 {i + 1} 段剧情")
             skip_story()
-        logger.success("使用技能")
-        adb_con.sleep(2)
+        # logger.success("使用技能")
         adb_con.multi_click(50, 50, 5)
+        while not adb_con.compare_img(
+                *mapping["student_2.png"], img=path.joinpath("student_2.png")
+        ):
+            adb_con.click(50, 50)
+
         adb_con.click(70, 88)
         adb_con.click(80, 20)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
-            adb_con.sleep(1)
+            adb_con.click(70, 88)
+            adb_con.click(80, 20)
+
         adb_con.click(90, 90)
 
     if checkpoint_new(6, load_point, alias="剧情", is_start_from_zero=is_start_from_zero, settings=settings):
@@ -192,125 +222,149 @@ def script(
         for _ in range(4):
             skip_story()
         logger.info("OP 动画")
-        adb_con.multi_click(60, 70, 7)
+        adb_con.sleep(2)
+        adb_con.click(60, 70)
 
     if checkpoint_new(7, load_point, alias="教学抽卡", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("1. 开局抽卡")
         while not adb_con.compare_img(
                 *mapping["main_recurit.png"], img=path.joinpath("main_recurit.png")
         ):
-            adb_con.click(50, 5)
+            adb_con.multi_click(50, 5, 3)
             # adb_con.back()
         adb_con.click(70, 90)
-        adb_con.sleep(10)
+        adb_con.sleep(4)  # todo 优化
         adb_con.click(76, 72)
+        adb_con.sleep(1)
         adb_con.click(60, 70)
-        adb_con.multi_click(50, 75, 8)
+        adb_con.sleep(3)
+        adb_con.multi_click(50, 75, 5)
         while not adb_con.compare_img(
                 *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
         ):
-            adb_con.multi_click(92, 7, 5)
+            adb_con.multi_click(92, 7, 3)
         if settings.if_screenshot:
             adb_con.screenshot("1.png")
         adb_con.click(50, 90)
-        adb_con.sleep(10)
 
     if checkpoint_new(8, load_point, alias="开始教学作战", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("2. 开始作战")
-        adb_con.multi_click(88, 35, 6)
+        while not adb_con.compare_img(
+                *mapping["level1.png"], img=path.joinpath("level1.png"),
+                confidence=0.93
+        ):
+            adb_con.click(50, 90)
+        adb_con.multi_click(88, 35, 3)
         adb_con.multi_click(75, 75, 3)
-        adb_con.multi_click(40, 65, 7)
+        adb_con.multi_click(40, 65, 5)
         logger.info("开始编队")
         adb_con.multi_click(95, 25, 5)
-        adb_con.sleep(3)
-        adb_con.multi_click(25, 50, 7)
+        adb_con.sleep(1)
+        adb_con.multi_click(25, 50, 8)
 
     if checkpoint_new(9, load_point, alias="进入第一步作战", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("道中作战")
-        adb_con.multi_click(90, 80, 2)
-        for _ in range(2):
-            adb_con.multi_click(90, 90, 2)
-            adb_con.sleep(5)
+        adb_con.multi_click(90, 85, 3)
+
+        while not adb_con.compare_img(
+            *mapping["begin_mission.png"], img=path.joinpath("begin_mission.png")
+        ):
+            adb_con.click(90, 85)
+        adb_con.click(92, 90)
+        adb_con.sleep(3)
         adb_con.multi_click(50, 63, 5)
-        adb_con.sleep(7)
-        logger.info("开启auto")     # todo 需要优化
-        adb_con.click(95, 97)
+        adb_con.sleep(10)
+
+        adb_con.click(96, 97)   # 开启auto
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
-            adb_con.click(50, 63)
-
-        adb_con.sleep(1.5)
+            # adb_con.click(50, 63)
+            adb_con.sleep(0.5)
         logger.success("完成作战")
         adb_con.click(90, 90)
         adb_con.sleep(5)
         adb_con.click(50, 90)
-        adb_con.sleep(1)
-        adb_con.click(50, 95)
-        adb_con.sleep(9)
-        adb_con.multi_click(94, 94, 4)
+        adb_con.sleep(3)
+
+        while not adb_con.compare_img(
+                *mapping["end_phase.png"], img=path.joinpath("end_phase.png")
+        ):
+            adb_con.multi_click(50, 90, 2)
+
+        adb_con.click(94, 94)
 
     if checkpoint_new(10, load_point, alias="开始BOSS作战", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("开始BOSS作战")
-        adb_con.multi_click(95, 95, 6)
-        adb_con.click(60, 55)
+        adb_con.sleep(3)
+        adb_con.multi_click(60, 55, 5)
         while not adb_con.compare_img(
                 *mapping["battle_finish.png"], img=path.joinpath("battle_finish.png")
         ):
-            adb_con.click(60, 55)
-            adb_con.sleep(1)
+            adb_con.click(65, 55)
+            adb_con.sleep(3)
         logger.success("完成作战")
-        adb_con.multi_click(90, 90, 5)
-        adb_con.multi_click(85, 90, 10)
+        adb_con.click(90, 90)
+        adb_con.sleep(4)
+        adb_con.click(85, 90)
 
     if checkpoint_new(11, load_point, alias="返回大厅", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("9. 返回大厅")
+        while not adb_con.compare_img(
+            *mapping["go_to_lobby.png"], img=path.joinpath("go_to_lobby.png"),
+        ):
+            adb_con.click(90, 90)
+            adb_con.click(85, 90)
+
+        adb_con.sleep(2)
+
         adb_con.multi_click(40, 90, 18)
         while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
-                confidence=0.89
+                *mapping["momotalk.png"], img=path.joinpath("momotalk.png"),
         ):
-            adb_con.multi_click(40, 90, 5)
+            adb_con.multi_click(40, 90, 3)
 
     if checkpoint_new(12, load_point, alias="MomoTalk & 收取邮件", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("10. MomoTalk & 收取邮件")
-        while not adb_con.compare_img(
-                *mapping["no_mail.png"], img=path.joinpath("no_mail.png")
-        ):      # todo 逻辑优化
-            adb_con.click(12.18, 18.66)
-            adb_con.click(11.56, 41.11)
-            adb_con.click(88, 5)
-            adb_con.click(88, 5)
-            adb_con.sleep(2)
-            adb_con.click(82.5, 94.44)
-            adb_con.sleep(1)
-        adb_con.sleep(3)
+        adb_con.click(12.18, 18.66)
+        adb_con.sleep(2)
+        adb_con.multi_click(11.56, 41.11, 12)
 
-        if not settings.guest:  # 三周年弹窗
-            while not adb_con.compare_img(
-                    *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
-                    confidence=0.89
-            ):
-                adb_con.back()  # 返回主界面
-        else:
-            adb_con.multi_click(5, 5, 2)
+        while not adb_con.compare_img(
+            *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
+        ):
+            adb_con.click(88, 5)
+        adb_con.click(88, 5)
+        adb_con.sleep(4)
+        adb_con.click(82.5, 94.44)
+        adb_con.sleep(2)
 
     if checkpoint_new(13, load_point, alias="绑定账号", is_start_from_zero=is_start_from_zero, settings=settings):
+        while not adb_con.compare_img(
+                *mapping["main_interface_dark.png"], img=path.joinpath("main_interface_dark.png")
+        ):
+            adb_con.back()  # 返回主界面
+
         adb_con.sleep(2)
         adb_con.multi_click(50, 50, 2)
         adb_con.click(95, 4)  # 菜单
         # adb_con.multi_click(50, 50, 5)
         adb_con.sleep(2)
         adb_con.click(60, 40)  # 账号
+        adb_con.sleep(3)
         adb_con.click(99, 4)  # 弹出网页关闭
         adb_con.multi_click(50, 50, 7)
+        adb_con.back()
         while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
-                confidence=0.89
+                *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
         ):
-            adb_con.back()  # 返回主界面
+            adb_con.back()
 
     if checkpoint_new(14, load_point, alias="开始获取主线青辉石", is_start_from_zero=is_start_from_zero, settings=settings):
+        while not adb_con.compare_img(
+                *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
+        ):
+            adb_con.back()
         # ==============40抽起始==============
         adb_con.click(92, 82)
         adb_con.sleep(2)
@@ -376,8 +430,7 @@ def script(
         chapter("normal")  # 第八话
 
         while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
-                confidence=0.89
+                *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
         ):
             adb_con.back()
 
@@ -392,47 +445,52 @@ def script(
         adb_con.click(90, 95)
         adb_con.multi_click(50, 90, 5)
         while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
-                confidence=0.89
+                *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
         ):
             adb_con.back()
 
     if checkpoint_new(15, load_point, alias="开始抽卡", is_start_from_zero=is_start_from_zero, settings=settings):
-        logger.info("进入抽卡")
-        adb_con.multi_click(70, 90)
-        adb_con.sleep(8)
+        while not adb_con.compare_img(
+                *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
+        ):
+            adb_con.back()
+        adb_con.click(70, 90)
+        adb_con.sleep(6)
         for _ in range(settings.pool):
             adb_con.click(3, 55)
-            adb_con.sleep(3)
+            adb_con.sleep(2)
         logger.info("开始抽卡")
         adb_con.click(76, 72)
         adb_con.click(60, 70)
         adb_con.sleep(5)
 
         recuit_times = settings.recuit_num + 2 + (1 if settings.main_line else 0)
-        for i in range(recuit_times):  # 40抽
-            adb_con.multi_click(50, 75, 5)
+        for i in range(recuit_times):
+            adb_con.sleep(2)
+            adb_con.multi_click(50, 75, 3)
             while not adb_con.compare_img(
-                    *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png"),
-                    confidence=0.89
+                    *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
             ):
                 adb_con.sleep(1)
-                adb_con.click(40, 90)
-                adb_con.click(60, 70)
                 adb_con.multi_click(92, 7, 2)
             adb_con.sleep(2)
-            adb_con.click(50, 90)
-            adb_con.sleep(3)
-
             if settings.if_screenshot:
                 adb_con.screenshot(f"{i + 2}.png")
 
-            adb_con.click(60, 90)
-            adb_con.sleep(2)
+            adb_con.click(50, 90)
+            adb_con.sleep(3)
+
+            if i == recuit_times - 1:
+                break
+
+            adb_con.multi_click(60, 90, 2)
+            adb_con.sleep(1)
             adb_con.click(60, 65)
         logger.info("回到主菜单")
+        adb_con.back()
+        adb_con.back()
         while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png")
+                *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
         ):
             adb_con.back()
 
@@ -442,14 +500,15 @@ def script(
             return True
 
         while not adb_con.compare_img(
-                *mapping["main_momotalk.png"], img=path.joinpath("main_momotalk.png"),
-                confidence=0.89
+                *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
         ):
             adb_con.back()
         adb_con.click(25, 92)
+        adb_con.sleep(2)
         adb_con.multi_click(50, 50, 3)
+        adb_con.sleep(1)
         adb_con.click(10, 40)
-        adb_con.multi_click(50, 50, 8)
+        adb_con.multi_click(50, 50, 10)
         adb_con.sleep(2)
         adb_con.click(70, 20)
         adb_con.multi_click(50, 50, 7)
@@ -489,3 +548,4 @@ def script(
             return False
 
     logger.success("脚本执行完毕")
+    return True
