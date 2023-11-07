@@ -3,8 +3,7 @@ import sys
 from functools import wraps
 
 READY = False
-INFO = \
-    """
+INFO = """
     \033[91m安装OCR依赖后才能使用OCR功能,
     1.如果是在开发环境下,请先运行:create_ocr_venv.bat 或 create_ocr_venv.sh
     2.如果是正式环境,请下载 'ocr_dependencies_win_3.10.zip' 到当前目录,然后运行主菜单的8号选项执行安装\033[0m
@@ -24,7 +23,7 @@ def engine_ready(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not READY:
-            raise RuntimeError("OCR engine is not ready!\n\n" + INFO )
+            raise RuntimeError("OCR engine is not ready!\n\n" + INFO)
         return func(*args, **kwargs)
 
     return wrapper

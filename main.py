@@ -19,11 +19,7 @@ sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
 
 from script import script
 from utils import adb
-from utils.settings import (settings,
-                            setting_file,
-                            box_scan_preset,
-                            smenu
-                            )
+from utils.settings import settings, setting_file, box_scan_preset, smenu
 
 __version__ = "1.1.3"
 
@@ -70,7 +66,7 @@ class MainProgram:
         print("1. 注意事项(必读)")
         print("2. 扫描设备")
         print("3. ADB工具箱")
-        print('4. 配置')
+        print("4. 配置")
         print("5. 加载")
         print("6. box检测清单")
         print("7. 运行脚本")
@@ -106,7 +102,7 @@ class MainProgram:
                 device_name=f"localhost:{self.port}",
                 physic_device_name=pname,
                 settings=settings,
-                is_mumu=settings.is_mumu
+                is_mumu=settings.is_mumu,
             )
             print(f"已选择设备: {self.device_now}")
             return True
@@ -142,11 +138,16 @@ class MainProgram:
                     adb_path = "./platform-tools/adb.exe"
                 else:
                     adb_path = "./platform-tools/adb"
-                rv = subprocess.run([adb_path, "connect", address := input("请输入设备地址: ")], stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
+                rv = subprocess.run(
+                    [adb_path, "connect", address := input("请输入设备地址: ")],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
 
                 # 包含两种状态:1. already connected to 2. connected to
-                if "connected to" in rv.stdout.decode("utf-8") or "connected to" in rv.stderr.decode("utf-8"):
+                if "connected to" in rv.stdout.decode(
+                    "utf-8"
+                ) or "connected to" in rv.stderr.decode("utf-8"):
                     self.device_now = address
                     if self._on_device_selected():
                         print("连接成功:", address)
@@ -173,19 +174,27 @@ class MainProgram:
     def install_ocr_deps(self):
         try:
             from utils import ocr
+
             for box, text, confidence in ocr.ocr(r"tests/img.png"):
                 box = str(box)
-                print(f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}")
+                print(
+                    f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}"
+                )
             print("OCR依赖已安装, 无需重复安装")
             del ocr
             return
 
         except Exception as e:
-            dep = [f for f in os.listdir(os.getcwd()) if f.startswith("ocr_dependencies") and f.endswith(".zip")]
+            dep = [
+                f
+                for f in os.listdir(os.getcwd())
+                if f.startswith("ocr_dependencies") and f.endswith(".zip")
+            ]
             print(f"{os.getcwd()=}, {dep=}")
             if len(dep) == 0:
                 print(
-                    "\033[91m未找到依赖包, 请先去对应的release中下载ocr_dependencies_win_3.10.zip并移动到程序目录下\033[0m")
+                    "\033[91m未找到依赖包, 请先去对应的release中下载ocr_dependencies_win_3.10.zip并移动到程序目录下\033[0m"
+                )
                 return
             dep = dep[0]
             print(f"正在安装依赖: {dep}...")
@@ -198,11 +207,15 @@ class MainProgram:
     @exception_handle
     def adb_test(self):
         while True:
-            mode = int(input(
-                "\n1.adb命令行工具(实验性功能)\n2.坐标测试与换算工具\n3.截图&坐标记录工具\n4.返回主菜单\n请选择需要的工具:"))
+            mode = int(
+                input(
+                    "\n1.adb命令行工具(实验性功能)\n2.坐标测试与换算工具\n3.截图&坐标记录工具\n4.返回主菜单\n请选择需要的工具:"
+                )
+            )
             if mode == 1:
                 print(
-                    "\n可以输入adb命令进行调试, 也可以输入exit退出(注: 使用getevent一类需要持续监听的命令只能用ctrl+c退出)")
+                    "\n可以输入adb命令进行调试, 也可以输入exit退出(注: 使用getevent一类需要持续监听的命令只能用ctrl+c退出)"
+                )
                 while True:
                     cmd = input("ADB CMD> ")
                     if cmd == "exit":
@@ -220,8 +233,9 @@ class MainProgram:
 
                     pos_args = pos.split()
                     if pos_args[0].isdigit() and pos_args[1].isdigit():
-                        real_x, real_y = self.adb_con._normalized_to_real_coordinates(int(pos_args[0]),
-                                                                                      int(pos_args[1]))
+                        real_x, real_y = self.adb_con._normalized_to_real_coordinates(
+                            int(pos_args[0]), int(pos_args[1])
+                        )
                         print("坐标转换结果: " + str(real_x) + " " + str(real_y))
                         self.adb_con.click(int(pos_args[0]), int(pos_args[1]))
                     else:
@@ -241,17 +255,23 @@ class MainProgram:
                         break
                     pos_args = pos.split()
                     if pos_args[0].isdigit() and pos_args[1].isdigit():
-                        x1, y1 = self.adb_con._real_to_normalized_coordinates(int(pos_args[0]), int(pos_args[1]))
+                        x1, y1 = self.adb_con._real_to_normalized_coordinates(
+                            int(pos_args[0]), int(pos_args[1])
+                        )
 
                     pos_1 = input("请输入整数坐标(以空格分隔, 如1280 720, exit退出):")
                     if pos_1 == "exit":
                         break
                     pos_args_1 = pos_1.split()
                     if pos_args_1[0].isdigit() and pos_args_1[1].isdigit():
-                        x2, y2 = self.adb_con._real_to_normalized_coordinates(int(pos_args_1[0]), int(pos_args_1[1]))
+                        x2, y2 = self.adb_con._real_to_normalized_coordinates(
+                            int(pos_args_1[0]), int(pos_args_1[1])
+                        )
 
                     self.adb_con.screenshot_region(x1, y1, x2, y2, "temp/adb_test.png")
-                    Path("temp/mapping.json").write_text(json.dumps({"adb_test.png": (x1, y1, x2, y2)}))
+                    Path("temp/mapping.json").write_text(
+                        json.dumps({"adb_test.png": (x1, y1, x2, y2)})
+                    )
             elif mode == 4:
                 return
             else:
@@ -340,7 +360,9 @@ class MainProgram:
     def run(self):
         path = Path("./data/16_9/")
         try:
-            mapping = json.load(open(path.joinpath("mapping.json"), "r", encoding="utf-8"))
+            mapping = json.load(
+                open(path.joinpath("mapping.json"), "r", encoding="utf-8")
+            )
         except FileNotFoundError:
             logger.error("未找到资源文件, 请确认下载是否完整")
             return
@@ -348,11 +370,7 @@ class MainProgram:
         while True:
             self.is_in_progress = True
             res = script(
-                self.adb_con,
-                path,
-                mapping,
-                settings,
-                load_point=self.load_point
+                self.adb_con, path, mapping, settings, load_point=self.load_point
             )
             if res:
                 self.is_in_progress = False
@@ -390,9 +408,11 @@ def register_ocr_path():
     sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     register_ocr_path()
-    print(f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861")
+    print(
+        f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861"
+    )
     time.sleep(1)
     ImageComparatorServer.get_global_instance()  # start Server
     program = MainProgram()

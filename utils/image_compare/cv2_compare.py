@@ -12,9 +12,9 @@ from utils.evaluate_images import EvaluateMetric, evaluate_thresh_runtime
 
 
 def compare_images_binary_cv2_old(
-        srcIm: Mat | ndarray[Any, dtype[generic]] | ndarray,
-        dstIm: Mat | ndarray[Any, dtype[generic]] | ndarray,
-        thresh=-1
+    srcIm: Mat | ndarray[Any, dtype[generic]] | ndarray,
+    dstIm: Mat | ndarray[Any, dtype[generic]] | ndarray,
+    thresh=-1,
 ) -> tuple[Any, Any, int]:
     """
     :param srcIm: 本地图片
@@ -31,7 +31,9 @@ def compare_images_binary_cv2_old(
     dstIm = cv2.cvtColor(dstIm, cv2.COLOR_BGR2GRAY)
 
     if thresh == -1:
-        thresh = evaluate_thresh_runtime(srcIm, target=0.5, error=0.4, metric=EvaluateMetric.CV2)[0]
+        thresh = evaluate_thresh_runtime(
+            srcIm, target=0.5, error=0.4, metric=EvaluateMetric.CV2
+        )[0]
         srcIm = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
     else:
         srcIm = cv2.threshold(srcIm, thresh, 255, cv2.THRESH_BINARY)[1]
@@ -46,10 +48,10 @@ def compare_images_binary_cv2_old(
 
 
 def compare_images_binary_cv2(
-        srcIm: Image.Image,
-        dstIm: str | Path,
-        # evaluated: bool = False,
-        thresh=127
+    srcIm: Image.Image,
+    dstIm: str | Path,
+    # evaluated: bool = False,
+    thresh=127,
 ) -> float:
     warnings.warn("compare_images_binary_cv2 is deprecated", DeprecationWarning)
     dstIm = cv2.imread(dstIm)

@@ -35,9 +35,9 @@ class ServerThread(threading.Thread):
                 time.sleep(1)
                 while True:
                     data2send = self.queue.get(block=True)
-                    if data2send == b'STOP':
+                    if data2send == b"STOP":
                         break
-                    elif data2send == b'RESTART':
+                    elif data2send == b"RESTART":
                         s.close()
                         raise RestartServerThread()
                     mv = memoryview(data2send)
@@ -45,12 +45,12 @@ class ServerThread(threading.Thread):
                     sent = 0
                     # send 1024 bytes each time
                     while sent < total:
-                        s.send(mv[sent:min(sent + self.blockSize, total)])
+                        s.send(mv[sent : min(sent + self.blockSize, total)])
                         # print(f'>>> sent {sent} bytes')
                         sent += self.blockSize
-                    s.send(b'END')
+                    s.send(b"END")
 
-                    while b'OK' not in (r := s.recv(1024)):
+                    while b"OK" not in (r := s.recv(1024)):
                         # print(f'received {r} but expected OK')
                         ...
                     # print('<<< received OK')
@@ -72,7 +72,7 @@ class HeartBeatThread(threading.Thread):
     def __init__(self, port: int, serverObj):
         super().__init__()
         self.heart_beat_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.heart_beat_socket.bind(('127.0.0.1', port))
+        self.heart_beat_socket.bind(("127.0.0.1", port))
         self.heart_beat_socket.listen(1)
         self.heart_beat_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.STOP = False
@@ -90,13 +90,13 @@ class HeartBeatThread(threading.Thread):
         while not self.STOP:
             try:
                 heart_beat = s.recv(32)
-                if (r := heart_beat.replace(b'\x00', b'')) == b'HEARTBEAT REQ':
-                    s.send(b'HEARTBEAT ACK'.rjust(32, b'\x00'))
+                if (r := heart_beat.replace(b"\x00", b"")) == b"HEARTBEAT REQ":
+                    s.send(b"HEARTBEAT ACK".rjust(32, b"\x00"))
                     self.state = True
                     # print(f'>>> sent HEARTBEAT ACK to client {":".join([str(s) for s in s.getpeername()])}')
-                elif r == b'FIN':
+                elif r == b"FIN":
                     raise FinReceived("FIN received")
-                elif r == b'':
+                elif r == b"":
                     raise FinReceived("FIN received")
                 else:
                     # print(f'received {r} but expected HEARTBEAT REQ')
@@ -142,7 +142,7 @@ class ImageComparatorServer:
     def __init__(self, port: int):
         self.port = port
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind(('127.0.0.1', port))
+        self.server.bind(("127.0.0.1", port))
         self.server.listen(1)
         # print(f'listening on {port=}')
 
@@ -159,32 +159,31 @@ class ImageComparatorServer:
         self.server.close()
 
     def stop_thread(self):
-
-        self.serverThread.put(b'STOP')
+        self.serverThread.put(b"STOP")
         self.serverThread.STOP = True
         if self.serverThread.is_alive():
             if not self.serverThread.hasConnected:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect(('127.0.0.1', self.port))
+                s.connect(("127.0.0.1", self.port))
                 while self.serverThread.hasConnected:
                     time.sleep(0.1)
                 s.close()
             self.serverThread.join(timeout=1)
-            print('server thread stopped')
+            print("server thread stopped")
 
         if self.heartBeatThread.is_alive():
             self.heartBeatThread.STOP = True
             if not self.heartBeatThread.hasConnected:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect(('127.0.0.1', self.port + 1))
+                s.connect(("127.0.0.1", self.port + 1))
                 while self.heartBeatThread.hasConnected:
                     time.sleep(0.1)
                 s.close()
             self.heartBeatThread.join(timeout=1)
-            print('heart beat thread stopped')
+            print("heart beat thread stopped")
 
     def restart_listening(self):
-        self.serverThread.put(b'RESTART')
+        self.serverThread.put(b"RESTART")
 
     def send_bytes(self, data: bytes):
         self.serverThread.put(data)
@@ -192,13 +191,13 @@ class ImageComparatorServer:
     def send(self, name, data: bytes):
         # name 32Bytes + data
         if self.heartBeatThread.state:
-            self.send_bytes(name.encode('utf-8').ljust(32, b'\x00') + data)
+            self.send_bytes(name.encode("utf-8").ljust(32, b"\x00") + data)
         else:
             # print('### cannot send data because client disconnected, passed')
             ...
 
     def send_srcImage(self, data: Image.Image | Any):
-        self.send_image('srcImage', data)
+        self.send_image("srcImage", data)
 
     @classmethod
     def pack_image(cls, name, data: Image.Image | Any):
@@ -206,48 +205,55 @@ class ImageComparatorServer:
             data = Image.fromarray(data)
         w, h = data.size
         mode = data.mode
-        return struct.pack('32s2i8s', name.encode('utf-8'), w, h, mode.encode('utf-8')) + data.tobytes()
+        return (
+            struct.pack("32s2i8s", name.encode("utf-8"), w, h, mode.encode("utf-8"))
+            + data.tobytes()
+        )
 
     def send_dstImage(self, data: Image.Image | Any):
-        self.send_image('dstImage', data)
+        self.send_image("dstImage", data)
 
     def send_diffImage(self, data: Image.Image | Any):
-        self.send_image('diffImage', data)
+        self.send_image("diffImage", data)
 
     def send_image(self, name, data: Image.Image | Any):
         if not isinstance(data, Image.Image):
             data = Image.fromarray(data)
         w, h = data.size
         mode = data.mode
-        self.send(name, struct.pack('2i8s', w, h, mode.encode('utf-8')) + data.tobytes())
+        self.send(
+            name, struct.pack("2i8s", w, h, mode.encode("utf-8")) + data.tobytes()
+        )
 
     def send_text(self, key, value):
-        self.send('Text', struct.pack('32s', key.encode('utf-8')) + value.encode('utf-8'))
+        self.send(
+            "Text", struct.pack("32s", key.encode("utf-8")) + value.encode("utf-8")
+        )
 
     @classmethod
     def receive_image(self, data: bytes) -> tuple[str, Image.Image]:
-        name, w, h, mode = struct.unpack('32s2i8s', data[:48])
-        name = name.decode('utf-8').replace('\x00', '')
-        mode = mode.decode('utf-8').replace('\x00', '')
+        name, w, h, mode = struct.unpack("32s2i8s", data[:48])
+        name = name.decode("utf-8").replace("\x00", "")
+        mode = mode.decode("utf-8").replace("\x00", "")
         # print(name, w, h, mode)
         data = Image.frombytes(mode, (w, h), data)
         return name, data
 
     @classmethod
     def receive_text(cls, data: bytes) -> tuple[str, str]:
-        key, value = struct.unpack('32s', data[:32])
-        key = key.decode('utf-8').replace('\x00', '')
-        value = value.decode('utf-8').replace('\x00', '')
+        key, value = struct.unpack("32s", data[:32])
+        key = key.decode("utf-8").replace("\x00", "")
+        value = value.decode("utf-8").replace("\x00", "")
         return key, value
 
     def send_all(
-            self,
-            srcIm,
-            dstIm,
-            diffIm,
-            now_confidence,
-            thresh,
-            passed,
+        self,
+        srcIm,
+        dstIm,
+        diffIm,
+        now_confidence,
+        thresh,
+        passed,
     ):
         """
         header:
@@ -275,65 +281,67 @@ class ImageComparatorServer:
         :return:
         """
 
-        srcLen = len(src := self.pack_image('srcImage', srcIm))
-        dstLen = len(dst := self.pack_image('dstImage', dstIm))
-        diffLen = len(diff := self.pack_image('diffImage', diffIm))
-        now_confidence = now_confidence.encode('utf-8')
-        thresh = thresh.encode('utf-8')
-        passed = passed.encode('utf-8')
+        srcLen = len(src := self.pack_image("srcImage", srcIm))
+        dstLen = len(dst := self.pack_image("dstImage", dstIm))
+        diffLen = len(diff := self.pack_image("diffImage", diffIm))
+        now_confidence = now_confidence.encode("utf-8")
+        thresh = thresh.encode("utf-8")
+        passed = passed.encode("utf-8")
         header = struct.pack(
-            '6i',
-            srcLen, dstLen, diffLen,
-            len(now_confidence), len(thresh), len(passed)
+            "6i", srcLen, dstLen, diffLen, len(now_confidence), len(thresh), len(passed)
         )
         body = src + dst + diff + now_confidence + thresh + passed
-        self.send('All', header + body)
+        self.send("All", header + body)
 
     @classmethod
     def construct_all(
-            cls,
-            srcIm,
-            dstIm,
-            diffIm,
-            now_confidence,
-            thresh,
-            passed,
+        cls,
+        srcIm,
+        dstIm,
+        diffIm,
+        now_confidence,
+        thresh,
+        passed,
     ):
-        srcLen = len(src := cls.pack_image('srcImage', srcIm))
-        dstLen = len(dst := cls.pack_image('dstImage', dstIm))
-        diffLen = len(diff := cls.pack_image('diffImage', diffIm))
-        now_confidence = now_confidence.encode('utf-8')
-        thresh = thresh.encode('utf-8')
-        passed = passed.encode('utf-8')
+        srcLen = len(src := cls.pack_image("srcImage", srcIm))
+        dstLen = len(dst := cls.pack_image("dstImage", dstIm))
+        diffLen = len(diff := cls.pack_image("diffImage", diffIm))
+        now_confidence = now_confidence.encode("utf-8")
+        thresh = thresh.encode("utf-8")
+        passed = passed.encode("utf-8")
         header = struct.pack(
-            '6i',
-            srcLen, dstLen, diffLen,
-            len(now_confidence), len(thresh), len(passed)
+            "6i", srcLen, dstLen, diffLen, len(now_confidence), len(thresh), len(passed)
         )
         body = src + dst + diff + now_confidence + thresh + passed
-        return "All".encode('utf-8').ljust(32, b'\x00') + header + body
+        return "All".encode("utf-8").ljust(32, b"\x00") + header + body
 
     @classmethod
     def receive_all(cls, data: bytes):
         pointer = 32
-        srcLen, dstLen, diffLen, now_confidence_len, thresh_len, passed_len = struct.unpack('6i',
-                                                                                            data[pointer:pointer + 24])
+        (
+            srcLen,
+            dstLen,
+            diffLen,
+            now_confidence_len,
+            thresh_len,
+            passed_len,
+        ) = struct.unpack("6i", data[pointer : pointer + 24])
         pointer += 24
-        src = data[pointer:pointer + srcLen]
+        src = data[pointer : pointer + srcLen]
         pointer += srcLen
-        dst = data[pointer:pointer + dstLen]
+        dst = data[pointer : pointer + dstLen]
         pointer += dstLen
-        diff = data[pointer:pointer + diffLen]
+        diff = data[pointer : pointer + diffLen]
         pointer += diffLen
-        now_confidence = data[pointer:pointer + now_confidence_len]
+        now_confidence = data[pointer : pointer + now_confidence_len]
         pointer += now_confidence_len
-        thresh = data[pointer:pointer + thresh_len]
+        thresh = data[pointer : pointer + thresh_len]
         pointer += thresh_len
-        passed = data[pointer:pointer + passed_len]
+        passed = data[pointer : pointer + passed_len]
 
-        now_confidence = now_confidence.decode('utf-8').replace('\x00', '')
-        thresh = thresh.decode('utf-8').replace('\x00', '')
-        passed = passed.decode('utf-8').replace('\x00', '')
+        now_confidence = now_confidence.decode("utf-8").replace("\x00", "")
+        thresh = thresh.decode("utf-8").replace("\x00", "")
+        passed = passed.decode("utf-8").replace("\x00", "")
 
         return (
             cls.receive_image(src)[1],
@@ -346,21 +354,21 @@ class ImageComparatorServer:
 
     def received_any(self, data: bytes):
         name = data[:32]
-        name = name.decode('utf-8').replace('\x00', '')
+        name = name.decode("utf-8").replace("\x00", "")
         if "Image" in name:
             return self.receive_image(data)
         elif "text" in name:
             return self.receive_text(data)
 
     @staticmethod
-    def get_global_instance() -> 'ImageComparatorServer':
+    def get_global_instance() -> "ImageComparatorServer":
         if ImageComparatorServer.globalInstance is None:
             ImageComparatorServer.globalInstance = ImageComparatorServer(65534)
             print("Image Comparator服务端已启动")
         return ImageComparatorServer.globalInstance
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # server = ImageComparatorServer(65534)
     # while True:
     #     if input("按任意键继续") == 'q':

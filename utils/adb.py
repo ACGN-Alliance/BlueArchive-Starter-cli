@@ -24,17 +24,18 @@ class ADB:
         delay (int): 执行ADB命令后的延迟时间，单位为秒，默认为1秒。
         adb_path (str): adb.exe可执行文件的路径。
     """
+
     compare_fail_count: int = 1
 
     def __init__(
-            self,
-            adb_path: str = "",
-            device_name: str = "",
-            delay: int | float = 1,
-            scan_mode: bool = False,
-            physic_device_name: str = "",
-            is_mumu: bool = False,
-            settings: Settings = None,
+        self,
+        adb_path: str = "",
+        device_name: str = "",
+        delay: int | float = 1,
+        scan_mode: bool = False,
+        physic_device_name: str = "",
+        is_mumu: bool = False,
+        settings: Settings = None,
     ):
         """
         初始化针对特定Android设备的ADB接口。
@@ -209,7 +210,15 @@ class ADB:
         real_x, real_y1 = self._normalized_to_real_coordinates(x, y1)
         _, real_y2 = self._normalized_to_real_coordinates(x, y2)
         return self._run_command(
-            ["shell", "input", "swipe", str(real_x), str(real_y1), str(real_x), str(real_y2)]
+            [
+                "shell",
+                "input",
+                "swipe",
+                str(real_x),
+                str(real_y1),
+                str(real_x),
+                str(real_y2),
+            ]
         )
 
     def _fail_handle(self) -> bool:
@@ -221,12 +230,12 @@ class ADB:
         return False
 
     def screenshot_region(
-            self,
-            x1: float,
-            y1: float,
-            x2: float,
-            y2: float,
-            save_path: str = "",
+        self,
+        x1: float,
+        y1: float,
+        x2: float,
+        y2: float,
+        save_path: str = "",
     ) -> Image.Image:
         """
         截取并保存设备上的一个特定区域的屏幕截图。
@@ -252,14 +261,14 @@ class ADB:
         return region
 
     def compare_img(
-            self,
-            x1: float,
-            y1: float,
-            x2: float,
-            y2: float,
-            img: str | Path,
-            thresh=-1,  # -1: 自动计算阈值
-            confidence: float = 0.91,
+        self,
+        x1: float,
+        y1: float,
+        x2: float,
+        y2: float,
+        img: str | Path,
+        thresh=-1,  # -1: 自动计算阈值
+        confidence: float = 0.91,
     ) -> bool:
         """
         比较截图区域与指定图片的相似度。
@@ -292,7 +301,9 @@ class ADB:
             im_s = im_s.convert("RGB")
 
             # 计算两个图像的差异
-            now_confidence, diff, thresh = compare_images_binary_old(im_s, im, thresh=thresh)
+            now_confidence, diff, thresh = compare_images_binary_old(
+                im_s, im, thresh=thresh
+            )
             instance = ImageComparatorServer.get_global_instance()
             instance.send_all(
                 src,
@@ -304,11 +315,11 @@ class ADB:
             )
 
             if now_confidence > confidence:
-                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<"
+                info = f'图片 "{img.name}" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<'
                 self.compare_fail_count = 0  # 重置失败次数
                 logger.success(info)
             else:
-                info = f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}(<{confidence}), 匹配>>>失败<<<\n已累计: {self.compare_fail_count} 次"
+                info = f'图片 "{img.name}" 与当前图像相似度为 {now_confidence:.2f}(<{confidence}), 匹配>>>失败<<<\n已累计: {self.compare_fail_count} 次'
                 if self.setting.too_many_errors != 0:
                     self._fail_handle()
                 logger.debug(info)
@@ -318,6 +329,6 @@ class ADB:
             logger.error(f"图片对比失败 {type(e)} {e}")
             traceback.print_exception(type(e), e, e.__traceback__)
             return False
-        
+
     def clear_compare_fail_count(self):
         self.compare_fail_count = 0

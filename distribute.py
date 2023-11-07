@@ -40,11 +40,14 @@ class Distributor:
     def __test_ocr_internal(cls):
         try:
             from rapidocr_onnxruntime import RapidOCR
+
             engine = RapidOCR()
 
             for box, text, confidence in engine(r"tests/img.png")[0]:
                 box = str(box)
-                print(f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}")
+                print(
+                    f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}"
+                )
             return True
         except Exception as e:
             print(e)
@@ -52,34 +55,47 @@ class Distributor:
 
     @classmethod
     def __create_ocr_env(cls):
-        run = subprocess.run('tasklist|findstr "clash"', shell=True, capture_output=True)
+        run = subprocess.run(
+            'tasklist|findstr "clash"', shell=True, capture_output=True
+        )
         if len(run.stdout) > 0:
             for _ in range(3):
                 print(
                     "\033[91m### clash is running, please ensure that <TURN MODE> is <TURNED OFF> for a successful installation of additional requirements ###\033[0m"
                 )
             input("press enter to continue")
-        run = subprocess.run("python --version", shell=True, capture_output=True, text=True)
+        run = subprocess.run(
+            "python --version", shell=True, capture_output=True, text=True
+        )
         py_ver = run.stdout.lower().replace("python ", "").strip()
-        assert py_ver.startswith("3.10"), f"global python version must be 3.10, but got {py_ver}"
+        assert py_ver.startswith(
+            "3.10"
+        ), f"global python version must be 3.10, but got {py_ver}"
         # run bat file
         result = subprocess.run("create_ocr_env.bat", shell=True, cwd=os.getcwd())
-        assert result.returncode == 0, f"create_ocr_env.bat failed: {result.stderr.decode('utf-8')}"
+        assert (
+            result.returncode == 0
+        ), f"create_ocr_env.bat failed: {result.stderr.decode('utf-8')}"
 
     @classmethod
     def __pack_dependencies(cls, zip_name="ocr_dependencies_win_3.10.zip"):
         # pack zip file
-        with ZipFile(zip_name, "w", compression=ZIP_DEFLATED, compresslevel=9) as zip_file:
+        with ZipFile(
+            zip_name, "w", compression=ZIP_DEFLATED, compresslevel=9
+        ) as zip_file:
             # pack all files in dir "site-packages" to "/ocr_dependencies/"
             print("scanning files...")
             file_list = []
             for root, dirs, files in os.walk(cls.__site_packages, topdown=False):
                 for file in files:
-                    if '__pycache__' in root: continue
-                    file_list.append((
-                        p := os.path.join(root, file),
-                        "ocr_dependencies" + p.replace(cls.__site_packages, "")
-                    ))
+                    if "__pycache__" in root:
+                        continue
+                    file_list.append(
+                        (
+                            p := os.path.join(root, file),
+                            "ocr_dependencies" + p.replace(cls.__site_packages, ""),
+                        )
+                    )
             for p, arcname in tqdm(file_list, desc="pack dependencies", unit="file"):
                 zip_file.write(p, arcname=arcname)
 
@@ -88,17 +104,20 @@ class Distributor:
             # pack PIL in dir "site-packages" to "/PIL/"
             for root, dirs, files in os.walk(PIL, topdown=False):
                 for file in files:
-                    if '__pycache__' in root: continue
-                    file_list.append((
-                        p := os.path.join(root, file),
-                        p.replace(cls.__site_packages, "")
-                    ))
+                    if "__pycache__" in root:
+                        continue
+                    file_list.append(
+                        (
+                            p := os.path.join(root, file),
+                            p.replace(cls.__site_packages, ""),
+                        )
+                    )
             for p, arcname in tqdm(file_list, desc="pack PIL", unit="file"):
                 zip_file.write(p, arcname=arcname)
 
-            for _, _, files in os.walk('tests'):
+            for _, _, files in os.walk("tests"):
                 for file in files:
-                    zip_file.write(os.path.join('tests', file), arcname='tests/' + file)
+                    zip_file.write(os.path.join("tests", file), arcname="tests/" + file)
 
     @classmethod
     def __register_dependencies_path(cls):
@@ -125,7 +144,9 @@ class Distributor:
         print("test ocr success, try to pack dependencies")
         cls.__pack_dependencies()
         print("pack dependencies success")
-        shutil.move("ocr_dependencies_win_3.10.zip", "build/ocr_dependencies_win_3.10.zip")
+        shutil.move(
+            "ocr_dependencies_win_3.10.zip", "build/ocr_dependencies_win_3.10.zip"
+        )
 
     @classmethod
     def read_version(cls):
@@ -144,15 +165,22 @@ class Distributor:
         # build main
         print("build main")
         result = subprocess.run("pack.bat", shell=True)
-        assert result.returncode == 0, f"pack.bat failed: {result.stderr.decode('utf-8')}"
+        assert (
+            result.returncode == 0
+        ), f"pack.bat failed: {result.stderr.decode('utf-8')}"
         print("build success")
 
         # move all dll file in dir "platform-tools" to dir "build/main.dist/platform-tools"
-        print("move all dll file in dir 'platform-tools' to dir 'build/main.dist/platform-tools'")
+        print(
+            "move all dll file in dir 'platform-tools' to dir 'build/main.dist/platform-tools'"
+        )
         for root, dirs, files in os.walk("platform-tools"):
             for file in files:
                 if file.endswith(".dll"):
-                    shutil.copyfile(os.path.join(root, file), os.path.join("build/main.dist/platform-tools", file))
+                    shutil.copyfile(
+                        os.path.join(root, file),
+                        os.path.join("build/main.dist/platform-tools", file),
+                    )
                     print(f"\tmoved {file}")
 
         print("upx files in dir 'build/main.dist'")
@@ -164,16 +192,24 @@ class Distributor:
         print("scanning files...")
         for root, dirs, files in os.walk("build/main.dist", topdown=False):
             for file in files:
-                if '__pycache__' in root: continue
-                file_list.append((
-                    p := os.path.join(root, file),
-                    p.replace("build/main.dist", "")
-                ))
+                if "__pycache__" in root:
+                    continue
+                file_list.append(
+                    (p := os.path.join(root, file), p.replace("build/main.dist", ""))
+                )
         ver = cls.read_version()
-        with ZipFile(f"build/bas_{ver}.zip", "w", compression=ZIP_DEFLATED, compresslevel=9) as zip_file:
+        with ZipFile(
+            f"build/bas_{ver}.zip", "w", compression=ZIP_DEFLATED, compresslevel=9
+        ) as zip_file:
             for p, arcname in tqdm(file_list, desc="pack main", unit="file"):
                 zip_file.write(p, arcname=arcname)
         print("pack success")
+
+    @classmethod
+    def reformat_code(cls):
+        subprocess.run("black main.py", shell=True)
+        subprocess.run("black script.py", shell=True)
+        subprocess.run("black utils", shell=True)
 
     @classmethod
     def build_all(cls):
@@ -182,6 +218,8 @@ class Distributor:
         :return:
         """
         cls.__register_dependencies_path()
+        print("reformat code")
+        cls.reformat_code()
         try:
             cls.build_main()
             cls.build_ocr_dependencies()
@@ -195,5 +233,5 @@ class Distributor:
             exit(1)
 
 
-if __name__ == '__main__':
-    Distributor.build_all()
+if __name__ == "__main__":
+    Distributor.reformat_code()

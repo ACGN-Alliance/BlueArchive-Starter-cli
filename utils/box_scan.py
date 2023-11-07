@@ -9,6 +9,7 @@ from loguru import logger
 
 from .adb import ADB
 
+
 class Scan:
     access_token = ""
 
@@ -24,6 +25,7 @@ class Scan:
         从学生名称图片中获取学生名称
         """
         from utils.ocr import ocr
+
         student_list = []
         stu_name_img.save("temp/stu_name.png")
         for box, text, confidence in ocr("temp/stu_name.png"):
@@ -48,9 +50,7 @@ class Scan:
             pos_1 = self.adb._normalized_to_real_coordinates(4, 25)
             pos_2 = self.adb._normalized_to_real_coordinates(99, 97)
             pos = (pos_1[0], pos_1[1], pos_2[0], pos_2[1])
-            stu_lst = self.pic2name(
-                sc_img.crop(pos)
-            )
+            stu_lst = self.pic2name(sc_img.crop(pos))
             for stu in stu_lst:
                 if "Owned" in stu:
                     is_finish = True

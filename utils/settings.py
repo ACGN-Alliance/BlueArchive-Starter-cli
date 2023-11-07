@@ -26,6 +26,7 @@ class Settings:
     too_many_errors: int = 30
     extra_delay: int = 0
 
+
 class OptionType(Enum):
     BOOL = "bool"
     NUM = "num"
@@ -33,17 +34,17 @@ class OptionType(Enum):
     FUNC = "func"
     LITERAL_STR = "literal_str"
 
+
 class Option:
     def __init__(
-            self,
-            name: str,
-            type_: OptionType,
-            setting_name: str,
-            *args,
-            func: callable = None,
-            func_args: list = None,
-            ) -> None:
-        
+        self,
+        name: str,
+        type_: OptionType,
+        setting_name: str,
+        *args,
+        func: callable = None,
+        func_args: list = None,
+    ) -> None:
         self.name = name
         self.type_ = type_
         self.setting_name = setting_name
@@ -56,7 +57,11 @@ class Option:
             if self.type_ == OptionType.FUNC:
                 self.func(*self.func_args)
             if self.type_ == OptionType.BOOL:
-                setattr(settings, self.setting_name, not getattr(settings, self.setting_name))
+                setattr(
+                    settings,
+                    self.setting_name,
+                    not getattr(settings, self.setting_name),
+                )
             if self.type_ == OptionType.NUM:
                 i = input("请输入新的值: ")
                 if i.isdigit():
@@ -72,10 +77,11 @@ class Option:
                     setattr(settings, self.setting_name, i)
                 else:
                     print("输入不合法")
-            
+
             return True
         except Exception as e:
             print("设置失败: " + str(e))
+
 
 class SettingsMenu:
     menu_list: List[Option] = []
@@ -89,7 +95,9 @@ class SettingsMenu:
             if option.setting_name is None:
                 print(f"{index + 1}. {option.name}")
             else:
-                print(f"{index + 1}. {option.name} 当前为 {getattr(settings, option.setting_name)}")
+                print(
+                    f"{index + 1}. {option.name} 当前为 {getattr(settings, option.setting_name)}"
+                )
 
         print(f"{len(self.menu_list) + 1}. 返回主菜单\n")
 
@@ -99,6 +107,7 @@ class SettingsMenu:
     @property
     def length(self):
         return len(self.menu_list)
+
 
 setting_file = Path("./settings.json")
 if setting_file.exists():
@@ -123,11 +132,12 @@ smenu.append(Option("开/关mumu模拟器模式", OptionType.BOOL, "is_mumu"))
 smenu.append(Option("设置需要抽取的卡池位置(*倒数*第几个)", OptionType.NUM, "pool"))
 smenu.append(
     Option(
-        "设置命令执行速度(fast, normal, slow, very slow)", 
-        OptionType.LITERAL_STR, 
+        "设置命令执行速度(fast, normal, slow, very slow)",
+        OptionType.LITERAL_STR,
         "speed",
-        func_args=["fast", "normal", "slow", "very slow"])
+        func_args=["fast", "normal", "slow", "very slow"],
     )
+)
 smenu.append(Option("设置额外延迟(单位: 秒)", OptionType.NUM, "extra_delay"))
 smenu.append(Option("设置识图错误中断数值(0为关闭)", OptionType.NUM, "too_many_errors"))
 
@@ -135,5 +145,5 @@ box_scan_preset = {
     "group-1": [("Ako", "亚子"), ("Himar", "阳葵/轮椅")],
     "group-2": [("Hibiki", "响"), ("Iori", "伊织/佐三枪"), "Iroha", "伊吕波/168"],
     "group-3": [("Aru", "阿露"), ("Haruna", "神秘狙/羽留奈")],
-    "整活用": [("Saya", "纱绫/鼠鼠"), ("Izumi", "泉/八"), ("Sumire", "堇")]
+    "整活用": [("Saya", "纱绫/鼠鼠"), ("Izumi", "泉/八"), ("Sumire", "堇")],
 }

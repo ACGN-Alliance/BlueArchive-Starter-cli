@@ -11,8 +11,8 @@ from PIL import Image
 
 
 class EvaluateMetric(enum.Enum):
-    CV2 = 'cv2'
-    PIL = 'pil'
+    CV2 = "cv2"
+    PIL = "pil"
 
 
 def calc_criterion_cv2(img, thresh=127):
@@ -25,8 +25,8 @@ def calc_criterion_cv2(img, thresh=127):
 
 
 def calc_criterion_pil(img: Image.Image, thresh=127):
-    img = img.convert('L')
-    img = img.point(lambda x: 0 if x < thresh else 255, '1')
+    img = img.convert("L")
+    img = img.point(lambda x: 0 if x < thresh else 255, "1")
 
     total_pixels = img.size[0] * img.size[1]
     zero_pixels = 0
@@ -37,8 +37,9 @@ def calc_criterion_pil(img: Image.Image, thresh=127):
     return (zero_pixels) / total_pixels, img
 
 
-def evaluate_thresh(img_path, target=0.175, error=0.025, metric=EvaluateMetric.CV2) \
-        -> tuple[int, float, Image] | tuple[int, int, None]:
+def evaluate_thresh(
+    img_path, target=0.175, error=0.025, metric=EvaluateMetric.CV2
+) -> tuple[int, float, Image] | tuple[int, int, None]:
     """
     get the binary threshold of image,use binary search to find the best threshold
     :param img_path: file path of image
@@ -48,7 +49,7 @@ def evaluate_thresh(img_path, target=0.175, error=0.025, metric=EvaluateMetric.C
     :return: tuple of binary threshold, percentage of criterion in total pixel, evaluated image
     """
     img = Image.open(img_path)
-    img.convert('RGB')
+    img.convert("RGB")
     if metric == EvaluateMetric.CV2:
         img = cv2.cvtColor(numpy.asarray(img), cv2.COLOR_RGB2BGR)
     elif metric == EvaluateMetric.PIL:
@@ -84,9 +85,10 @@ def evaluate_thresh(img_path, target=0.175, error=0.025, metric=EvaluateMetric.C
         history[thresh] = criterion, _img
     return -1, -1, None
 
-def evaluate_thresh_runtime(img, target=0.175, error=0.025, metric=EvaluateMetric.CV2) \
-        -> tuple[int, float, Image] | tuple[int, int, None]:
 
+def evaluate_thresh_runtime(
+    img, target=0.175, error=0.025, metric=EvaluateMetric.CV2
+) -> tuple[int, float, Image] | tuple[int, int, None]:
     L = 0
     R = 255
     history = {}
@@ -116,7 +118,9 @@ def evaluate_thresh_runtime(img, target=0.175, error=0.025, metric=EvaluateMetri
     return -1, -1, None
 
 
-def evaluate_image(path, target=0.175, error=0.025, metric=EvaluateMetric.CV2) -> tuple[int, float, str]:
+def evaluate_image(
+    path, target=0.175, error=0.025, metric=EvaluateMetric.CV2
+) -> tuple[int, float, str]:
     """
     evaluate single image from disk and create evaluated image
     :param path:
@@ -151,7 +155,7 @@ def clean_evaluated_images(top_path="../data"):
     for root, dirs, files in os.walk(top_path, topdown=False):
         for file in files:
             if file.endswith(".png"):
-                s = file.split('.')
+                s = file.split(".")
                 if len(s) > 2:
                     if s[-2].startswith("thresh"):
                         p = os.path.join(root, file)
@@ -182,9 +186,11 @@ def evaluate_images(top_path="../data", metric=EvaluateMetric.CV2) -> float:
     return default
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     sys.path.append(os.path.abspath("../.ocr_venv/Lib/site-packages"))
     import cv2
     import numpy
+
     evaluate_images()
