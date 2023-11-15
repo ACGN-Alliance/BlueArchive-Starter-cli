@@ -322,7 +322,7 @@ def script(
         while not adb_con.compare_img(
                 *mapping["momotalk.png"], img=path.joinpath("momotalk.png"),
         ):
-            adb_con.multi_click(40, 90, 3)
+            adb_con.click(40, 90)
 
     if checkpoint_new(12, load_point, alias="MomoTalk & 收取邮件", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("10. MomoTalk & 收取邮件")
@@ -333,8 +333,7 @@ def script(
         while not adb_con.compare_img(
             *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
         ):
-            adb_con.click(88, 5)
-        adb_con.click(88, 5)
+            adb_con.back()
         adb_con.sleep(4)
         adb_con.click(82.5, 94.44)
         adb_con.sleep(2)
@@ -454,6 +453,7 @@ def script(
                 *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
         ):
             adb_con.back()
+
         adb_con.click(70, 90)
         adb_con.sleep(6)
         for _ in range(settings.pool):
@@ -462,12 +462,14 @@ def script(
         logger.info("开始抽卡")
         adb_con.click(76, 72)
         adb_con.click(60, 70)
-        adb_con.sleep(5)
+        logger.debug(0)
+        adb_con.sleep(2)
 
         recuit_times = settings.recuit_num + 2 + (1 if settings.main_line else 0)
         for i in range(recuit_times):
             adb_con.sleep(2)
             adb_con.multi_click(50, 75, 3)
+            logger.debug(1)
             while not adb_con.compare_img(
                     *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
             ):
@@ -478,13 +480,14 @@ def script(
                 adb_con.screenshot(f"{i + 2}.png")
 
             adb_con.click(50, 90)
-            adb_con.sleep(3)
+            adb_con.multi_click(50, 75, 3)
+            adb_con.sleep(2)
 
             if i == recuit_times - 1:
                 break
 
-            adb_con.multi_click(60, 90, 2)
-            adb_con.sleep(1)
+            adb_con.click(60, 90)
+            adb_con.sleep(2)
             adb_con.click(60, 65)
         logger.info("回到主菜单")
         adb_con.back()

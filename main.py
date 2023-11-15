@@ -25,7 +25,7 @@ from utils.settings import (settings,
                             smenu
                             )
 
-__version__ = "1.1.3.2"
+__version__ = "1.1.3.3"
 
 
 # 异常处理装饰器
