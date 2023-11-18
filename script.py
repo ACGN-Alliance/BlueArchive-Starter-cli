@@ -293,7 +293,7 @@ def script(
             adb_con.multi_click(90, 90, 2)
             adb_con.sleep(5)
         adb_con.multi_click(50, 63, 5)
-        adb_con.sleep(7)
+        adb_con.sleep(9)
         logger.info("开启auto")  # todo 需要优化
         adb_con.click(95, 97)
         while not adb_con.compare_img(
