@@ -166,7 +166,7 @@ class ADB:
         elif self.setting.speed == "fast":
             time.sleep(time_ * 0.95)
         elif self.setting.speed == "normal":
-            time.sleep(1)
+            time.sleep(time_)
 
         return None
 
@@ -261,14 +261,15 @@ class ADB:
         return region
 
     def compare_img(
-        self,
-        x1: float,
-        y1: float,
-        x2: float,
-        y2: float,
-        img: str | Path,
-        thresh=-1,  # -1: 自动计算阈值
-        confidence: float = 0.91,
+            self,
+            x1: float,
+            y1: float,
+            x2: float,
+            y2: float,
+            img: str | Path,
+            thresh=-1,  # -1: 自动计算阈值
+            confidence: float = 0.91,
+            debug: bool = False,
     ) -> bool:
         """
         比较截图区域与指定图片的相似度。
@@ -281,6 +282,10 @@ class ADB:
         返回:
             bool: 如果两张图片的相似度超过给定的confidence，则返回True，否则返回False。
         """
+        img_name = img.split("/")[-1].split(".")[0]
+        if self.setting.img_confidences.get(img_name):
+            confidence = self.setting.img_confidences[img_name]
+
         try:
             # 截图并从区域获取Image对象
             im: Image.Image = self.screenshot_region(x1, y1, x2, y2)
@@ -313,6 +318,10 @@ class ADB:
                 str(thresh),
                 "True" if now_confidence > confidence else "False",
             )
+
+            if debug:
+                logger.debug(f"图片 \"{img.name}\" 与当前图像相似度为 {now_confidence:.2f}")
+                return
 
             if now_confidence > confidence:
                 info = f'图片 "{img.name}" 与当前图像相似度为 {now_confidence:.2f}(>={confidence}), 匹配>>>成功<<<'

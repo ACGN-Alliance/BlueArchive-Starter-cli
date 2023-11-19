@@ -3,6 +3,7 @@ from typing import Literal, List
 from pathlib import Path
 from enum import Enum
 import json
+import os
 
 """
 设置相关代码
@@ -25,6 +26,7 @@ class Settings:
     speed: Literal["fast", "normal", "slow", "very slow"] = "normal"
     too_many_errors: int = 30
     extra_delay: int = 0
+    img_confidences: dict = field(default_factory=dict)
 
 
 class OptionType(Enum):
@@ -85,14 +87,17 @@ class Option:
 
 class SettingsMenu:
     menu_list: List[Option] = []
+    status_off: list = []
 
-    def append(self, option: Option) -> None:
+    def append(self, option: Option, show_status: bool=True) -> None:
         self.menu_list.append(option)
+        if (not show_status) and option.setting_name:
+            self.status_off.append(option.setting_name)
 
     def show(self):
         print("\n欢迎来到设置界面")
         for index, option in enumerate(self.menu_list):
-            if option.setting_name is None:
+            if (not option.setting_name) or (option.setting_name in self.status_off):
                 print(f"{index + 1}. {option.name}")
             else:
                 print(
@@ -140,6 +145,48 @@ smenu.append(
 )
 smenu.append(Option("设置额外延迟(单位: 秒)", OptionType.NUM, "extra_delay"))
 smenu.append(Option("设置识图错误中断数值(0为关闭)", OptionType.NUM, "too_many_errors"))
+
+def img_confidence_set():
+    if settings.img_confidences:
+        print("当前置信度阈值:")
+        for k, v in settings.img_confidences.items():
+            print(f"{k} ==> {v}")
+    else:
+        print("当前置信度阈值均为0.91")
+
+    print("\n")
+
+    while True:
+        arg = input("输入格式: 图片名 阈值(其中阈值范围为0~1, 格式形如:main_interface 0.90), 输入exit退出, 输入reset重置为默认\n")
+        if arg == "exit":
+            return
+        elif arg == "reset":
+            settings.img_confidences = {}
+            print("重置成功!")
+            return
+        else:
+            args = arg.split(" ")
+            img_name = args[0] + ".png"
+            confidence = float(args[1])
+
+            if os.path.exists(f"./data/16_9/{img_name}"):
+                settings.img_confidences[img_name] = confidence
+                print("设置成功!")
+            else:
+                print("图片不存在")
+        
+        print("\n")
+
+smenu.append(
+    Option(
+        "修改图片置信度阈值", 
+        OptionType.FUNC, 
+        "img_confidences", 
+        func=img_confidence_set, 
+        func_args=[]
+    ),
+    show_status=False
+)
 
 box_scan_preset = {
     "group-1": [("Ako", "亚子"), ("Himar", "阳葵/轮椅")],

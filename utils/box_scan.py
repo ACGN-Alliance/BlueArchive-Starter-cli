@@ -40,6 +40,7 @@ class Scan:
         page = 0
         name_list = []
         is_finish = False
+        times = 0
 
         self.adb.vertical_swipe(50, 50, 40)
         while True:
@@ -59,7 +60,10 @@ class Scan:
                     name_list.append(stu)
 
             if not is_finish:
-                self.adb.vertical_swipe(50, 66.7, 11.1)
+                times = times + 1
+                self.adb.vertical_swipe(50, 66.7, 15.1)
+                if times >= 4:
+                    break
             else:
                 break
 
