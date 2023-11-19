@@ -10,8 +10,8 @@ from utils.settings import Settings
 def checkpoint_new(
         current_position: int,
         load_point: int,
+        settings: Settings,
         is_start_from_zero: bool = True,
-        settings: Settings = None,
         alias: str = ""
 ):
     """
@@ -123,7 +123,7 @@ def script(
             pass
         adb_con.sleep(2)
         logger.info("已进入开始界面")
-        adb_con.click(99, 4)  # 弹出网页关闭
+        adb_con.multi_click(99, 4, 3)  # 弹出网页关闭
         adb_con.multi_click(50, 70, 4)
         while not adb_con.compare_img(
                 *mapping["start_name.png"], img=path.joinpath("start_name.png")
@@ -322,7 +322,7 @@ def script(
         while not adb_con.compare_img(
                 *mapping["momotalk.png"], img=path.joinpath("momotalk.png"),
         ):
-            adb_con.click(40, 90)
+            adb_con.back()
 
     if checkpoint_new(12, load_point, alias="MomoTalk & 收取邮件", is_start_from_zero=is_start_from_zero, settings=settings):
         # logger.success("10. MomoTalk & 收取邮件")
@@ -334,9 +334,13 @@ def script(
             *mapping["main_interface.png"], img=path.joinpath("main_interface.png")
         ):
             adb_con.back()
-        adb_con.sleep(4)
-        adb_con.click(82.5, 94.44)
+        adb_con.sleep(3)
+        adb_con.click(89, 5)
+        adb_con.click(87, 92)
         adb_con.sleep(2)
+        adb_con.multi_click(50, 80, 2)
+        adb_con.sleep(2)
+        adb_con.back()
 
     if checkpoint_new(13, load_point, alias="绑定账号", is_start_from_zero=is_start_from_zero, settings=settings):
         while not adb_con.compare_img(
