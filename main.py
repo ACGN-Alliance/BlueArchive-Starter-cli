@@ -22,7 +22,9 @@ from utils import adb
 from utils.settings import (settings,
                             setting_file,
                             box_scan_preset,
-                            smenu
+                            smenu,
+                            Option,
+                            OptionType
                             )
 
 __version__ = "1.1.3.3"
