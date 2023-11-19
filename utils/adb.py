@@ -282,7 +282,7 @@ class ADB:
         返回:
             bool: 如果两张图片的相似度超过给定的confidence，则返回True，否则返回False。
         """
-        img_name = img.split("/")[-1].split(".")[0]
+        img_name = str(img).split("/")[-1].split(".")[0]
         if self.setting.img_confidences.get(img_name):
             confidence = self.setting.img_confidences[img_name]
 

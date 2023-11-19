@@ -149,7 +149,7 @@ def script(
         adb_con.multi_click(50, 70, 5)
         adb_con.sleep(20)
         adb_con.click(50, 50)
-        adb_con.sleep(18)
+        adb_con.sleep(22)
         # adb_con.multi_click(50, 70, 40)
 
     if checkpoint_new(
@@ -264,7 +264,6 @@ def script(
             adb_con.click(50, 50)
         for _ in range(4):
             skip_story()
-        logger.info("OP 动画")
         adb_con.sleep(2)
         adb_con.click(60, 70)
 
@@ -418,9 +417,8 @@ def script(
             adb_con.back()
         adb_con.sleep(3)
         adb_con.click(89, 5)
-        adb_con.click(87, 92)
         adb_con.sleep(2)
-        adb_con.multi_click(50, 80, 2)
+        adb_con.multi_click(87, 92, 5)
         adb_con.sleep(2)
         adb_con.back()
 
@@ -549,14 +547,12 @@ def script(
         logger.info("开始抽卡")
         adb_con.click(76, 72)
         adb_con.click(60, 70)
-        logger.debug(0)
         adb_con.sleep(2)
 
         recuit_times = settings.recuit_num + 2 + (1 if settings.main_line else 0)
         for i in range(recuit_times):
             adb_con.sleep(2)
             adb_con.multi_click(50, 75, 3)
-            logger.debug(1)
             while not adb_con.compare_img(
                     *mapping["recurit_confirm.png"], img=path.joinpath("recurit_confirm.png")
             ):

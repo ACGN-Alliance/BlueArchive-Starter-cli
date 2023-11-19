@@ -27,7 +27,7 @@ from utils.settings import (settings,
                             OptionType
                             )
 
-__version__ = "1.1.3.3"
+__version__ = "1.1.3.5"
 
 
 # 异常处理装饰器
