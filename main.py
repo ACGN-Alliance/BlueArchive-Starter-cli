@@ -19,13 +19,14 @@ sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
 
 from script import script
 from utils import adb
-from utils.settings import (settings,
-                            setting_file,
-                            box_scan_preset,
-                            smenu,
-                            Option,
-                            OptionType
-                            )
+from utils.settings import (
+    settings,
+    setting_file,
+    box_scan_preset,
+    smenu,
+    Option,
+    OptionType,
+)
 
 __version__ = "1.1.3.5"
 
@@ -213,9 +214,11 @@ class MainProgram:
     @exception_handle
     def adb_test(self):
         while True:
-            mode = int(input(
-                "\n1.adb命令行工具(实验性功能)\n2.坐标测试与换算工具\n3.截图&坐标记录工具\n4.图像对比工具\n5.返回主菜单\n请选择需要的工具:"
-                ))
+            mode = int(
+                input(
+                    "\n1.adb命令行工具(实验性功能)\n2.坐标测试与换算工具\n3.截图&坐标记录工具\n4.图像对比工具\n5.返回主菜单\n请选择需要的工具:"
+                )
+            )
             if mode == 1:
                 print(
                     "\n可以输入adb命令进行调试, 也可以输入exit退出(注: 使用getevent一类需要持续监听的命令只能用ctrl+c退出)"
@@ -237,7 +240,9 @@ class MainProgram:
 
                     pos_args = pos.split()
                     if pos_args[0].isdigit() and pos_args[1].isdigit():
-                        real_x, real_y = self.adb_con._normalized_to_real_coordinates(int(pos_args[0]), int(pos_args[1]))
+                        real_x, real_y = self.adb_con._normalized_to_real_coordinates(
+                            int(pos_args[0]), int(pos_args[1])
+                        )
                         print("坐标转换结果: " + str(real_x) + " " + str(real_y))
                         self.adb_con.click(int(pos_args[0]), int(pos_args[1]))
                     else:
@@ -278,8 +283,8 @@ class MainProgram:
                 mapping = json.load(open("temp/mapping.json", "r", encoding="utf-8"))
                 self.adb_con.compare_img(
                     *mapping["adb_test.png"],
-                    img = Path("./temp/adb_test.png"),
-                    debug=True
+                    img=Path("./temp/adb_test.png"),
+                    debug=True,
                 )
             elif mode == 5:
                 return

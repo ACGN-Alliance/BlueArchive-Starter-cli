@@ -89,7 +89,7 @@ class SettingsMenu:
     menu_list: List[Option] = []
     status_off: list = []
 
-    def append(self, option: Option, show_status: bool=True) -> None:
+    def append(self, option: Option, show_status: bool = True) -> None:
         self.menu_list.append(option)
         if (not show_status) and option.setting_name:
             self.status_off.append(option.setting_name)
@@ -146,6 +146,7 @@ smenu.append(
 smenu.append(Option("设置额外延迟(单位: 秒)", OptionType.NUM, "extra_delay"))
 smenu.append(Option("设置识图错误中断数值(0为关闭)", OptionType.NUM, "too_many_errors"))
 
+
 def img_confidence_set():
     if settings.img_confidences:
         print("当前置信度阈值:")
@@ -157,7 +158,9 @@ def img_confidence_set():
     print("\n")
 
     while True:
-        arg = input("输入格式: 图片名 阈值(其中阈值范围为0~1, 格式形如:main_interface 0.90), 输入exit退出, 输入reset重置为默认\n")
+        arg = input(
+            "输入格式: 图片名 阈值(其中阈值范围为0~1, 格式形如:main_interface 0.90), 输入exit退出, 输入reset重置为默认\n"
+        )
         if arg == "exit":
             return
         elif arg == "reset":
@@ -174,18 +177,19 @@ def img_confidence_set():
                 print("设置成功!")
             else:
                 print("图片不存在")
-        
+
         print("\n")
+
 
 smenu.append(
     Option(
-        "修改图片置信度阈值", 
-        OptionType.FUNC, 
-        "img_confidences", 
-        func=img_confidence_set, 
-        func_args=[]
+        "修改图片置信度阈值",
+        OptionType.FUNC,
+        "img_confidences",
+        func=img_confidence_set,
+        func_args=[],
     ),
-    show_status=False
+    show_status=False,
 )
 
 box_scan_preset = {

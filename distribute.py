@@ -234,4 +234,4 @@ class Distributor:
 
 
 if __name__ == "__main__":
-    Distributor.reformat_code()
+    Distributor.build_all()
