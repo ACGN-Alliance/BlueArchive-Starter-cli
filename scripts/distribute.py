@@ -190,6 +190,20 @@ if __name__ == '__main__':
         return version
 
     @classmethod
+    def get_platform_tools(cls):
+        if not os.path.exists("platform-tools"):
+            url = "https://dl.google.com/android/repository/platform-tools_r34.0.5-windows.zip"
+            file = BytesIO(b"")
+            r = urllib3.request("GET", url)
+            file.write(r.data)
+            file.seek(0)
+            with zipfile.ZipFile(file) as f:
+                # 解压压缩包的./platform-tools/* 到 ./platform-tools/*
+                f.extractall(".")
+            file.close()
+
+
+    @classmethod
     def get_upx(cls):
         try:
             subprocess.run("upx -h", shell=True, stdout=subprocess.PIPE)
@@ -221,6 +235,7 @@ if __name__ == '__main__':
         version = cls.get_version(version)  # 提取版本号 x.x.x.x
 
         cls.register_dependencies_path()
+        cls.get_platform_tools()
         # build main
         print("build main")
         # dump build script
@@ -318,10 +333,11 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    os.makedirs("build", exist_ok=True)
-    os.makedirs("build/release", exist_ok=True)
-    Distributor.register_dependencies_path()
-    if args.build_main:
-        Distributor.build_main(version=args.version)
-    if args.build_ocr:
-        Distributor.build_ocr_dependencies()
+    # os.makedirs("build", exist_ok=True)
+    # os.makedirs("build/release", exist_ok=True)
+    # Distributor.register_dependencies_path()
+    # if args.build_main:
+    #     Distributor.build_main(version=args.version)
+    # if args.build_ocr:
+    #     Distributor.build_ocr_dependencies()
+    Distributor.get_platform_tools()
