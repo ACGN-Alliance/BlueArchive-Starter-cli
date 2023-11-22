@@ -333,11 +333,10 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # os.makedirs("build", exist_ok=True)
-    # os.makedirs("build/release", exist_ok=True)
-    # Distributor.register_dependencies_path()
-    # if args.build_main:
-    #     Distributor.build_main(version=args.version)
-    # if args.build_ocr:
-    #     Distributor.build_ocr_dependencies()
-    Distributor.get_platform_tools()
+    os.makedirs("build", exist_ok=True)
+    os.makedirs("build/release", exist_ok=True)
+    Distributor.register_dependencies_path()
+    if args.build_main:
+        Distributor.build_main(version=args.version)
+    if args.build_ocr:
+        Distributor.build_ocr_dependencies()
