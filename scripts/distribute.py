@@ -227,18 +227,20 @@ if __name__ == '__main__':
 
     @classmethod
     def upx_files(cls, top_dir, file_size_threshold=2 * 1024 * 1024):
-        files = []
+        files_ = []
         old_dir_size = os.path.getsize(top_dir)
         for root, dirs, files in os.walk(top_dir):
             for file in files:
-                if os.path.getsize(os.path.join(root, file)) > file_size_threshold:
-                    files.append(os.path.join(root, file))
+                size = os.path.getsize(os.path.join(root, file))
+                fn = os.path.join(root, file)
+                if (size) > file_size_threshold:
+                    files_.append(fn)
         upx_executable = cls.get_upx()
         processes = []
-        for file in files:
+        for file in files_:
             processes.append(
                 subprocess.Popen(
-                    f"{upx_executable} -9 {file} --force", shell=True, stdout=subprocess.PIPE
+                    f"{upx_executable} -9 {file} --force".split(" "), shell=True, stdout=subprocess.PIPE
                 )
             )
             print(f"upx-ing {file}")
