@@ -1,0 +1,61 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Distribute
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    # Only run this workflow when a tag is pushed
+    tags:
+      - 'v*.*.*.*'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "distribute"
+  distribute:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Get the tag name
+        id: get_tag_name
+        run: echo ::set-output name=TAG_NAME::$(echo $GITHUB_REF | cut -d / -f 3)
+        shell: bash
+
+      - name: Print Version
+        run: |
+          echo ${{ steps.get_tag_name.outputs.TAG_NAME }}
+
+      # Set up Python 3.10
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      # init pdm
+      - name: init pdm
+        run: |
+          pipx install pdm
+          pdm install
+
+      # Run the distribute script
+      - name: Run the distribute script
+        run: |
+          pdm run python ./scripts/distribute.py -v ${{ steps.get_tag_name.outputs.TAG_NAME }} --build_main
+
+      - name: Automatic Release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: ${{ steps.get_tag_name.outputs.TAG_NAME }}
+          prerelease: false
+          files: |
+            build/release/*.zip

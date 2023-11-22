@@ -11,10 +11,10 @@ call .ocr_venv\Scripts\activate.bat
 
 @REM 更新pip
 echo "update pip..."
-python.exe -m pip install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple
+python.exe -m pip install --upgrade pip -i https://pypi.mirrors.ustc.edu.cn/simple
 
 @REM 安装rapidocr_onnxruntime
 echo "pip install rapidocr_onnxruntime..."
-pip install rapidocr_onnxruntime -i https://mirrors.aliyun.com/pypi/simple
+pip install rapidocr_onnxruntime -i https://pypi.mirrors.ustc.edu.cn/simple
 
 echo "create '.ocr_venv' venv success!"
