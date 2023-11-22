@@ -203,53 +203,50 @@ if __name__ == '__main__':
             file.close()
 
     @classmethod
-    def get_upx(cls):
-        try:
-            subprocess.run("upx -h", shell=True, stdout=subprocess.PIPE)
-            return "upx"
-        except FileNotFoundError:
-            if os.path.exists("build\\upx"):
-                # delete old upx
-                shutil.rmtree("build\\upx")
-            # get upx ==> build\upx\upx.exe
-            url = "https://github.com/upx/upx/releases/download/v4.2.1/upx-4.2.1-win64.zip"
-            file = BytesIO(b"")
-            r = urllib3.request("GET", url)
-            file.write(r.data)
-            file.seek(0)
+    def get_upx(cls,download=False):
+        if not download:
+            return "upx.exe"
+        if os.path.exists("build\\upx"):
+            # delete old upx
+            shutil.rmtree("build\\upx")
+        # get upx ==> build\upx\upx.exe
+        url = "https://github.com/upx/upx/releases/download/v4.2.1/upx-4.2.1-win64.zip"
+        file = BytesIO(b"")
+        r = urllib3.request("GET", url)
+        file.write(r.data)
+        file.seek(0)
 
-            with zipfile.ZipFile(file) as f:
-                # upx-4.2.1-win64\upx.exe
-                f.extractall("build\\upx")
-            _upx = "build\\upx\\upx-4.2.1-win64\\upx.exe"
-            file.close()
-            return _upx
+        with zipfile.ZipFile(file) as f:
+            # upx-4.2.1-win64\upx.exe
+            f.extractall("build\\upx")
+        _upx = "build\\upx\\upx-4.2.1-win64\\upx.exe"
+        file.close()
+        return _upx
 
     @classmethod
-    def upx_files(cls, top_dir, file_size_threshold=2 * 1024 * 1024):
+    def upx_files(cls, top_dir, file_size_threshold=2 * 1024 * 1024,download=False):
         files_ = []
-        old_dir_size = os.path.getsize(top_dir)
         for root, dirs, files in os.walk(top_dir):
             for file in files:
                 size = os.path.getsize(os.path.join(root, file))
                 fn = os.path.join(root, file)
                 if (size) > file_size_threshold:
                     files_.append(fn)
-        upx_executable = cls.get_upx()
+                    print(f'add {fn} to upx list')
+        upx_executable = cls.get_upx(download)
         processes = []
         for file in files_:
             processes.append(
                 subprocess.Popen(
-                    f"{upx_executable} -9 {file} --force".split(" "), shell=True, stdout=subprocess.PIPE
+                    f"{upx_executable} -9 {file}".split(" "), shell=True, stdout=subprocess.PIPE
                 )
             )
-            print(f"upx-ing {file}")
         for p in processes:
             p.wait()
-        print(f'upx all done: {old_dir_size / (1024 ** 2):.2f}MB ==> {os.path.getsize(top_dir) / (1024 ** 2):.2f}')
+        print(f'upx all done')
 
     @classmethod
-    def build_main(cls, version):
+    def build_main(cls, version, download_upx=False):
         """
         only build main program to FILE "build/bas_{ver}.zip"
         :return:
@@ -288,7 +285,7 @@ if __name__ == '__main__':
 
         print("upx files in dir 'build/main.dist'")
         # upx files in dir "build/main.dist"
-        cls.upx_files("build/main.dist")
+        cls.upx_files("build/main.dist",download_upx)
         # pack main
         print("pack main")
         file_list = []
@@ -353,12 +350,17 @@ if __name__ == "__main__":
         action='store_true',
         help='build ocr dependencies',
     )
+    parser.add_argument(
+        "--download_upx",
+        action="store_true",
+        help="download upx",
+    )
     args = parser.parse_args()
 
     os.makedirs("build", exist_ok=True)
     os.makedirs("build/release", exist_ok=True)
     Distributor.register_dependencies_path()
     if args.build_main:
-        Distributor.build_main(version=args.version)
+        Distributor.build_main(version=args.version, download_upx=args.download_upx)
     if args.build_ocr:
         Distributor.build_ocr_dependencies()

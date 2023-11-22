@@ -49,7 +49,7 @@ jobs:
       # Run the distribute script
       - name: Run the distribute script
         run: |
-          pdm run python ./scripts/distribute.py -v ${{ steps.get_tag_name.outputs.TAG_NAME }} --build_main
+          pdm run python ./scripts/distribute.py -v ${{ steps.get_tag_name.outputs.TAG_NAME }} --build_main --download_upx
 
       - name: Automatic Release
         uses: marvinpinto/action-automatic-releases@latest
