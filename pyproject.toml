@@ -3,7 +3,7 @@ name = ""
 version = ""
 description = ""
 authors = [
-    {name = "ACGN-Alliance", email = "mrslouzk@qq.com"},
+    { name = "ACGN-Alliance", email = "mrslouzk@qq.com" },
 ]
 dependencies = [
     "pillow>=10.1.0",
@@ -15,5 +15,11 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 readme = "README.md"
-license = {text = "MIT"}
+license = { text = "MIT" }
+
+[tool.pdm.scripts]
+main = "python main.py"
+build_main = "python ./scripts/distribute.py --build_main"
+build_ocr = "python ./scripts/distribute.py --build_ocr"
+build_all = { composite = ["build_main", "build_ocr"] }
 

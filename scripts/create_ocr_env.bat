@@ -16,5 +16,7 @@ python.exe -m pip install --upgrade pip -i https://pypi.mirrors.ustc.edu.cn/simp
 @REM 安装rapidocr_onnxruntime
 echo "pip install rapidocr_onnxruntime..."
 pip install rapidocr_onnxruntime -i https://pypi.mirrors.ustc.edu.cn/simple
+pip install opencv-python -i https://pypi.mirrors.ustc.edu.cn/simple
+pip install opencv-contrib-python -i https://pypi.mirrors.ustc.edu.cn/simple
 
 echo "create '.ocr_venv' venv success!"

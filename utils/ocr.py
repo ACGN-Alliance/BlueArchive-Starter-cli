@@ -1,5 +1,3 @@
-import os.path
-import sys
 from functools import wraps
 
 READY = False

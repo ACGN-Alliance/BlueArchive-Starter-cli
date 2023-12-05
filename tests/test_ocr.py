@@ -1,12 +1,10 @@
 import os
 import time
+import sys
 
-from utils import ocr
 
-if __name__ == "__main__":
-    # 工作目录切换到项目根目录
-    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+def main():
+    from utils import ocr
     print("file: ", r"tests/ocr_test.png")
 
     begin = time.time()
@@ -32,3 +30,13 @@ if __name__ == "__main__":
                 )
             print("time: ", time.time() - begin)
         print("-" * 150)
+
+
+if __name__ == "__main__":
+    # 工作目录切换到项目根目录
+    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # for user
+    sys.path.append(os.path.abspath("ocr_dependencies"))
+    # for developer
+    sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
+    main()

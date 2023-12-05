@@ -23,6 +23,8 @@ python -m nuitka ^
     --disable-plugin=multiprocessing ^
     --file-version="$FILE_VERSION$" ^
     --product-version="$FILE_VERSION$" ^
+    --include-module=PIL ^
+    --nofollow-import-to=tkinter,viztracer,tests ^
     --windows-file-description="BlueArchive Account tool" ^
     --include-data-dir=platform-tools=platform-tools ^
     --include-data-dir=data/16_9=data/16_9 ^
@@ -126,21 +128,21 @@ if __name__ == '__main__':
             for p, arcname in tqdm(file_list, desc="pack dependencies", unit="file"):
                 zip_file.write(p, arcname=arcname)
 
-            file_list.clear()
-            PIL = os.path.join(cls.__site_packages, "PIL")
-            # pack PIL in dir "site-packages" to "/PIL/"
-            for root, dirs, files in os.walk(PIL, topdown=False):
-                for file in files:
-                    if "__pycache__" in root:
-                        continue
-                    file_list.append(
-                        (
-                            p := os.path.join(root, file),
-                            p.replace(cls.__site_packages, ""),
-                        )
-                    )
-            for p, arcname in tqdm(file_list, desc="pack PIL", unit="file"):
-                zip_file.write(p, arcname=arcname)
+            # file_list.clear()
+            # PIL = os.path.join(cls.__site_packages, "PIL")
+            # # pack PIL in dir "site-packages" to "/PIL/"
+            # for root, dirs, files in os.walk(PIL, topdown=False):
+            #     for file in files:
+            #         if "__pycache__" in root:
+            #             continue
+            #         file_list.append(
+            #             (
+            #                 p := os.path.join(root, file),
+            #                 p.replace(cls.__site_packages, ""),
+            #             )
+            #         )
+            # for p, arcname in tqdm(file_list, desc="pack PIL", unit="file"):
+            #     zip_file.write(p, arcname=arcname)
 
             for _, _, files in os.walk("tests"):
                 for file in files:
@@ -203,7 +205,7 @@ if __name__ == '__main__':
             file.close()
 
     @classmethod
-    def get_upx(cls,download=False):
+    def get_upx(cls, download=False):
         if not download:
             return "upx.exe"
         if os.path.exists("build\\upx"):
@@ -224,10 +226,14 @@ if __name__ == '__main__':
         return _upx
 
     @classmethod
-    def upx_files(cls, top_dir, file_size_threshold=2 * 1024 * 1024,download=False):
+    def upx_files(cls, top_dir, file_size_threshold=2 * 1024 * 1024, pattern=r"(dll|exe)$", download=False):
+        _pattern = re.compile(pattern)
         files_ = []
         for root, dirs, files in os.walk(top_dir):
             for file in files:
+                if not _pattern.search(file):
+                    print(f'ignore file: {file}')
+                    continue
                 size = os.path.getsize(os.path.join(root, file))
                 fn = os.path.join(root, file)
                 if (size) > file_size_threshold:
@@ -285,7 +291,7 @@ if __name__ == '__main__':
 
         print("upx files in dir 'build/main.dist'")
         # upx files in dir "build/main.dist"
-        cls.upx_files("build/main.dist",download_upx)
+        # cls.upx_files("build/main.dist", download=download_upx)
         # pack main
         print("pack main")
         file_list = []

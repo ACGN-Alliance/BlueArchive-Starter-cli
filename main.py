@@ -10,22 +10,14 @@ from zipfile import ZipFile
 
 from loguru import logger
 
-from utils.cmp_server import ImageComparatorServer
-
-# for user
-sys.path.append(os.path.abspath("ocr_dependencies"))
-# for developer
-sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
-
 from script import script
 from utils import adb
+from utils.cmp_server import ImageComparatorServer
 from utils.settings import (
     settings,
     setting_file,
     box_scan_preset,
     smenu,
-    Option,
-    OptionType,
 )
 
 __version__ = "1.1.3.5"
@@ -153,7 +145,7 @@ class MainProgram:
 
                 # 包含两种状态:1. already connected to 2. connected to
                 if "connected to" in rv.stdout.decode(
-                    "utf-8"
+                        "utf-8"
                 ) or "connected to" in rv.stderr.decode("utf-8"):
                     self.device_now = address
                     if self._on_device_selected():
@@ -399,12 +391,6 @@ class MainProgram:
 
         return bool(self.adb_con)
 
-    def register_ocr_path(self):
-        # for user
-        sys.path.append(os.path.abspath("ocr_dependencies"))
-        # for developer
-        sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
-
     def __del__(self):
         try:
             if self.adb_con:
@@ -423,6 +409,15 @@ def register_ocr_path():
 
 if __name__ == "__main__":
     register_ocr_path()
+    if "--test_ocr" in sys.argv:
+        try:
+            from tests import test_ocr
+
+            test_ocr.main()
+            input("\033[1;32m*** PASSED ***\033[0m\npress any key to exit")
+        except:
+            input("\033[1;31m*** FAILED ***\033[0m\npress any key to exit")
+        sys.exit(0)
     print(
         f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861"
     )
