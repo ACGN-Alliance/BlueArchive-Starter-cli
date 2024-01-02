@@ -85,9 +85,6 @@ def main(version):
     lib_target = target / ".env"
     shutil.copytree(libs, lib_target)
 
-    shutil.rmtree(lib_target / "setuptools")
-    shutil.rmtree(lib_target / "pkg_resources")
-
     print("copy bas")
     bas_target = target / "bas"
     dirs = [
