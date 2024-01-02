@@ -21,6 +21,7 @@ from utils.settings import (
 )
 
 __version__ = "1.1.3.5"
+ROOT = Path(__file__).parent
 
 
 # 异常处理装饰器
@@ -134,9 +135,9 @@ class MainProgram:
 
             if device_num == 0:
                 if os.name == "nt":
-                    adb_path = "./platform-tools/adb.exe"
+                    adb_path = str(ROOT / "platform-tools" / "adb.exe")
                 else:
-                    adb_path = "./platform-tools/adb"
+                    adb_path = str(ROOT / "platform-tools" / "adb")
                 rv = subprocess.run(
                     [adb_path, "connect", address := input("请输入设备地址: ")],
                     stdout=subprocess.PIPE,
@@ -174,7 +175,7 @@ class MainProgram:
         try:
             from utils import ocr
 
-            for box, text, confidence in ocr.ocr(r"tests/img.png"):
+            for box, text, confidence in ocr.ocr(str(ROOT / "tests" / "img.png")):
                 box = str(box)
                 print(
                     f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}"
@@ -186,22 +187,30 @@ class MainProgram:
         except Exception as e:
             dep = [
                 f
-                for f in os.listdir(os.getcwd())
-                if f.startswith("ocr_dependencies") and f.endswith(".zip")
+                for f in ROOT.iterdir()
+                if f.name.endswith("ocr_dependencies_win_3.10.zip")
             ]
-            print(f"{os.getcwd()=}, {dep=}")
+            print("{dep=}")
             if len(dep) == 0:
                 print(
-                    "\033[91m未找到依赖包, 请先去对应的release中下载ocr_dependencies_win_3.10.zip并移动到程序目录下\033[0m"
+                    "\033[91m未找到依赖包, 请先去对应的release中下载ocr_dependencies_win_3.10.zip并移动到run.bat的同级目录下\033[0m"
                 )
                 return
             dep = dep[0]
             print(f"正在安装依赖: {dep}...")
             # extract zip file to current dir,if dir or file exists,overwrite or merge
             with ZipFile(dep, "r") as zip_file:
-                zip_file.extractall(os.getcwd())
-            print("\033[91m安装完成,重启程序以生效\033[0m")
+                # zip file  -
+                #           | - ocr_dependencies <DIR>
+                #           | - tests <DIR>
+                zip_file.extractall(ROOT)
+                os.rename(ROOT / "ocr_dependencies", ROOT / ".ocr_env")
+
             os.remove(dep)
+            # restart app
+            exe = sys.executable
+            os.chdir(ROOT)
+            os.execl(exe, exe, *sys.argv)
 
     @exception_handle
     def adb_test(self):
@@ -408,7 +417,11 @@ def register_ocr_path():
 
 
 def main(args=[]):
+    global ROOT
     register_ocr_path()
+    if "bootstrap.py" in args:
+        ROOT = Path(__file__).parent.parent
+
     if "--test_ocr" in args:
         try:
             from tests import test_ocr

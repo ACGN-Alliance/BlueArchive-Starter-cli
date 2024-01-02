@@ -1,6 +1,6 @@
 import os
-import time
 import sys
+import time
 
 
 def main():
@@ -13,23 +13,23 @@ def main():
         print(f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}")
     print("time: ", time.time() - begin)
     print("-" * 150)
-    for img in os.listdir(r"data\16_9"):
-        if not img.endswith(".png"):
-            continue
-        img_path = os.path.join(r"data\16_9", img)
-        print("file: ", img_path)
-        data = ocr.ocr(img_path)
-        if data is None:
-            print("nothing found")
-        else:
-            begin = time.time()
-            for box, text, confidence in data:
-                box = str(box)
-                print(
-                    f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}"
-                )
-            print("time: ", time.time() - begin)
-        print("-" * 150)
+    # for img in os.listdir(r"data\16_9"):
+    #     if not img.endswith(".png"):
+    #         continue
+    #     img_path = os.path.join(r"data\16_9", img)
+    #     print("file: ", img_path)
+    #     data = ocr.ocr(img_path)
+    #     if data is None:
+    #         print("nothing found")
+    #     else:
+    #         begin = time.time()
+    #         for box, text, confidence in data:
+    #             box = str(box)
+    #             print(
+    #                 f"box = {box:<80}, text = {text:<20}, confidence = {confidence:.2f}"
+    #             )
+    #         print("time: ", time.time() - begin)
+    #     print("-" * 150)
 
 
 if __name__ == "__main__":

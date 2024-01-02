@@ -1,9 +1,14 @@
+import argparse
+import pathlib
 import shutil
 from pathlib import Path
+
+from tqdm import tqdm
 
 python_url = "https://www.python.org/ftp/python/3.10.8/python-3.10.8-embed-amd64.zip"
 venv_path = Path('./.venv')
 bootstrap = """
+import os
 import sys
 import pathlib
 
@@ -36,7 +41,10 @@ if ocr_env.exists():
     sys.path.append(str(ocr_env.absolute()))
 
 from bas.main import main
-main()
+print("Running BAS... ,with args:",sys.argv)
+if len(sys.argv) == 1:
+    os.chdir(bas) # normal mode
+main(sys.argv)
 """
 run_script = """
 @echo off
@@ -44,7 +52,7 @@ run_script = """
 """
 
 
-def main():
+def main(version):
     # clean dir
     target = Path("build/embed")
     python_cache = Path("build/python_embed.zip")
@@ -77,6 +85,9 @@ def main():
     lib_target = target / ".env"
     shutil.copytree(libs, lib_target)
 
+    shutil.rmtree(lib_target / "setuptools")
+    shutil.rmtree(lib_target / "pkg_resources")
+
     print("copy bas")
     bas_target = target / "bas"
     dirs = [
@@ -106,8 +117,48 @@ def main():
     with open(run_target, "w") as f:
         f.write(run_script)
 
+    print("packing")
+    file_list = []
+    for i in pathlib.Path(target).glob("**/*"):
+        if i.is_file():
+            file_list.append(i)
+
+    (target.parent / "release").mkdir(exist_ok=True)
+    f = target.parent / f"release/bas_{version}.zip"
+    with zipfile.ZipFile(f, "w", compresslevel=9, compression=zipfile.ZIP_LZMA) as z:
+        for i in tqdm(file_list):
+            z.write(i, arcname=i.relative_to(target))
+    print("clean")
+    shutil.rmtree(target)
+
     print("done")
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-v',
+        '--version',
+        type=str,
+        help='version of this release',
+    )
+    parser.add_argument(
+        '--build_main',
+        action='store_true',
+        help='build main program',
+    )
+    parser.add_argument(
+        '--build_ocr',
+        action='store_true',
+        help='build ocr dependencies',
+    )
+    args = parser.parse_args()
+    if args.build_main:
+        main(args.version)
+        print("*** build main done ***")
+    if args.build_ocr:
+        import distribute
+
+        distribute.Distributor.build_ocr_dependencies()
+        print("*** build ocr done ***")
+    print("*** all done ***")
