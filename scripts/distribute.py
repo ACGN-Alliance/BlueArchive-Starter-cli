@@ -23,7 +23,6 @@ python -m nuitka ^
     --disable-plugin=multiprocessing ^
     --file-version="$FILE_VERSION$" ^
     --product-version="$FILE_VERSION$" ^
-    --include-module=PIL ^
     --nofollow-import-to=tkinter,viztracer,tests ^
     --windows-file-description="BlueArchive Account tool" ^
     --include-data-dir=platform-tools=platform-tools ^
@@ -127,22 +126,6 @@ if __name__ == '__main__':
                     )
             for p, arcname in tqdm(file_list, desc="pack dependencies", unit="file"):
                 zip_file.write(p, arcname=arcname)
-
-            # file_list.clear()
-            # PIL = os.path.join(cls.__site_packages, "PIL")
-            # # pack PIL in dir "site-packages" to "/PIL/"
-            # for root, dirs, files in os.walk(PIL, topdown=False):
-            #     for file in files:
-            #         if "__pycache__" in root:
-            #             continue
-            #         file_list.append(
-            #             (
-            #                 p := os.path.join(root, file),
-            #                 p.replace(cls.__site_packages, ""),
-            #             )
-            #         )
-            # for p, arcname in tqdm(file_list, desc="pack PIL", unit="file"):
-            #     zip_file.write(p, arcname=arcname)
 
             for _, _, files in os.walk("tests"):
                 for file in files:

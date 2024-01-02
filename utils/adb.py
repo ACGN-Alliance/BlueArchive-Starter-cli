@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 import time
 import traceback
 from pathlib import Path
@@ -60,10 +61,8 @@ class ADB:
 
         self.delay += settings.extra_delay
 
-        if os.name == "nt":
-            self.adb_path = "./platform-tools/adb.exe"
-        else:
-            self.adb_path = "./platform-tools/adb"
+        sys.path.append(os.path.abspath("platform-tools"))
+        self.adb_path = adb_path or "adb"
 
         if not physic_device_name:
             subprocess.run(

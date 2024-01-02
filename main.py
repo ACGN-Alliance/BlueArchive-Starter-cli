@@ -407,9 +407,9 @@ def register_ocr_path():
     sys.path.append(os.path.abspath(".ocr_venv/Lib/site-packages"))
 
 
-if __name__ == "__main__":
+def main(args=[]):
     register_ocr_path()
-    if "--test_ocr" in sys.argv:
+    if "--test_ocr" in args:
         try:
             from tests import test_ocr
 
@@ -417,7 +417,15 @@ if __name__ == "__main__":
             input("\033[1;32m*** PASSED ***\033[0m\npress any key to exit")
         except:
             input("\033[1;31m*** FAILED ***\033[0m\npress any key to exit")
+            print("sys.path:")
+            for _ in sys.path:
+                print(" ", _)
         sys.exit(0)
+
+    if "--pdb" in args:
+        import pdb
+        pdb.set_trace()
+
     print(
         f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861"
     )
@@ -462,3 +470,7 @@ if __name__ == "__main__":
             continue
     del program
     sys.exit(0)
+
+
+if __name__ == "__main__":
+    main(sys.argv)

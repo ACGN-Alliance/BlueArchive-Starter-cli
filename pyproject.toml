@@ -9,8 +9,6 @@ dependencies = [
     "pillow>=10.1.0",
     "loguru>=0.7.2",
     "tqdm>=4.66.1",
-    "nuitka>=1.8.5",
-    "black>=23.11.0",
     "urllib3>=2.1.0",
 ]
 requires-python = ">=3.10"
@@ -21,5 +19,6 @@ license = { text = "MIT" }
 main = "python main.py"
 build_main = "python ./scripts/distribute.py --build_main"
 build_ocr = "python ./scripts/distribute.py --build_ocr"
+build_test = "python ./scripts/distribute.py --build_main -v 1.0.0.0"
 build_all = { composite = ["build_main", "build_ocr"] }
 
