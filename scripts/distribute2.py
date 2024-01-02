@@ -2,6 +2,7 @@ import argparse
 import pathlib
 import shutil
 from pathlib import Path
+from distribute import Distributor
 
 from tqdm import tqdm
 
@@ -100,6 +101,9 @@ def main(version):
     for f in files:
         shutil.copy(f, bas_target / f)
 
+    print("download platform-tools")
+    Distributor.get_platform_tools()
+
     print("copy platform-tools")
     platform_tools_target = target / "platform-tools"
     shutil.copytree(Path("platform-tools").absolute(), platform_tools_target)
@@ -154,8 +158,6 @@ if __name__ == '__main__':
         main(args.version)
         print("*** build main done ***")
     if args.build_ocr:
-        import distribute
-
-        distribute.Distributor.build_ocr_dependencies()
+        Distributor.build_ocr_dependencies()
         print("*** build ocr done ***")
     print("*** all done ***")
