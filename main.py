@@ -439,7 +439,7 @@ def main(args=[]):
         import pdb
         pdb.set_trace()
 
-    if "--no-auto-adb" in args:
+    if not "--no-auto-adb" in args:
         try:
             temp_adb = adb.ADB(scan_mode=True, settings=settings, delay=0.3)
             _device_lst = temp_adb.get_device_list()
