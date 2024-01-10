@@ -75,7 +75,9 @@ class Scan:
 
         student_list = self.scan()
         logger.info(f"学生清单: {student_list}")
-        if stu in student_list:
-            return True
-        else:
-            return False
+
+        for stu_ in stu:
+            if stu_ in student_list:
+                return True
+            else:
+                return False

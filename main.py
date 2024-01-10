@@ -337,7 +337,8 @@ class MainProgram:
             print("3.删除人物")
             print("4.清空队列")
             print("5.选取预设队列")
-            print("6.返回主菜单")
+            print("6.自定义队列")
+            print("7.返回主菜单")
 
             choice = int(input("请选择: "))
             if choice == 1:
@@ -366,6 +367,17 @@ class MainProgram:
                 else:
                     print("请输入正确的预设名")
             elif choice == 6:
+                generate_list = []
+                print("请输入筛选条件表达式，具体用法参看文档")
+                expression = input("请输入: ")
+
+                # parse the expression
+                group_1 = expression.lstrip().split("|")
+                for group in group_1:
+                    mems = group.split("&")
+                    settings.scan_list.append(mems)
+
+            elif choice == 7:
                 return
             else:
                 print("请输入正确的选项")
