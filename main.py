@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 import subprocess
 import sys
 import time
@@ -20,7 +21,7 @@ from utils.settings import (
     smenu,
 )
 
-__version__ = "1.1.3.5"
+__version__ = "1.2.0.1"
 ROOT = Path(__file__).parent
 
 
@@ -99,6 +100,7 @@ class MainProgram:
 
         try:
             self.adb_con = adb.ADB(
+                adb_path=str(pathlib.Path.cwd().parent / "platform-tools" / "adb.exe"),
                 device_name=f"localhost:{self.port}",
                 physic_device_name=pname,
                 settings=settings,
@@ -113,7 +115,12 @@ class MainProgram:
     @exception_handle
     def scan(self):
         while True:
-            temp_adb = adb.ADB(scan_mode=True, settings=settings, delay=0.3)
+            temp_adb = adb.ADB(
+                adb_path=str(pathlib.Path.cwd().parent / "platform-tools" / "adb.exe"),
+                scan_mode=True,
+                settings=settings,
+                delay=0.3
+            )
             self.device_lst = temp_adb.get_device_list()
 
             print("0. 指定地址")

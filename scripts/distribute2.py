@@ -28,7 +28,6 @@ import pathlib
 
 env = pathlib.Path(".") / ".env"
 ocr_env = pathlib.Path(".") / ".ocr_env"
-python = pathlib.Path(".") / ".python"
 bas = pathlib.Path(".") / "bas"
 platform_tools = pathlib.Path(".") / "platform-tools"
 
@@ -36,7 +35,6 @@ platform_tools = pathlib.Path(".") / "platform-tools"
 sys.path.append(str(pathlib.Path(".").absolute()))
 sys.path.append(str(bas.absolute()))
 sys.path.append(str(platform_tools.absolute()))
-sys.path.append(str(python.absolute()))
 sys.path.append(str(env.absolute()))
 if ocr_env.exists():
     sys.path.append(str(ocr_env.absolute()))

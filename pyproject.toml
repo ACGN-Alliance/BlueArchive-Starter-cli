@@ -19,6 +19,6 @@ license = { text = "MIT" }
 main = "python main.py"
 build_main = "python ./scripts/distribute.py --build_main"
 build_ocr = "python ./scripts/distribute.py --build_ocr"
-build_test = "python ./scripts/distribute.py --build_main -v 1.0.0.0"
+build_test = "python ./scripts/distribute2.py --build_main -v 1.0.0.0"
 build_all = { composite = ["build_main", "build_ocr"] }
 
