@@ -39,6 +39,8 @@ sys.path.append(str(env.absolute()))
 if ocr_env.exists():
     sys.path.append(str(ocr_env.absolute()))
 
+os.environ["BAS$PLATFORM_TOOLS"] = str(platform_tools.absolute())
+
 from bas.main import main
 print("Running BAS... ,with args:",sys.argv)
 if len(sys.argv) == 1:

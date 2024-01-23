@@ -62,7 +62,7 @@ class ADB:
         self.delay += settings.extra_delay
 
         sys.path.append(os.path.abspath("platform-tools"))
-        self.adb_path = adb_path or "adb"
+        self.adb_path = adb_path or os.environ["BAS$PLATFORM_TOOLS"] + '//adb'
 
         if not physic_device_name:
             subprocess.run(

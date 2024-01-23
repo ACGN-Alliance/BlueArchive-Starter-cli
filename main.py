@@ -1,6 +1,5 @@
 import json
 import os
-import pathlib
 import subprocess
 import sys
 import time
@@ -100,7 +99,6 @@ class MainProgram:
 
         try:
             self.adb_con = adb.ADB(
-                adb_path=str(pathlib.Path.cwd().parent / "platform-tools" / "adb.exe"),
                 device_name=f"localhost:{self.port}",
                 physic_device_name=pname,
                 settings=settings,
@@ -116,7 +114,6 @@ class MainProgram:
     def scan(self):
         while True:
             temp_adb = adb.ADB(
-                adb_path=str(pathlib.Path.cwd().parent / "platform-tools" / "adb.exe"),
                 scan_mode=True,
                 settings=settings,
                 delay=0.3
@@ -426,8 +423,11 @@ def register_ocr_path():
 def main(args=[]):
     global ROOT
     register_ocr_path()
+
     if "bootstrap.py" in args:
         ROOT = Path(__file__).parent.parent
+    else:
+        os.environ["BAS$PLATFORM_TOOLS"] = str((Path.cwd() / "platform-tools").absolute())
 
     if "--test_ocr" in args:
         try:
