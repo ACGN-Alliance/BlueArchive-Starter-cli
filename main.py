@@ -50,8 +50,8 @@ class MainProgram:
 
     is_in_progress = False
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, *args, adb:adb.ADB) -> None:
+        self.adb_con = adb
 
     def get_instance(self):
         return self
@@ -341,7 +341,8 @@ class MainProgram:
             print("3.删除人物")
             print("4.清空队列")
             print("5.选取预设队列")
-            print("6.返回主菜单")
+            print("6.自定义队列")
+            print("7.返回主菜单")
 
             choice = int(input("请选择: "))
             if choice == 1:
@@ -370,6 +371,17 @@ class MainProgram:
                 else:
                     print("请输入正确的预设名")
             elif choice == 6:
+                generate_list = []
+                print("请输入筛选条件表达式，具体用法参看文档")
+                expression = input("请输入: ")
+
+                # parse the expression
+                group_1 = expression.lstrip().split("|")
+                for group in group_1:
+                    mems = group.split("&")
+                    settings.scan_list.append(mems)
+
+            elif choice == 7:
                 return
             else:
                 print("请输入正确的选项")
@@ -446,12 +458,56 @@ def main(args=[]):
         import pdb
         pdb.set_trace()
 
+    if not "--no-auto-adb" in args:
+        try:
+            temp_adb = adb.ADB(scan_mode=True, settings=settings, delay=0.3)
+            _device_lst = temp_adb.get_device_list()
+
+            if len(_device_lst) == 0:
+                print("\n未扫描到设备, 请查看模拟器/手机是否已打开usb调试")
+                raise Exception("未扫描到设备")
+            
+            _device_now = _device_lst[0]
+            if not _device_now:
+                print("请选择正确的设备")
+                raise Exception("设备不存在")
+            
+            pname = ""
+            if "emulator" in  _device_now:
+                _port = int(_device_now.split("-")[1]) + 1
+            elif "127.0.0.1" in _device_now or "localhost" in _device_now:
+                _port = int(_device_now.split(":")[1])
+            else:
+                pname = _device_now
+                _port = 5555
+
+            _adb_con = adb.ADB(
+                device_name=f"localhost:{_port}",
+                physic_device_name=pname,
+                settings=settings,
+                is_mumu=settings.is_mumu,
+            )
+
+            _result = True
+
+        except:
+            _result = False
+        finally:
+            if _result:
+                print(f"已尝试自动连接，结果：成功")
+            else:
+                print(f"已尝试自动连接，结果：失败")
+
     print(
         f"欢迎使用BlueArchive-Starter-cli, 当前版本{__version__}, 作者: ACGN-Alliance, 交流群: 769521861"
     )
     time.sleep(1)
     ImageComparatorServer.get_global_instance()  # start Server
-    program = MainProgram()
+
+    if _result:     # adb自动连接功能
+        program = MainProgram(adb=_adb_con)
+    else:
+        program = MainProgram()
 
     while True:
         program.menu()
