@@ -159,7 +159,7 @@ def img_confidence_set():
 
     while True:
         arg = input(
-            "输入格式: 图片名 阈值(其中阈值范围为0~1, 格式形如:main_interface 0.90), 输入exit退出, 输入reset重置为默认\n"
+            "输入格式: 图片名 阈值(其中阈值范围为0~1, 格式形如:main_interface 0.90), 输入exit退出, 输入reset重置为默认, 输入del 图片名删除\n"
         )
         if arg == "exit":
             return
@@ -167,6 +167,13 @@ def img_confidence_set():
             settings.img_confidences = {}
             print("重置成功!")
             return
+        elif arg.split(" ")[0] == "del":
+            img_name = arg.split(" ")[1] + ".png"
+            if img_name in settings.img_confidences:
+                del settings.img_confidences[img_name]
+                print("删除成功!")
+            else:
+                print("图片参数不存在")
         else:
             args = arg.split(" ")
             img_name = args[0] + ".png"
